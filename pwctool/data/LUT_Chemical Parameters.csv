@@ -1,0 +1,19 @@
+﻿Parameter,Value
+SorptionCoefficient(mL/g),46
+kocflag,TRUE
+WaterColumnMetabolismHalflife(day),6.2
+WaterReferenceTemperature(C) ,20
+BenthicMetabolismHalflife(day),39
+BenthicReferenceTemperature(C) ,20
+AqueousPhotolysisHalflife(day),50
+PhotolysisReferenceLatitude(?),40
+HydrolysisHalflife(days),266
+SoilHalflife(days),30.42
+SoilReferencerTemperature(C) ,25
+FoliarHalflife(day),3
+MolecularWeight(g/mol),162.2
+VaporPressure(torr),5.20E-06
+Solubility(mg/L),5.50E+04
+Henry's Constant (unitless),0
+Air Diffusion (cm3/d),0.01
+Heat of Henry (J/mol),0.001
