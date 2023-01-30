@@ -1,4 +1,6 @@
 # PWC-Tool
+**NOTE:  A new version of the tool with updated documentation will be released shortly.**  We appreciate your patience as we get things finalized.
+
 PWC-Tool is a Windows application written in Python that generates [Pesticide in Water Calculator (PWC)](https://www.epa.gov/pesticide-science-and-assessing-pesticide-risks/models-pesticide-risk-assessment#PWC) batchfiles.  Manual parameterization of PWC model runs is time-prohibitive and prone to human error due to label restrictions unique to each use site and region and the complexity of the batch file​.  Ensuring conservatism (_e.g._, simulation of applications during wettest months of the year) greatly complicates date assignment logic.  ​PWC Tool automates PWC batch file preparation and generates label-compliant application dates and rates. It also allows the user to create runs with landscape scale refinements such as alternate distances, drift factors and transport mechanisms.
 
 PWC Tool was created by Pyxis Regulatory Consulting, Inc. and [Applied Analysis Solutions LLC](http://appliedanalysis.solutions/) for the Generic Endangered Species Task Force (GESTF), and is maintained by the GESTF.
@@ -29,7 +31,7 @@ Suggestions, bug reports and other code / functionality related requests may be 
 
 ## [](https://github.com/gestf-esa/pwc-tool/README.md#license)License
 
-Copyright &copy; 2022 Generic Endangered Species Task Force (GESTF)
+Copyright &copy; 2022-2023 Generic Endangered Species Task Force (GESTF)
 
 This project is licensed under the [GNU General Public License v3.0](https://github.com/GESTF-ESA/PWC-Tool/blob/main/LICENSE).
 
