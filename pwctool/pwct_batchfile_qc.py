@@ -1,18 +1,116 @@
-"""Functions for App Dates Tool batch file QC"""
+"""
+PWC batch file QC module
+
+Manages QC of existing batch file
+"""
 
 import os
 import sys
 import linecache
 import logging
+import copy
 from datetime import date, timedelta
 from typing import Any
 
-import numpy as np
 import pandas as pd
 
 logger = logging.getLogger("adt_logger")  # retrieve logger configured in app_dates.py
 
 APP_AMT_THRESHOLD = 0.002  # fudge factor to account for rounding
+
+
+def standardize_field_names(input_pwc_batch_file: pd.DataFrame) -> pd.DataFrame:
+    """Standardizes field names for input batch file before QC."""
+
+    orig_column_names = input_pwc_batch_file.columns.tolist()
+    new_column_names = copy.deepcopy(orig_column_names)
+
+    standard_column_names = [
+        "Run Descriptor",
+        "Run Name",
+        "SorptionCoefficient(mL/g)",
+        "kocflag",
+        "WaterColumnMetabolismHalflife(day)",
+        "WaterReferenceTemperature(C) ",
+        "BenthicMetabolismHalflife(day)",
+        "BenthicReferenceTemperature(C) ",
+        "AqueousPhotolysisHalflife(day)",
+        "PhotolysisReferenceLatitude(?)",
+        "HydrolysisHalflife(days)",
+        "SoilHalflife(days)",
+        "SoilReferencerTemperature(C) ",
+        "FoliarHalflife(day)",
+        "MolecularWeight(g/mol)",
+        "VaporPressure(torr)",
+        "Solubility(mg/L)",
+        "Henry's Constant (unitless)",
+        "Air Diffusion (cm3/d)",
+        "Heat of Henry (J/mol)",
+        "HUC2",
+        "Scenario",
+        "weather overide",
+        "blank 1",
+        "blank 2",
+        "blank 3",
+        "blank 4",
+        "blank 5",
+        "blank 6",
+        "blank 7",
+        "blank 8",
+        "blank 9",
+        "blank 10",
+        "AquaticBin",
+        "FlowAvgTime",
+        "Field Size (m2)",
+        "Waterbody Area (m2)",
+        "Init Depth (m)",
+        "Max Depth (m)",
+        "HL (m)",
+        "PUA",
+        "Baseflow",
+        "Num_Daysheds",
+        "IRF1",
+        "IRF2",
+        "IRF3",
+        "IRF4",
+        "IRF5",
+        "IRF6",
+        "IRF7",
+        "IRF8",
+        "IRF9",
+        "IRF10",
+        "IRF11",
+        "IRF12",
+        "IRF13",
+        "IRF14",
+        "IRF15",
+        "IRF16",
+        "IRF17",
+        "IRF18",
+        "IRF19",
+        "IRF20",
+        "IRF21",
+        "IRF22",
+        "IRF23",
+        "IRF24",
+        "IRF25",
+        "IRF26",
+        "IRF27",
+        "IRF28",
+        "IRF29",
+        "IRF30",
+        "IRF31",
+        "NumberofApplications",
+        "Absolute Dates?",
+        "Relative Dates?",
+    ]
+
+    for indx, _ in enumerate(standard_column_names):
+        new_column_names[indx] = standard_column_names[indx]
+
+    input_pwc_batch_file.rename(dict(zip(orig_column_names, new_column_names)), axis=1, inplace=True)
+
+    return input_pwc_batch_file
 
 
 def create_storage_table() -> dict[str, list]:
@@ -21,6 +119,7 @@ def create_storage_table() -> dict[str, list]:
     storage_table: dict[str, list] = {
         # data from source
         "RunDescriptor": [],
+        "RunName": [],
         "HUC": [],
         "Bin": [],
         "Scenario": [],
@@ -60,13 +159,13 @@ def create_storage_table() -> dict[str, list]:
         "Modeled_MRIs": [],
         "Label_MRI": [],
         #
-        "Check_Drifts_AreCorrect": [],
-        "Modeled_Drifts": [],
-        "Label_Drift": [],
-        #
-        "Check_Effs_AreCorrect": [],
-        "Modeled_Effs": [],
-        "Label_Eff": [],
+        # "Check_Drifts_AreCorrect": [],
+        # "Modeled_Drifts": [],
+        # "Label_Drift": [],
+        # #
+        # "Check_Effs_AreCorrect": [],
+        # "Modeled_Effs": [],
+        # "Label_Eff": [],
         #
         "Check_NoDuplicate_AppDates": [],
         "Check_PreHarvInt_NotWithin": [],
@@ -83,7 +182,6 @@ def create_storage_table() -> dict[str, list]:
 def get_emergence_harvest_dates(scenario: str, scenario_files_dir: str) -> tuple[date, date]:
     """Gets the emergence and harvest date from the scenario files based on the scenario."""
 
-    # TODO: use same function as the other one?
     scenario_file = os.path.join(scenario_files_dir, scenario)
     # extract date information from specific lines in .scn files
     emergence_day = int(linecache.getline(scenario_file, 28))
@@ -114,7 +212,7 @@ def prepare_apt(apt: pd.DataFrame) -> pd.DataFrame:
     apt["PostEmergence_MaxAmt"] = apt["PostEmergence_MaxAmt"] * 1.120851
     apt["PreEmergence_MaxAmt"] = apt["PreEmergence_MaxAmt"] * 1.120851
 
-    apt.replace(to_replace=np.nan, value=pd.NA, inplace=True)
+    # apt.replace(to_replace=np.nan, value=pd.NA, inplace=True)
     apt = apt.reset_index(drop=False)
     # set interval max amt and max num apps based on specific rates
     def set_up_interval_fields(interval: str):
@@ -213,12 +311,13 @@ def qc_batch_file(
     for _, run in pwc_batch_file.iterrows():
         run.dropna(inplace=True)
         try:
-            run_ag_practices: pd.Series = apt.loc[{run["Run Descriptor"]}].copy(deep=True).squeeze()
+            run_ag_practices: pd.Series = apt.loc[run["Run Descriptor"]].copy(deep=True).squeeze()
         except KeyError:
             logger.warning(f"\n WARNING: Run descriptor {run['Run Descriptor']} is not in APT. Skipped.")
             continue
 
         storage_table["RunDescriptor"].append(run["Run Descriptor"])
+        storage_table["RunName"].append(run["Run Name"])
 
         #### gather source information ####
         app_rates = tuple(run[run.index.str.contains("AppRate")])
@@ -333,27 +432,31 @@ def qc_batch_file(
             storage_table["Check_MRI_NotWithin"].append(False)
 
         # check drift
-        drifts = tuple(run[run.index.str.contains("Drift")])
-        drift_profile = f"{run['AquaticBin']}-{run_ag_practices['DriftProfile']}"
-        # TODO: build in ability to check different distances
-        drift_factor = drt.at[drift_profile, "000m"]
+        # drifts = tuple(run[run.index.str.contains("Drift")])
+        # drift_profile = f"{run['AquaticBin']}-{run_ag_practices['DriftProfile']}"
+        # # TODO: build in ability to check different distances
+        # # not sure we can check this accurately
+        # # would need to parse the distance from the "Run Name" field
+        # # would require consistent naming convention for all runs
+        # # would not work with batch built without the ADT
+        # drift_factor = drt.at[drift_profile, "000m"]
 
-        if all(drift == drift_factor for drift in drifts):
-            storage_table["Check_Drifts_AreCorrect"].append(True)
-        else:
-            storage_table["Check_Drifts_AreCorrect"].append(False)
-        storage_table["Label_Drift"].append(drift_factor)
-        storage_table["Modeled_Drifts"].append(drifts)
+        # if all(drift == drift_factor for drift in drifts):
+        #     storage_table["Check_Drifts_AreCorrect"].append(True)
+        # else:
+        #     storage_table["Check_Drifts_AreCorrect"].append(False)
+        # storage_table["Label_Drift"].append(drift_factor)
+        # storage_table["Modeled_Drifts"].append(drifts)
 
-        # check effs
-        effs = tuple(run[run.index.str.contains("Eff")])
-        eff_factor = drt.at[drift_profile, "Efficiency"]
-        if all(eff == eff_factor for eff in effs):
-            storage_table["Check_Effs_AreCorrect"].append(True)
-        else:
-            storage_table["Check_Effs_AreCorrect"].append(False)
-        storage_table["Modeled_Effs"].append(effs)
-        storage_table["Label_Eff"].append(eff_factor)
+        # # check effs
+        # effs = tuple(run[run.index.str.contains("Eff")])
+        # eff_factor = drt.at[drift_profile, "Efficiency"]
+        # if all(eff == eff_factor for eff in effs):
+        #     storage_table["Check_Effs_AreCorrect"].append(True)
+        # else:
+        #     storage_table["Check_Effs_AreCorrect"].append(False)
+        # storage_table["Modeled_Effs"].append(effs)
+        # storage_table["Label_Eff"].append(eff_factor)
 
         # check for duplicate dates
         duplicate_dates = [app_date for app_date in app_dates if app_dates.count(app_date) > 1]
@@ -370,6 +473,7 @@ def qc_batch_file(
             print("preharvest interval goes into previous year, need to account for this")
             sys.exit()
 
+        phi_not_encroached = True
         for app_date in app_dates:
             if pre_harv_int_start < app_date <= pre_harv_int_end:  # app date is within PHI
                 phi_not_encroached = False

@@ -1,10 +1,14 @@
-"""App dates algorithm functions"""
+"""
+Application assignment algorithm functions module
 
-from datetime import date, timedelta
+Extra function storage
+"""
+
+
 import logging
 import operator
-import sys
 import calendar
+from datetime import date, timedelta
 from typing import Any
 
 import pandas as pd
@@ -13,58 +17,67 @@ import numpy as np
 logger = logging.getLogger("adt_logger")  # retrieve logger configured in app_dates.py
 
 
-def lookup_huc_from_state(state_to_huc_lookup_table: pd.DataFrame, run_ag_practices: pd.Series) -> list:
+def lookup_states_from_crop(
+    crop_to_state_lookup_table: pd.DataFrame, run_ag_practices: pd.Series, label_convention_states: dict[str, list[str]]
+) -> list:
+
+    run_apt_states: str = run_ag_practices["States"].replace(" ", "")
+
+    # get a list of the states permitted by label
+    if run_apt_states == "All":
+        label_states = label_convention_states["ALL"].split(",")
+    elif run_apt_states == "EastofRockies":
+        label_states = label_convention_states["EastofRockies"].split(",")
+    elif run_apt_states == "WestofRockies":
+        label_states = label_convention_states["WestofRockies"].split(",")
+    elif "All" in run_apt_states:
+        states_to_remove = run_apt_states.rsplit("-")[-1].split(",")
+        all_states = label_convention_states["ALL"].split(",")
+        label_states = [i for i in all_states if i not in states_to_remove]
+    else:
+        label_states = run_apt_states.split(",")
+
+    # subset to get only states where crop is grown
+    try:
+        grown_states = crop_to_state_lookup_table.at[run_ag_practices["LabeledUse"], "States"].split(",")
+    except KeyError:
+        grown_states = label_convention_states["ALL"].split(",")
+
+    # yield only states on label and grown
+    model_states = [i for i in label_states if i in grown_states]
+
+    return model_states
+
+
+def lookup_huc_from_state(state_to_huc_lookup_table: pd.DataFrame, states: list[str]) -> list:
     """Gets the hucs that correspond to states in an APT row.
 
     Args:
         state_to_huc_lookup_table (pd.DataFrame): state to huc lookup table
-        run_ag_practices (pd.Series): run ag practices
+        states (list): list of states to model
 
     Returns:
-        list: hucs that correspond to states in APT row
+        list: hucs that correspond to states
     """
 
-    run_apt_states: str = run_ag_practices["States"]
-    if run_apt_states == "West of Rockies":
-        apt_hucs = state_to_huc_lookup_table.at["West of Rockies", "HUC2s"].split(",")
-    elif run_apt_states == "East of Rockies":
-        apt_hucs = state_to_huc_lookup_table.at["East of Rockies", "HUC2s"].split(",")
-    elif run_apt_states == "All":
-        apt_hucs = state_to_huc_lookup_table.at["All", "HUC2s"].split(",")
-    elif "All" in run_apt_states:
-        states_to_remove = run_apt_states.rsplit("-")[-1].split(",")
-        hucs_to_remove = []
-        for state in states_to_remove:
-            state = state.replace(" ", "")
-            # TODO: Does the following line need to cast the value to str like line 53?
-            corresponding_hucs = state_to_huc_lookup_table.at[state, "HUC2s"]
-            for huc in corresponding_hucs.split(","):
-                hucs_to_remove.append(huc)
+    model_hucs: list = []
+    for state in states:
+        model_hucs.append(state_to_huc_lookup_table.at[state, "HUC2s"].split(","))
 
-        all_hucs = state_to_huc_lookup_table.at["All", "HUC2s"].split(",")
-        apt_hucs = [huc for huc in all_hucs if huc not in list(set(hucs_to_remove))]
-    elif run_apt_states == "All":
-        apt_hucs = state_to_huc_lookup_table.at["All", "HUC2s"].split(",")
-    else:
-        apt_states: list[str] = run_apt_states.split(",")
-        apt_hucs = []
-        for state in apt_states:
-            state = state.replace(" ", "")
-            corresponding_hucs = str(state_to_huc_lookup_table.at[state, "HUC2s"])
-            for huc in corresponding_hucs.split(","):
-                apt_hucs.append(huc)
+    model_hucs: list = [item for sublist in model_hucs for item in sublist]
+    model_hucs = set(model_hucs)
+    model_hucs = sorted(model_hucs)
 
-    return list(set(apt_hucs))
+    return model_hucs
 
 
-def get_all_potential_app_dates(wettest_month_table: pd.DataFrame, huc2: str, first_run: bool) -> list:
+def get_all_potential_app_dates(wettest_month_table: pd.DataFrame, huc2: str) -> list:
     """Gets all the potential application dates for the entire year. Returns a
     list of dates sorted in order of wettest months.
 
     Args:
         wettest_month_table (pd.DataFrame): wettest months dataframe
         huc2 (str): huc2 id
-        first_run (bool): indicates first base run
     Returns:
         list: potential app dates
     """
@@ -75,9 +88,6 @@ def get_all_potential_app_dates(wettest_month_table: pd.DataFrame, huc2: str, fi
         _, days_in_month[month] = calendar.monthrange(2021, month)
 
     wettest_months = wettest_month_table.loc[huc2, :].values.tolist()
-    if first_run:
-        logger.debug("\nWettest Months:")
-        logger.debug(wettest_month_table.loc[huc2, :].T)
     potential_app_dates = []
 
     for month in wettest_months:
@@ -106,7 +116,7 @@ def get_interval(app_date: date, ag_practices: pd.Series) -> str:
             current_interval = "PostEmergence"
         else:
             current_interval = "PreEmergence"
-    if ag_practices["Harvest"] < ag_practices["Emergence"]:
+    else:  # harvest before emergence
         if ag_practices["Harvest"] < app_date < ag_practices["Emergence"]:
             current_interval = "PreEmergence"
         else:
@@ -117,10 +127,11 @@ def get_interval(app_date: date, ag_practices: pd.Series) -> str:
 
 def get_rate(
     ag_practices: pd.Series, count: pd.DataFrame, appdate_interval: str, settings: dict[str, Any], app_date: date
-) -> tuple[str, int, bool]:
+) -> tuple[str, float, bool]:
     """Gets the appropriate application rate and rate identifier as specified in
     the ag practices table. Iterates through the application rates from highest
     to lowest, and selects the first one that has not reached the max number of apps.
+    Behavior is different depending on date prioritization (max app rate or wettest month).
 
     Args:
         ag_practices (pd.Series): Ag practices information
@@ -128,7 +139,7 @@ def get_rate(
         settings (Dict[str,Any]): configuration
 
     Returns:
-        tuple[str, int]: rate identifier, app rate
+        tuple[str, float, bool]: rate identifier, app rate value, app rate validity
     """
 
     if settings["DATE_PRIORITIZATION"] == "Max App. Rate":
@@ -164,17 +175,12 @@ def get_rate(
                         valid_app_rate = True
                         break
 
-                    else:
-                        # TODO: address this issue
-                        print("there are no valid intervals for this rate, something is wrong")
-                        sys.exit()
-
                 # all rates valid and accounted for, done applying
                 rate_id = pd.NA
                 app_rate = 0
                 valid_app_rate = False
 
-    elif settings["DATE_PRIORITIZATION"] == "Wettest Month":
+    else:  # date prioritization is wettest month
         for i in range(1, 5):
 
             if ag_practices[f"Rate{i}_MaxAppRate"] == np.inf:  # rate doesn't exist
@@ -234,7 +240,7 @@ def check_app_validity(
         return bool(
             (appdate_interval in ag_practices[f"{rate_id}_ValidIntervals"])
             and (count.at[appdate_interval, "num_apps"] + 1 <= ag_practices[f"{appdate_interval}_MaxNumApps"])
-            and (count.at[appdate_interval, "amt_applied"] + 1 <= ag_practices[f"{appdate_interval}_MaxAmt"])
+            and (count.at[appdate_interval, "amt_applied"] + 0.001 <= ag_practices[f"{appdate_interval}_MaxAmt"])
             and (meets_instruction_constraints(app_date, ag_practices, rate_id))
             and (not within_mri(app_date, applications, int(ag_practices[f"{rate_id}_{appdate_interval}MRI"])))
             and (not within_phi(app_date, appdate_interval, ag_practices))
@@ -283,7 +289,12 @@ def prepare_next_app(
 
         if valid_next_app_rate:
             valid_next_date = check_app_validity(
-                next_reverse_date, next_reverse_interval, ag_practices, next_reverse_rate_id, applications, count
+                next_reverse_date,
+                next_reverse_interval,
+                ag_practices,
+                next_reverse_rate_id,
+                applications,
+                count,
             )
         else:
             valid_next_date = False
@@ -325,7 +336,12 @@ def prepare_next_app(
         if valid_next_app_rate:
             # if next forward date is not valid, start reverse assigning
             if check_app_validity(
-                next_forward_date, next_forward_interval, ag_practices, next_forward_rate_id, applications, count
+                next_forward_date,
+                next_forward_interval,
+                ag_practices,
+                next_forward_rate_id,
+                applications,
+                count,
             ):
                 next_app_date = next_forward_date
                 next_appdate_interval = next_forward_interval
@@ -399,31 +415,17 @@ def no_more_apps_can_be_made(count: pd.DataFrame, ag_practices: pd.Series):
     Returns:
         bool: True if no more apps can be made
     """
+
+    # check PWC maximum of 50 apps per run
+    if count.at["Total", "num_apps"] == 50:
+        logger.warning("WARNING: The PWC maximum of 50 applications per run is reached.")
+        return True
+
     # If maximum annual limits have been reached, we are done assigning application dates for this run
     if (count.at["Total", "num_apps"] == ag_practices["MaxAnnNumApps"]) or (
         count.at["Total", "amt_applied"] == ag_practices["MaxAnnAmt"]
     ):
         return True
-
-    # TODO: check this
-    # if all of the interval limits have been reached, we are done assigning apps for this runs
-    # if pre emergence doesn't haven any limits, check the post emergence
-    # if (ag_practices["PreEmergence_MaxNumApps"] == np.inf) and (ag_practices["PreEmergence_MaxAmt"] == np.inf):
-
-    #     if (count.at["PostEmergence", "num_apps"] == ag_practices["PostEmergence_MaxNumApps"]) or (
-    #         count.at["PostEmergence", "amt_applied"] == ag_practices["PostEmergence_MaxAmt"]
-    #     ):
-    #         logger.debug("PostEmergence interval limits reached")
-    #         return True
-
-    # # if post emergence doesn't have any limits, check the pre emergence
-    # elif (ag_practices["PostEmergence_MaxNumApps"] == np.inf) and (ag_practices["PostEmergence_MaxAmt"] == np.inf):
-
-    #     if (count.at["PreEmergence", "num_apps"] == ag_practices["PreEmergence_MaxNumApps"]) or (
-    #         count.at["PreEmergence", "amt_applied"] == ag_practices["PreEmergence_MaxAmt"]
-    #     ):
-    #         logger.debug("PreEmergence interval limits reached")
-    #         return True
 
     # check if the interval limits are reached
     # checks if either the pre-emergence num apps or amt applied is met AND
@@ -477,8 +479,6 @@ def derive_instruction_date_restrictions(rate: str, run_ag_practices: pd.Series)
     else:
         rate_instructions: str = run_ag_practices[f"{rate}_Instructions"]
         bool_switch, period = rate_instructions.split("_")
-
-        # TODO: add graceful error handling if instructions entered incorrectly
 
         if any(interval in period for interval in ["E", "H"]):  # E or H date is referenced
 

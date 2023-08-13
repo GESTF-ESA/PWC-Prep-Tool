@@ -1,15 +1,17 @@
-""" Main module"""
+"""
+Main GUI Module
+"""
 
 import sys
 import logging
 
-import yaml
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog
 
-from pwctool.pwct_controller import Controller
-from pwctool.main_window import Ui_AppDateTool
-from pwctool.about_dialog import Ui_appDateToolAbout
+from pwctool.pwct_controller import Controller  # pylint: disable=import-error
+from pwctool.main_window import Ui_AppDateTool  # pylint: disable=import-error
+from pwctool.about_dialog import Ui_appDateToolAbout  # pylint: disable=import-error
+from pwctool.error_message_dialog import Ui_ErrorMessageDialog  # pylint: disable=import-error
 
 QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)  # enable highdpi scaling
 QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icons
@@ -31,30 +33,12 @@ class AboutDialog(QDialog, Ui_appDateToolAbout):
         self.setupUi(self)
 
 
-class Model:
-    """Model class"""
+class ErrorMessageDialog(QDialog, Ui_ErrorMessageDialog):
+    """Error Message Dialog"""
 
     def __init__(self) -> None:
-        pass
-
-    def load_config_file(self, file_path: str):
-        """Reads configuration file from file path"""
-
-        with open(file_path, "r") as config_file:
-            try:
-                config = yaml.safe_load(config_file)  # load yml file
-            except yaml.YAMLError as exc:
-                print("yaml error")
-                print(exc)
-        return config
-
-    def save_config_file(self, config, file_path: str):
-        """Saves the gui parameters to a configuration file"""
-        try:
-            with open(file_path, "w") as file:
-                yaml.dump(config, file, sort_keys=False)
-        except FileNotFoundError:
-            pass
+        super().__init__()
+        self.setupUi(self)
 
 
 class App(QApplication):  # pylint: disable=too-few-public-methods
@@ -63,13 +47,13 @@ class App(QApplication):  # pylint: disable=too-few-public-methods
     def __init__(self, sys_argv) -> None:
         super().__init__(sys_argv)
 
-        self.model = Model()
-        self.view = MainView()  # create instance of main view
+        self.view = MainView()
         self.about = AboutDialog()
+        self.error = ErrorMessageDialog()
         self.init_logging()
         self.setStyle("Fusion")
         self.view.show()
-        self.controller = Controller(self.model, self.view, self.about)
+        self.controller = Controller(self.view, self.about, self.error)
 
     def init_logging(self):
         """Create logger that can be accessed from all modules"""
