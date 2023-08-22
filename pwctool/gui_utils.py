@@ -36,22 +36,10 @@ def enable_application_methods(view, app_method: int) -> None:
     """Enables application methods items"""
 
     appmeth_title = getattr(view, f"appmeth{app_method}Title")
-    appmeth_desc = getattr(view, f"appmeth{app_method}Desc")
-    appmeth_distancelabel = getattr(view, f"appmeth{app_method}distancelabel")
-    appmeth_selectalldistances = getattr(view, f"appmeth{app_method}_selectalldistances")
-    appmeth_clearalldistances = getattr(view, f"appmeth{app_method}_clearalldistances")
-
     appmeth_title.setStyleSheet("")
-    appmeth_desc.setStyleSheet("")
 
-    appmeth_distancelabel.setStyleSheet("")
-    appmeth_selectalldistances.setStyleSheet("")
-    appmeth_selectalldistances.setEnabled(True)
-    appmeth_clearalldistances.setStyleSheet("")
-    appmeth_clearalldistances.setEnabled(True)
-    for distance in ALL_DISTANCES:
-        getattr(view, f"appmeth{app_method}_{distance}").setStyleSheet("")
-        getattr(view, f"appmeth{app_method}_{distance}").setEnabled(True)
+    appmeth_desc = getattr(view, f"appmeth{app_method}Desc")
+    appmeth_desc.setStyleSheet("")
 
     if app_method in BURIED_APPMETHODS:
         getattr(view, f"appmeth{app_method}DepthLabel").setStyleSheet("")
@@ -74,6 +62,24 @@ def enable_application_methods(view, app_method: int) -> None:
                 getattr(view, f"appmeth{app_method}_depth{depth}cm").setStyleSheet("")
                 getattr(view, f"appmeth{app_method}_depth{depth}cm").setEnabled(True)
 
+    else:  # application methods 1 (bare ground) and 2 (aerial)
+
+        # enable distance related widgets
+        appmeth_distancelabel = getattr(view, f"appmeth{app_method}distancelabel")
+        appmeth_distancelabel.setStyleSheet("")
+
+        appmeth_selectalldistances = getattr(view, f"appmeth{app_method}_selectalldistances")
+        appmeth_selectalldistances.setStyleSheet("")
+        appmeth_selectalldistances.setEnabled(True)
+
+        appmeth_clearalldistances = getattr(view, f"appmeth{app_method}_clearalldistances")
+        appmeth_clearalldistances.setStyleSheet("")
+        appmeth_clearalldistances.setEnabled(True)
+
+        for distance in ALL_DISTANCES:
+            getattr(view, f"appmeth{app_method}_{distance}").setStyleSheet("")
+            getattr(view, f"appmeth{app_method}_{distance}").setEnabled(True)
+
     if app_method == FOLIAR_APPMETHOD:
         getattr(view, f"appmeth{app_method}DriftOnlyLabel").setStyleSheet("")
         for distance in ALL_DISTANCES:
@@ -85,22 +91,10 @@ def disable_application_methods(view, app_method) -> None:
     """Disables application methods items"""
 
     appmeth_title = getattr(view, f"appmeth{app_method}Title")
-    appmeth_desc = getattr(view, f"appmeth{app_method}Desc")
-    appmeth_distancelabel = getattr(view, f"appmeth{app_method}distancelabel")
-    appmeth_selectalldistances = getattr(view, f"appmeth{app_method}_selectalldistances")
-    appmeth_clearalldistances = getattr(view, f"appmeth{app_method}_clearalldistances")
-
     appmeth_title.setStyleSheet("color:grey")
-    appmeth_desc.setStyleSheet("color:grey")
 
-    appmeth_distancelabel.setStyleSheet("color:grey")
-    appmeth_selectalldistances.setStyleSheet("color:grey")
-    appmeth_selectalldistances.setEnabled(False)
-    appmeth_clearalldistances.setStyleSheet("color:grey")
-    appmeth_clearalldistances.setEnabled(False)
-    for distance in ALL_DISTANCES:
-        getattr(view, f"appmeth{app_method}_{distance}").setStyleSheet("color:grey")
-        getattr(view, f"appmeth{app_method}_{distance}").setEnabled(False)
+    appmeth_desc = getattr(view, f"appmeth{app_method}Desc")
+    appmeth_desc.setStyleSheet("color:grey")
 
     if app_method in BURIED_APPMETHODS:
         getattr(view, f"appmeth{app_method}DepthLabel").setStyleSheet("color:grey")
@@ -122,6 +116,24 @@ def disable_application_methods(view, app_method) -> None:
             for depth in ALL_DEPTHS:
                 getattr(view, f"appmeth{app_method}_depth{depth}cm").setStyleSheet("color:grey")
                 getattr(view, f"appmeth{app_method}_depth{depth}cm").setEnabled(False)
+
+    else:  # application methods 1 (bare ground) and 2 (aerial)
+
+        # enable distance related widgets
+        appmeth_distancelabel = getattr(view, f"appmeth{app_method}distancelabel")
+        appmeth_distancelabel.setStyleSheet("color:grey")
+
+        appmeth_selectalldistances = getattr(view, f"appmeth{app_method}_selectalldistances")
+        appmeth_selectalldistances.setStyleSheet("color:grey")
+        appmeth_selectalldistances.setEnabled(False)
+
+        appmeth_clearalldistances = getattr(view, f"appmeth{app_method}_clearalldistances")
+        appmeth_clearalldistances.setStyleSheet("color:grey")
+        appmeth_clearalldistances.setEnabled(False)
+
+        for distance in ALL_DISTANCES:
+            getattr(view, f"appmeth{app_method}_{distance}").setStyleSheet("color:grey")
+            getattr(view, f"appmeth{app_method}_{distance}").setEnabled(False)
 
     if app_method == FOLIAR_APPMETHOD:
         getattr(view, f"appmeth{app_method}DriftOnlyLabel").setStyleSheet("color:grey")

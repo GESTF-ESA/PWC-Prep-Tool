@@ -65,22 +65,6 @@ def _add_appmeth_settings(config: dict[str, Any], view) -> None:
 
     for method_num in ALL_APPMETHODS:
 
-        # All application methods have distances
-        config[f"APPMETH{method_num}_DISTANCES"] = {}
-        if method_num == FOLIAR_APPMETHOD:
-            config[f"APPMETH{method_num}_DRIFT_ONLY"] = {}
-
-        for distance in ALL_DISTANCES:
-            config[f"APPMETH{method_num}_DISTANCES"][distance] = getattr(
-                view, f"appmeth{method_num}_{distance}"
-            ).isChecked()
-
-            # Handle special case of method 2 having both standard and drift only options
-            if method_num == FOLIAR_APPMETHOD:
-                config[f"APPMETH{method_num}_DRIFT_ONLY"][distance] = getattr(
-                    view, f"appmeth{method_num}_{distance}_driftonly"
-                ).isChecked()
-
         # Application methods 3-7 have depth settings
         if method_num in BURIED_APPMETHODS:
             config[f"APPMETH{method_num}_DEPTHS"] = {}
@@ -106,3 +90,18 @@ def _add_appmeth_settings(config: dict[str, Any], view) -> None:
                     config[f"APPMETH{method_num}_DEPTHS"][depth] = getattr(
                         view, f"appmeth{method_num}_depth{depth}cm"
                     ).isChecked()
+
+        else:
+            # All application methods have distances
+            config[f"APPMETH{method_num}_DISTANCES"] = {}
+            for distance in ALL_DISTANCES:
+                config[f"APPMETH{method_num}_DISTANCES"][distance] = getattr(
+                    view, f"appmeth{method_num}_{distance}"
+                ).isChecked()
+
+            # Handle special case of method 2 having both standard and drift only options
+            if method_num == FOLIAR_APPMETHOD:
+                config[f"APPMETH{method_num}_DRIFT_ONLY"] = {}
+                config[f"APPMETH{method_num}_DRIFT_ONLY"][distance] = getattr(
+                    view, f"appmeth{method_num}_{distance}_driftonly"
+                ).isChecked()
