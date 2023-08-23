@@ -531,11 +531,11 @@ class Controller:
 
         return True
 
-    def validate_apt_and_drt(self, current_config: dict[str, Any]):
-        """Validates the APT and DRT.
+    def validate_apt(self, current_config: dict[str, Any]):
+        """Validates the ag practices table. Checks several things including:
 
-        Checks that the first column name in each table is correct.
-        For APT, checks rate instructions format.
+
+        If there is an issue, an error is raised and the execution is terminated.
         """
 
         ag_practices_excel_obj = pd.ExcelFile(
@@ -548,20 +548,6 @@ class Controller:
         except KeyError:
             self.error_dialog.errMsgLabel.setText(
                 "Please ensure the first column of the APT is 'RunDescriptor' and try again."
-            )
-            self.error_dialog.exec_()
-            return False
-
-        # check the drt first column name
-        drift_reduction_table: pd.DataFrame = pd.read_excel(
-            current_config["FILE_PATHS"]["AGDRIFT_REDUCTION_TABLE"],
-            sheet_name=current_config["DRT_SCENARIO"],
-        )
-        try:
-            drift_reduction_table.set_index(keys="Profile", inplace=True)
-        except KeyError:
-            self.error_dialog.errMsgLabel.setText(
-                "Please ensure the first column of the DRT is 'Profile' and try again."
             )
             self.error_dialog.exec_()
             return False
@@ -595,10 +581,37 @@ class Controller:
         self.error_dialog.exec_()
         return False
 
+    def validate_drt(self, current_config: dict[str, Any]):
+        """Validates the drift reduction table. Checks several things including:
+
+
+        If there is an issue, the execution is terminated.
+        """
+
+        # check the drt first column name
+        drift_reduction_table: pd.DataFrame = pd.read_excel(
+            current_config["FILE_PATHS"]["AGDRIFT_REDUCTION_TABLE"],
+            sheet_name=current_config["DRT_SCENARIO"],
+        )
+        try:
+            drift_reduction_table.set_index(keys="Profile", inplace=True)
+        except KeyError:
+            self.error_dialog.errMsgLabel.setText(
+                "Please ensure the first column of the DRT is 'Profile' and try again."
+            )
+            self.error_dialog.exec_()
+            return False
+
+        return True
+
     def run_tool(self):
         """Runs the application assignment algorithm"""
         current_config: dict[str, Any] = generate_configuration_from_gui(self._view)
-        if self.validate_config(current_config) and self.validate_apt_and_drt(current_config):
+        if (
+            self.validate_config(current_config)
+            and self.validate_apt(current_config)
+            and self.validate_drt(current_config)
+        ):
             self.setup_logging(current_config)
             # start algorithm thread and connect signals to slots
             self.adt_algo_worker = PwcToolAlgoThread(current_config)
