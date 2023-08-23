@@ -2243,7 +2243,7 @@ class Ui_AppDateTool(object):
         self.binClearAll.setText(_translate("AppDateTool", "Clear"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.binsTab), _translate("AppDateTool", "Waterbody Scenarios"))
         self.applicationsTab.setStatusTip(_translate("AppDateTool", "Select application distances"))
-        self.applicationsTabDesc1.setText(_translate("AppDateTool", "For each application method present in the Agronomic Practices Table, select the distances from water body.  A unique PWC simulation will be prepared for each distance reflecting the drift reduction value for that distance listed in the Drift Reduction Table."))
+        self.applicationsTabDesc1.setText(_translate("AppDateTool", "For bare ground and foliar application methods, select the distances from water body.  A unique PWC simulation will be prepared for each distance reflecting the drift reduction value for that distance listed in the Drift Reduction Table."))
         self.applicationsTabDesc3.setText(_translate("AppDateTool", "For incorporated applications (types 3-7), specify one or more depths."))
         self.appmeth1_120m.setText(_translate("AppDateTool", "120m"))
         self.appmeth1_090m.setText(_translate("AppDateTool", "090m"))

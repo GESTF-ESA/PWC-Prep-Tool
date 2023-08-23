@@ -758,7 +758,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>For each application method present in the Agronomic Practices Table, select the distances from water body.  A unique PWC simulation will be prepared for each distance reflecting the drift reduction value for that distance listed in the Drift Reduction Table.</string>
+                       <string>For bare ground and foliar application methods, select the distances from water body.  A unique PWC simulation will be prepared for each distance reflecting the drift reduction value for that distance listed in the Drift Reduction Table.</string>
                       </property>
                       <property name="wordWrap">
                        <bool>true</bool>
