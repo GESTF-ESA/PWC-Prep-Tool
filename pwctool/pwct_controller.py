@@ -22,8 +22,6 @@ from pwctool.pwct_algo_thread import PwcToolAlgoThread
 from pwctool.gui_utils import (
     get_xl_sheet_names,
     restrict_application_methods,
-    # enable_application_methods,
-    # disable_application_methods,
     enable_disable_app_methods,
 )
 
@@ -106,7 +104,6 @@ class Controller:
         if config_settings:
             init_gui_settings_from_config(self._view, config_settings, self.error_dialog)
             restrict_application_methods(self._view)
-            # self.deactivate_irrelavent_widgets()
         else:
             self._view.diagnosticWindow.append("\nNo configuration loaded.")
 
