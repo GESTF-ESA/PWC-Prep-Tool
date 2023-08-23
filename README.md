@@ -1,8 +1,8 @@
-# PWC-Prep-Tool
+# PWC-PrepTool
 
-PWC-Prep-Tool is a Windows application written in Python that generates [Pesticide in Water Calculator (PWC)](https://www.epa.gov/pesticide-science-and-assessing-pesticide-risks/models-pesticide-risk-assessment#PWC) batchfiles.  Manual parameterization of PWC model runs is time-prohibitive and prone to human error due to label restrictions unique to each use site and region and the complexity of the batch file​.  Ensuring conservatism (_e.g._, simulation of applications during wettest months of the year) greatly complicates date assignment logic.  ​PWC-Prep-Tool automates PWC batch file preparation and generates label-compliant application dates and rates. It also allows the user to create runs with landscape scale refinements such as alternate distances, drift factors and transport mechanisms.
+PWC-PrepTool is a Windows application written in Python that generates [Pesticide in Water Calculator (PWC)](https://www.epa.gov/pesticide-science-and-assessing-pesticide-risks/models-pesticide-risk-assessment#PWC) batch files.  Manual parameterization of PWC model runs is time-prohibitive and prone to human error due to label restrictions unique to each use site and region and the complexity of the batch file​.  Ensuring conservatism (_e.g._, simulation of applications during wettest months of the year) greatly complicates date assignment logic.  ​PWC-PrepTool automates PWC batch file preparation and generates label-compliant application dates and rates. It also allows the user to create runs with landscape scale refinements such as alternate distances, drift factors and transport mechanisms.
 
-PWC-Prep-Tool was created by Pyxis Regulatory Consulting, Inc. and [Applied Analysis Solutions LLC](http://appliedanalysis.solutions/) for the Generic Endangered Species Task Force (GESTF), and is maintained by the GESTF.
+PWC-PrepTool was created by Pyxis Regulatory Consulting, Inc. and [Applied Analysis Solutions LLC](http://appliedanalysis.solutions/) for the Generic Endangered Species Task Force (GESTF), and is maintained by the GESTF.
 
 ## [](https://github.com/gestf-esa/pwc-tool/README.md#requirements)Requirements
 
@@ -10,11 +10,11 @@ Before you begin, please ensure you meet the following requirements:
 
 -   You are running Windows 7 or later (this software has been tested on Windows 10 and 11)
 -   You have downloaded the [latest release](https://github.com/GESTF-ESA/PWC-Prep-Tool/releases) and installed it on your computer
--   You have read the [PWC-Prep-Tool User's Guide](https://github.com/GESTF-ESA/PWC-Prep-Tool/docs/PWC-Prep-ToolUsersGuide.pdf) in the `/docs` folder
+-   You have read the [PWC-PrepTool User's Guide](https://github.com/GESTF-ESA/PWC-Prep-Tool/docs/PWC-PrepToolUsersGuide.pdf) in the `PWC-PT/docs` folder created in the user's Documents folder or accessible through the Help menu item of the application
 
-## [](https://github.com/gestf-esa/pwc-prep-tool/README.md#contributing-to-pwc-prep-tool)Contributing to PWC-Prep-Tool
+## [](https://github.com/gestf-esa/pwc-prep-tool/README.md#contributing)Contributing
 
-Contributions are welcome.  To contribute to PWC-Prep-Tool, follow these steps:
+Contributions are welcome.  To contribute to PWC-PrepTool, follow these steps:
 1.  Fork this repository
 2.  Clone the forked repository to your local development system
 3.  Code your changes and commit them
