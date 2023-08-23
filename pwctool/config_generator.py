@@ -69,22 +69,20 @@ def _add_appmeth_settings(config: dict[str, Any], view) -> None:
         if method_num in BURIED_APPMETHODS:
             config[f"APPMETH{method_num}_DEPTHS"] = {}
             if method_num == TBAND_APPMETHOD:
-
-                if method_num == TBAND_APPMETHOD:
-                    for depth in [4, 6, 8, 10, 12]:
-                        config[f"APPMETH{method_num}_DEPTHS"][depth] = getattr(
-                            view, f"appmeth{method_num}_depth{depth}cm"
-                        ).isChecked()
-                    # Method 5 has a unique parameter for tband-split fraction
-                    # TODO: Add a check to the GUI forcing user to enter a float for this value so we don't need a try/except here
-                    try:
-                        config["APPMETH5_TBANDFRAC"] = float(view.appmeth5_tbandsplitfrac.text())
-                    except ValueError:
-                        config["APPMETH5_TBANDFRAC"] = 0.0
-                    #     self.error_dialog.errMsgLabel.setText(
-                    #         "The App. Method 5 tband-split fraction may not be entered as a decimal. Please ensure it is."
-                    #     )
-                    # self.error_dialog.exec_()
+                for depth in [4, 6, 8, 10, 12]:
+                    config[f"APPMETH{method_num}_DEPTHS"][depth] = getattr(
+                        view, f"appmeth{method_num}_depth{depth}cm"
+                    ).isChecked()
+                # Method 5 has a unique parameter for tband-split fraction
+                # TODO: Add a check to the GUI forcing user to enter a float for this value so we don't need a try/except here
+                try:
+                    config["APPMETH5_TBANDFRAC"] = float(view.appmeth5_tbandsplitfrac.text())
+                except ValueError:
+                    config["APPMETH5_TBANDFRAC"] = 0.0
+                #     self.error_dialog.errMsgLabel.setText(
+                #         "The App. Method 5 tband-split fraction may not be entered as a decimal. Please ensure it is."
+                #     )
+                # self.error_dialog.exec_()
             else:
                 for depth in ALL_DEPTHS:
                     config[f"APPMETH{method_num}_DEPTHS"][depth] = getattr(
@@ -94,14 +92,16 @@ def _add_appmeth_settings(config: dict[str, Any], view) -> None:
         else:
             # All application methods have distances
             config[f"APPMETH{method_num}_DISTANCES"] = {}
+            if method_num == FOLIAR_APPMETHOD:
+                config[f"APPMETH{method_num}_DRIFT_ONLY"] = {}
+
             for distance in ALL_DISTANCES:
                 config[f"APPMETH{method_num}_DISTANCES"][distance] = getattr(
                     view, f"appmeth{method_num}_{distance}"
                 ).isChecked()
 
-            # Handle special case of method 2 having both standard and drift only options
-            if method_num == FOLIAR_APPMETHOD:
-                config[f"APPMETH{method_num}_DRIFT_ONLY"] = {}
-                config[f"APPMETH{method_num}_DRIFT_ONLY"][distance] = getattr(
-                    view, f"appmeth{method_num}_{distance}_driftonly"
-                ).isChecked()
+                # Handle special case of method 2 having both standard and drift only options
+                if method_num == FOLIAR_APPMETHOD:
+                    config[f"APPMETH{method_num}_DRIFT_ONLY"][distance] = getattr(
+                        view, f"appmeth{method_num}_{distance}_driftonly"
+                    ).isChecked()

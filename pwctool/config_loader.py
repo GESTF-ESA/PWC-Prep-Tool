@@ -119,5 +119,8 @@ def _init_application_methods(view: QWidget, config: dict[str, Any]) -> None:
                 getattr(view, f"appmeth{app_method}_{distance}").setChecked(appmeth_distance)
             # Handle special case of foliar application method (2) having both standard and drift only options
             if app_method == FOLIAR_APPMETHOD:
-                appmeth_driftonly_distance_bool = config.get(f"APPMETH{app_method}_DRIFT_ONLY", {}).get(distance)
-                getattr(view, f"appmeth{app_method}_{distance}_driftonly").setChecked(appmeth_driftonly_distance_bool)
+                for distance in ALL_DISTANCES:
+                    appmeth_driftonly_distance_bool = config.get(f"APPMETH{app_method}_DRIFT_ONLY", {}).get(distance)
+                    getattr(view, f"appmeth{app_method}_{distance}_driftonly").setChecked(
+                        appmeth_driftonly_distance_bool
+                    )
