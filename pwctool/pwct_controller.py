@@ -22,8 +22,7 @@ from pwctool.pwct_algo_thread import PwcToolAlgoThread
 from pwctool.gui_utils import (
     get_xl_sheet_names,
     restrict_application_methods,
-    enable_application_methods,
-    disable_application_methods,
+    enable_disable_app_methods,
 )
 
 from pwctool.constants import (
@@ -105,7 +104,6 @@ class Controller:
         if config_settings:
             init_gui_settings_from_config(self._view, config_settings, self.error_dialog)
             restrict_application_methods(self._view)
-            # self.deactivate_irrelavent_widgets()
         else:
             self._view.diagnosticWindow.append("\nNo configuration loaded.")
 
@@ -133,9 +131,7 @@ class Controller:
         config["BINS"][10] = False
 
         for app_method in ALL_APPMETHODS:
-            config[f"APPMETH{app_method}_DISTANCES"] = {}
-            for distance in ALL_DISTANCES:
-                config[f"APPMETH{app_method}_DISTANCES"][distance] = False
+
             if app_method in BURIED_APPMETHODS:
                 if app_method == TBAND_APPMETHOD:
                     config["APPMETH5_DEPTHS"] = {}
@@ -152,16 +148,21 @@ class Controller:
                     for depth in ALL_DEPTHS:
                         config[f"APPMETH{app_method}_DEPTHS"][depth] = False
 
-            if app_method == FOLIAR_APPMETHOD:
-                config["APPMETH2_DRIFT_ONLY"] = {}
-                config["APPMETH2_DRIFT_ONLY"] = {
-                    "000m": False,
-                    "030m": False,
-                    "060m": False,
-                    "090m": False,
-                    "120m": False,
-                    "150m": False,
-                }
+            else:  # app method 1 (bare ground) and 2 (foliar)
+                config[f"APPMETH{app_method}_DISTANCES"] = {}
+                for distance in ALL_DISTANCES:
+                    config[f"APPMETH{app_method}_DISTANCES"][distance] = False
+
+                if app_method == FOLIAR_APPMETHOD:
+                    config["APPMETH2_DRIFT_ONLY"] = {}
+                    config["APPMETH2_DRIFT_ONLY"] = {
+                        "000m": False,
+                        "030m": False,
+                        "060m": False,
+                        "090m": False,
+                        "120m": False,
+                        "150m": False,
+                    }
 
         config["APT_SCENARIO"] = "Specify file path before selecting"
         config["DRT_SCENARIO"] = "Specify file path before selecting"
@@ -268,7 +269,7 @@ class Controller:
 
             # disable app method items
             for i in ALL_APPMETHODS:
-                disable_application_methods(self._view, i)
+                enable_disable_app_methods(self._view, i, False)
 
             # date assignment parameters
             self._view.datePriorComboBox.setEnabled(False)
@@ -291,7 +292,7 @@ class Controller:
 
         # enable app methods items
         for i in ALL_APPMETHODS:
-            enable_application_methods(self._view, i)
+            enable_disable_app_methods(self._view, i, True)
 
         # enable source batch file parameter
         self._view.pwcBatchFileLocation.setEnabled(True)
@@ -399,16 +400,6 @@ class Controller:
         self._view.appmeth2_120m.setChecked(state)
         self._view.appmeth2_150m.setChecked(state)
 
-    def alter_all_distances_appmeth3(self, state: bool):
-        """Alters all distances for app method 3"""
-
-        self._view.appmeth3_000m.setChecked(state)
-        self._view.appmeth3_030m.setChecked(state)
-        self._view.appmeth3_060m.setChecked(state)
-        self._view.appmeth3_090m.setChecked(state)
-        self._view.appmeth3_120m.setChecked(state)
-        self._view.appmeth3_150m.setChecked(state)
-
     def alter_all_depths_appmeth3(self, state: bool):
         """Alters all depths for app method 3"""
 
@@ -418,16 +409,6 @@ class Controller:
         self._view.appmeth3_depth8cm.setChecked(state)
         self._view.appmeth3_depth10cm.setChecked(state)
         self._view.appmeth3_depth12cm.setChecked(state)
-
-    def alter_all_distances_appmeth4(self, state: bool):
-        """Alters all distances for app method 4"""
-
-        self._view.appmeth4_000m.setChecked(state)
-        self._view.appmeth4_030m.setChecked(state)
-        self._view.appmeth4_060m.setChecked(state)
-        self._view.appmeth4_090m.setChecked(state)
-        self._view.appmeth4_120m.setChecked(state)
-        self._view.appmeth4_150m.setChecked(state)
 
     def alter_all_depths_appmeth4(self, state: bool):
         """Alters all depths for app method 4"""
@@ -439,16 +420,6 @@ class Controller:
         self._view.appmeth4_depth10cm.setChecked(state)
         self._view.appmeth4_depth12cm.setChecked(state)
 
-    def alter_all_distances_appmeth5(self, state: bool):
-        """Alters all distances for app method 5"""
-
-        self._view.appmeth5_000m.setChecked(state)
-        self._view.appmeth5_030m.setChecked(state)
-        self._view.appmeth5_060m.setChecked(state)
-        self._view.appmeth5_090m.setChecked(state)
-        self._view.appmeth5_120m.setChecked(state)
-        self._view.appmeth5_150m.setChecked(state)
-
     def alter_all_depths_appmeth5(self, state: bool):
         """Alters all depths for app method 5"""
 
@@ -457,16 +428,6 @@ class Controller:
         self._view.appmeth5_depth8cm.setChecked(state)
         self._view.appmeth5_depth10cm.setChecked(state)
         self._view.appmeth5_depth12cm.setChecked(state)
-
-    def alter_all_distances_appmeth6(self, state: bool):
-        """Alters all distances for app method 6"""
-
-        self._view.appmeth6_000m.setChecked(state)
-        self._view.appmeth6_030m.setChecked(state)
-        self._view.appmeth6_060m.setChecked(state)
-        self._view.appmeth6_090m.setChecked(state)
-        self._view.appmeth6_120m.setChecked(state)
-        self._view.appmeth6_150m.setChecked(state)
 
     def alter_all_depths_appmeth6(self, state: bool):
         """Alters all depths for app method 6"""
@@ -477,16 +438,6 @@ class Controller:
         self._view.appmeth6_depth8cm.setChecked(state)
         self._view.appmeth6_depth10cm.setChecked(state)
         self._view.appmeth6_depth12cm.setChecked(state)
-
-    def alter_all_distances_appmeth7(self, state: bool):
-        """Alters all distances for app method 7"""
-
-        self._view.appmeth7_000m.setChecked(state)
-        self._view.appmeth7_030m.setChecked(state)
-        self._view.appmeth7_060m.setChecked(state)
-        self._view.appmeth7_090m.setChecked(state)
-        self._view.appmeth7_120m.setChecked(state)
-        self._view.appmeth7_150m.setChecked(state)
 
     def alter_all_depths_appmeth7(self, state: bool):
         """Alters all depths for app method 7"""
@@ -735,32 +686,17 @@ class Controller:
         self._view.appmeth2_selectalldistances.clicked.connect(partial(self.alter_all_distances_appmeth2, True))
         self._view.appmeth2_clearalldistances.clicked.connect(partial(self.alter_all_distances_appmeth2, False))
 
-        self._view.appmeth3_selectalldistances.clicked.connect(partial(self.alter_all_distances_appmeth3, True))
-        self._view.appmeth3_clearalldistances.clicked.connect(partial(self.alter_all_distances_appmeth3, False))
-
         self._view.appmeth3_selectalldepths.clicked.connect(partial(self.alter_all_depths_appmeth3, True))
         self._view.appmeth3_clearalldepths.clicked.connect(partial(self.alter_all_depths_appmeth3, False))
-
-        self._view.appmeth4_selectalldistances.clicked.connect(partial(self.alter_all_distances_appmeth4, True))
-        self._view.appmeth4_clearalldistances.clicked.connect(partial(self.alter_all_distances_appmeth4, False))
 
         self._view.appmeth4_selectalldepths.clicked.connect(partial(self.alter_all_depths_appmeth4, True))
         self._view.appmeth4_clearalldepths.clicked.connect(partial(self.alter_all_depths_appmeth4, False))
 
-        self._view.appmeth5_selectalldistances.clicked.connect(partial(self.alter_all_distances_appmeth5, True))
-        self._view.appmeth5_clearalldistances.clicked.connect(partial(self.alter_all_distances_appmeth5, False))
-
         self._view.appmeth5_selectalldepths.clicked.connect(partial(self.alter_all_depths_appmeth5, True))
         self._view.appmeth5_clearalldepths.clicked.connect(partial(self.alter_all_depths_appmeth5, False))
 
-        self._view.appmeth6_selectalldistances.clicked.connect(partial(self.alter_all_distances_appmeth6, True))
-        self._view.appmeth6_clearalldistances.clicked.connect(partial(self.alter_all_distances_appmeth6, False))
-
         self._view.appmeth6_selectalldepths.clicked.connect(partial(self.alter_all_depths_appmeth6, True))
         self._view.appmeth6_clearalldepths.clicked.connect(partial(self.alter_all_depths_appmeth6, False))
-
-        self._view.appmeth7_selectalldistances.clicked.connect(partial(self.alter_all_distances_appmeth7, True))
-        self._view.appmeth7_clearalldistances.clicked.connect(partial(self.alter_all_distances_appmeth7, False))
 
         self._view.appmeth7_selectalldepths.clicked.connect(partial(self.alter_all_depths_appmeth7, True))
         self._view.appmeth7_clearalldepths.clicked.connect(partial(self.alter_all_depths_appmeth7, False))

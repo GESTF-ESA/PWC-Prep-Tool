@@ -97,15 +97,7 @@ def _init_aquatic_bins(view: QWidget, config: dict[str, Any]) -> None:
 def _init_application_methods(view: QWidget, config: dict[str, Any]) -> None:
     """Sets the application method selection in the GUI"""
 
-    # All application methods have distances
     for app_method in ALL_APPMETHODS:
-        for distance in ALL_DISTANCES:
-            appmeth_distance = config.get(f"APPMETH{app_method}_DISTANCES", {}).get(distance)
-            getattr(view, f"appmeth{app_method}_{distance}").setChecked(appmeth_distance)
-            # Handle special case of foliar application method (2) having both standard and drift only options
-            if app_method == FOLIAR_APPMETHOD:
-                appmeth_driftonly_distance_bool = config.get(f"APPMETH{app_method}_DRIFT_ONLY", {}).get(distance)
-                getattr(view, f"appmeth{app_method}_{distance}_driftonly").setChecked(appmeth_driftonly_distance_bool)
 
         # Buried application methods (3 - 7) have depths
         if app_method in BURIED_APPMETHODS:
@@ -120,3 +112,15 @@ def _init_application_methods(view: QWidget, config: dict[str, Any]) -> None:
                 for depth in ALL_DEPTHS:
                     appmeth_depth_bool = config.get(f"APPMETH{app_method}_DEPTHS", {}).get(depth)
                     getattr(view, f"appmeth{app_method}_depth{depth}cm").setChecked(appmeth_depth_bool)
+
+        else:  # app method 1 (bare ground) and 2 (foliar)
+            for distance in ALL_DISTANCES:
+                appmeth_distance = config.get(f"APPMETH{app_method}_DISTANCES", {}).get(distance)
+                getattr(view, f"appmeth{app_method}_{distance}").setChecked(appmeth_distance)
+            # Handle special case of foliar application method (2) having both standard and drift only options
+            if app_method == FOLIAR_APPMETHOD:
+                for distance in ALL_DISTANCES:
+                    appmeth_driftonly_distance_bool = config.get(f"APPMETH{app_method}_DRIFT_ONLY", {}).get(distance)
+                    getattr(view, f"appmeth{app_method}_{distance}_driftonly").setChecked(
+                        appmeth_driftonly_distance_bool
+                    )
