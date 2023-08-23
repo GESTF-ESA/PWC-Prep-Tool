@@ -22,8 +22,9 @@ from pwctool.pwct_algo_thread import PwcToolAlgoThread
 from pwctool.gui_utils import (
     get_xl_sheet_names,
     restrict_application_methods,
-    enable_application_methods,
-    disable_application_methods,
+    # enable_application_methods,
+    # disable_application_methods,
+    enable_disable_app_methods,
 )
 
 from pwctool.constants import (
@@ -271,7 +272,7 @@ class Controller:
 
             # disable app method items
             for i in ALL_APPMETHODS:
-                disable_application_methods(self._view, i)
+                enable_disable_app_methods(self._view, i, False)
 
             # date assignment parameters
             self._view.datePriorComboBox.setEnabled(False)
@@ -294,7 +295,7 @@ class Controller:
 
         # enable app methods items
         for i in ALL_APPMETHODS:
-            enable_application_methods(self._view, i)
+            enable_disable_app_methods(self._view, i, True)
 
         # enable source batch file parameter
         self._view.pwcBatchFileLocation.setEnabled(True)
