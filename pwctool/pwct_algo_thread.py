@@ -34,6 +34,16 @@ from pwctool.pwct_algo_functions import adjust_app_rate  # pylint: disable=impor
 from pwctool.pwct_algo_functions import no_more_apps_can_be_made  # pylint: disable=import-error
 from pwctool.pwct_algo_functions import derive_instruction_date_restrictions  # pylint: disable=import-error
 
+from pwctool.constants import (
+    ALL_BINS,
+    ALL_APPMETHODS,
+    BURIED_APPMETHODS,
+    ALL_DISTANCES,
+    ALL_DEPTHS,
+    FOLIAR_APPMETHOD,
+    TBAND_APPMETHOD,
+)
+
 logger = logging.getLogger("adt_logger")  # retrieve logger configured in app_dates.py
 
 # fmt: off
@@ -709,11 +719,14 @@ class PwcToolAlgoThread(qtc.QThread):
 
         run_distances: dict[int, list] = {}
 
-        for app_method in [1, 2, 3, 4, 5, 6, 7]:
+        for app_method in ALL_APPMETHODS:
             run_distances[app_method] = []
-            for distance in ["000m", "030m", "060m", "090m", "120m", "150m"]:
-                if self.settings[f"APPMETH{app_method}_DISTANCES"][distance]:
-                    run_distances[app_method].append(distance)
+            if app_method in BURIED_APPMETHODS:
+                run_distances[app_method].append("000m")
+            else:
+                for distance in ALL_DISTANCES:
+                    if self.settings[f"APPMETH{app_method}_DISTANCES"][distance]:
+                        run_distances[app_method].append(distance)
 
         return run_distances
 
@@ -753,7 +766,7 @@ class PwcToolAlgoThread(qtc.QThread):
             transport_mechanisms.append("R")
 
         else:  # drift profile is either aerial, ground, or airblast
-            if application_method == 2:
+            if application_method == FOLIAR_APPMETHOD:
                 if self.settings["APPMETH2_DRIFT_ONLY"][distance]:
                     transport_mechanisms.append("D")
                 if self.settings["APPMETH2_DISTANCES"][distance]:
