@@ -5,7 +5,6 @@ import os
 from typing import Any
 import re
 import pandas as pd
-import numpy as np
 from PyQt5.QtWidgets import QDialog
 
 
@@ -78,17 +77,22 @@ def _validate_apt(config: dict[str, Any], error_dialog: QDialog):
     """Validates the ag practices table. Checks:
         - the APT is closed
         - the first column of the APT is "RunDescriptor"
-        - check that the annual restrictions are entered
-        - check that the types are correct
-        - check that a value is entered for either pre or post E MRI for all rates
-        - rate 1 has valid max app rate specified
-        - if MRI is specified but lacks other rate info, notify user
+        - the annual restrictions and PHI are entered
+        - the annual maximum number of apps and PHI are integers
+        - the annual maximum amount is an integer or float
+        - the pre E and post E maxamt and maxnumapps are the correct type if entered
+        - MaxAppRate is the correct type
+        - MaxNumApps is the correct type
+        - rate 1 has max app rate specified
+        - MRI is specified but max app rate is not for any rate, notify user
+        - rate pre E MRI is an integer if entered
+        - rate post E MRI is an integer if entered
         - the rate instructions format is entered correctly
 
     If there is an issue with any of the checks, an error is raised and the execution is terminated.
     """
 
-    # check that the first column of the apt is RunDescriptor
+    # check that the APT file is closed (prevents permission error)
     try:
         ag_practices: pd.DataFrame = pd.read_excel(
             config["FILE_PATHS"]["AGRONOMIC_PRACTICES_EXCEL"], sheet_name=config["APT_SCENARIO"]
@@ -98,6 +102,7 @@ def _validate_apt(config: dict[str, Any], error_dialog: QDialog):
         _display_error_message(error_dialog, err_message)
         return False
 
+    # check that the first column of the apt is RunDescriptor
     try:
         ag_practices.set_index(keys="RunDescriptor", inplace=True)
     except KeyError:
@@ -181,7 +186,7 @@ def _validate_apt(config: dict[str, Any], error_dialog: QDialog):
                     _display_error_message(error_dialog, err_message)
                     return False
 
-            # if MRI is specified but max app rate is not for any rate, notify user
+            # if MRI is specified but max app rate is not for any rate
             if any(pd.notna(l) for l in [pre_e_mri, post_e_mri]):  # if any is not nan
                 if pd.isna(max_app_rate):
                     err_message = f"Ensure there is a MaxAppRate specified for rate {i} for {indx} in the Ag Practices Table if there is a Pre or Post Emergence MRI specified. Please ensure a MaxAppRate is specified if an MRI is specified and try again."
