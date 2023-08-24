@@ -76,6 +76,7 @@ def _validate_config(config: dict[str, Any], error_dialog: QDialog) -> bool:
 
 def _validate_apt(config: dict[str, Any], error_dialog: QDialog):
     """Validates the ag practices table. Checks:
+        - the APT is closed
         - the first column of the APT is "RunDescriptor"
         - check that the annual restrictions are entered
         - check that the types are correct
@@ -88,33 +89,40 @@ def _validate_apt(config: dict[str, Any], error_dialog: QDialog):
     """
 
     # check that the first column of the apt is RunDescriptor
-    ag_practices_excel_obj = pd.ExcelFile(config["FILE_PATHS"]["AGRONOMIC_PRACTICES_EXCEL"], engine="openpyxl")
-    ag_practices: pd.DataFrame = pd.read_excel(ag_practices_excel_obj, sheet_name=config["APT_SCENARIO"])
+    try:
+        ag_practices: pd.DataFrame = pd.read_excel(
+            config["FILE_PATHS"]["AGRONOMIC_PRACTICES_EXCEL"], sheet_name=config["APT_SCENARIO"]
+        )
+    except PermissionError:
+        err_message = "You might have the Ag Practices Table open in Excel. Please close it before running."
+        _display_error_message(error_dialog, err_message)
+        return False
 
     try:
         ag_practices.set_index(keys="RunDescriptor", inplace=True)
     except KeyError:
-        err_message = "Please ensure the first column of the APT is 'RunDescriptor' and try again."
+        err_message = "Ensure the first column of the APT is 'RunDescriptor' and try again."
         _display_error_message(error_dialog, err_message)
+        return False
 
     for indx, row in ag_practices.iterrows():
         # check that the annual restrictions and PHI are entered
         if any(pd.isna(y) for y in [row["MaxAnnAmt"], row["MaxAnnNumApps"], row["PHI"]]):
-            err_message = f"It looks like the annual restrictions or PHI are not specified for {indx} in Ag Practices Table. Please ensure these are entered correctly and try again."
+            err_message = f"The MaxAnnAmt, MaxAnnNumApps, or PHI is not specified for {indx} in Ag Practices Table. Ensure these are entered correctly and try again."
             _display_error_message(error_dialog, err_message)
             return False
 
         # check that the annual maximum number of apps and PHI are integers
         if not all(isinstance(b, int) for b in [row["MaxAnnNumApps"], row["PHI"]]):
-            err_message = f"Please ensure annual MaxAnnNumApps and PHI for {indx} in Ag Practices Table are integers and try again."
+            err_message = (
+                f"Ensure the MaxAnnNumApps and PHI for {indx} in Ag Practices Table are integers and try again."
+            )
             _display_error_message(error_dialog, err_message)
             return False
 
         # check that the annual maximum amount is an integer or float
         if not isinstance(row["MaxAnnAmt"], (int, float)):
-            err_message = (
-                f"Please ensure the AnnMaxAmt for {indx} in Ag Practices Table is an integer or float and try again."
-            )
+            err_message = f"Ensure the AnnMaxAmt for {indx} in Ag Practices Table is an integer or float and try again."
             _display_error_message(error_dialog, err_message)
             return False
 
@@ -122,7 +130,7 @@ def _validate_apt(config: dict[str, Any], error_dialog: QDialog):
         for max_amt in ["PreEmergence_MaxAmt", "PostEmergence_MaxAmt"]:
             if pd.notna(row[max_amt]):
                 if not isinstance(row[max_amt], (int, float)):
-                    err_message = f"Please ensure the PreEmergence_MaxAmt and PostEmergence_MaxAmt for {indx} in Ag Practices Table are an integer or float and try again."
+                    err_message = f"Ensure the PreEmergence_MaxAmt and PostEmergence_MaxAmt for {indx} in Ag Practices Table are an integer or float and try again."
                     _display_error_message(error_dialog, err_message)
                     return False
 
@@ -131,7 +139,7 @@ def _validate_apt(config: dict[str, Any], error_dialog: QDialog):
                 if not isinstance(row[max_num_apps], int):
                     max_num_apps_asint = int(row[max_num_apps])
                     if max_num_apps_asint != row[max_num_apps]:
-                        err_message = f"Please ensure the PreEmergence_MaxNumApps and PostEmergence_MaxNumApps for {indx} in Ag Practices Table are integers and try again."
+                        err_message = f"Ensure the PreEmergence_MaxNumApps and PostEmergence_MaxNumApps for {indx} in Ag Practices Table are integers and try again."
                         _display_error_message(error_dialog, err_message)
                         return False
 
@@ -146,7 +154,7 @@ def _validate_apt(config: dict[str, Any], error_dialog: QDialog):
             # check if either pre or post E MRI is specified for any rates that have info entered
             if any(pd.notna(j) for j in [max_app_rate, max_num_apps, rate_instr]):  # at least one is not nan
                 if all(pd.isna(x) for x in [pre_e_mri, post_e_mri]):
-                    err_message = f"Either the Pre Emergence or Post Emergence MRI is not be specified for rate {i} for {indx} in Ag Practices Table. Either the Pre E or Post E MRI must be specified for any valid rate. Please see the reader's guide for more information."
+                    err_message = f"Ensure either the PreEmergenceMRI or PostEmergenceMRI is specified for rate {i} for {indx} in Ag Practices Table. An integer value must be entered for either the Pre or Post MRI for a valid rate. See the reader's guide for more info."
                     _display_error_message(error_dialog, err_message)
                     return False
 
@@ -169,14 +177,14 @@ def _validate_apt(config: dict[str, Any], error_dialog: QDialog):
             # make sure rate 1 has max app rate specified
             if i == 1:
                 if pd.isna(max_app_rate):
-                    err_message = f"It looks like there is no max app rate specified for Rate 1 for {indx} in the Ag Practices Table. Rate 1 must have a valid application rate. Please ensure it does and try again."
+                    err_message = f"Ensure there is a MaxAppRate specified for Rate 1 for {indx} in the Ag Practices Table. Rate 1 must have a valid MaxAppRate. Please ensure it does and try again."
                     _display_error_message(error_dialog, err_message)
                     return False
 
             # if MRI is specified but max app rate is not for any rate, notify user
             if any(pd.notna(l) for l in [pre_e_mri, post_e_mri]):  # if any is not nan
                 if pd.isna(max_app_rate):
-                    err_message = f"It looks like there is no max app rate specified for rate {i} for {indx} in the Ag Practices Table but there is an MRI specified for this rate. Please ensure a max rate is specified if an MRI is specified and try again."
+                    err_message = f"Ensure there is a MaxAppRate specified for rate {i} for {indx} in the Ag Practices Table if there is a Pre or Post Emergence MRI specified. Please ensure a MaxAppRate is specified if an MRI is specified and try again."
                     _display_error_message(error_dialog, err_message)
                     return False
 
@@ -185,7 +193,7 @@ def _validate_apt(config: dict[str, Any], error_dialog: QDialog):
                     if not isinstance(pre_e_mri, int):
                         pre_e_mri_asint = int(pre_e_mri)
                         if pre_e_mri != pre_e_mri_asint:
-                            err_message = f"Ensure that the pre E MRI for rate {i} for {indx} in the Ag Practices Table is an integer and try again."
+                            err_message = f"Ensure that the PreEmergenceMRI for rate {i} for {indx} in the Ag Practices Table is an integer and try again."
                             _display_error_message(error_dialog, err_message)
                             return False
 
@@ -194,7 +202,7 @@ def _validate_apt(config: dict[str, Any], error_dialog: QDialog):
                     if not isinstance(post_e_mri, int):
                         post_e_mri_asint = int(post_e_mri)
                         if post_e_mri != post_e_mri_asint:
-                            err_message = f"Ensure that the post E MRI for rate {i} for {indx} in the Ag Practices Table is an integer and try again."
+                            err_message = f"Ensure that the PostEmergenceMRI for rate {i} for {indx} in the Ag Practices Table is an integer and try again."
                             _display_error_message(error_dialog, err_message)
                             return False
 
@@ -215,7 +223,7 @@ def _validate_apt(config: dict[str, Any], error_dialog: QDialog):
             results.append(False)
 
     if not all(result is True for result in results):
-        err_message = "It looks like there something wrong with the rate specific instructions in the Ag Practices Table. Please check that the formatting is valid as listed in the reader's guide and try again."
+        err_message = "There is something wrong with the rate specific instructions in the Ag Practices Table. Please check that the formatting is valid as listed in the reader's guide and try again."
         _display_error_message(error_dialog, err_message)
         return False
 
