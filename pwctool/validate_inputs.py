@@ -5,13 +5,14 @@ import os
 from typing import Any
 import re
 import pandas as pd
+import numpy as np
 from PyQt5.QtWidgets import QDialog
 
 
 def _display_error_message(error_dialog: QDialog, message: str):
+    """Displays an error message"""
     error_dialog.errMsgLabel.setText(message)
     error_dialog.exec_()
-    return False
 
 
 def validate_input_files(config: dict[str, Any], error_dialog: QDialog):
@@ -101,11 +102,13 @@ def _validate_apt(config: dict[str, Any], error_dialog: QDialog):
         if any(pd.isna(y) for y in [row["MaxAnnAmt"], row["MaxAnnNumApps"], row["PHI"]]):
             err_message = f"It looks like the annual restrictions or PHI are not specified for {indx} in Ag Practices Table. Please ensure these are entered correctly and try again."
             _display_error_message(error_dialog, err_message)
+            return False
 
         # check that the annual maximum number of apps and PHI are integers
         if not all(isinstance(b, int) for b in [row["MaxAnnNumApps"], row["PHI"]]):
             err_message = f"Please ensure annual MaxAnnNumApps and PHI for {indx} in Ag Practices Table are integers and try again."
             _display_error_message(error_dialog, err_message)
+            return False
 
         # check that the annual maximum amount is an integer or float
         if not isinstance(row["MaxAnnAmt"], (int, float)):
@@ -113,17 +116,24 @@ def _validate_apt(config: dict[str, Any], error_dialog: QDialog):
                 f"Please ensure the AnnMaxAmt for {indx} in Ag Practices Table is an integer or float and try again."
             )
             _display_error_message(error_dialog, err_message)
+            return False
 
         # check that the pre E and post E maxamt and maxnumapps are the correct type if entered
         for max_amt in ["PreEmergence_MaxAmt", "PostEmergence_MaxAmt"]:
             if pd.notna(row[max_amt]):
-                err_message = f"Please ensure the PreEmergence_MaxAmt and PostEmergence_MaxAmt for {indx} in Ag Practices Table are an integer or float and try again."
-                _display_error_message(error_dialog, err_message)
+                if not isinstance(row[max_amt], (int, float)):
+                    err_message = f"Please ensure the PreEmergence_MaxAmt and PostEmergence_MaxAmt for {indx} in Ag Practices Table are an integer or float and try again."
+                    _display_error_message(error_dialog, err_message)
+                    return False
 
-        for max_amt in ["PreEmergence_MaxNumApps", "PostEmergence_MaxNumApps"]:
-            if pd.notna(row[max_amt]):
-                err_message = f"Please ensure the PreEmergence_MaxNumApps and PostEmergence_MaxNumApps for {indx} in Ag Practices Table are integers and try again."
-                _display_error_message(error_dialog, err_message)
+        for max_num_apps in ["PreEmergence_MaxNumApps", "PostEmergence_MaxNumApps"]:
+            if pd.notna(row[max_num_apps]):
+                if not isinstance(row[max_num_apps], int):
+                    max_num_apps_asint = int(row[max_num_apps])
+                    if max_num_apps_asint != row[max_num_apps]:
+                        err_message = f"Please ensure the PreEmergence_MaxNumApps and PostEmergence_MaxNumApps for {indx} in Ag Practices Table are integers and try again."
+                        _display_error_message(error_dialog, err_message)
+                        return False
 
         # check rate info validity
         for i in [1, 2, 3, 4]:
@@ -138,18 +148,55 @@ def _validate_apt(config: dict[str, Any], error_dialog: QDialog):
                 if all(pd.isna(x) for x in [pre_e_mri, post_e_mri]):
                     err_message = f"Either the Pre Emergence or Post Emergence MRI is not be specified for rate {i} for {indx} in Ag Practices Table. Either the Pre E or Post E MRI must be specified for any valid rate. Please see the reader's guide for more information."
                     _display_error_message(error_dialog, err_message)
+                    return False
+
+                # check that MaxAppRate is the correct type
+                if pd.notna(max_app_rate):
+                    if not isinstance(max_app_rate, (int, float)):
+                        err_message = f"Ensure that the MaxAppRate for rate {i} for {indx} in the Ag Practices Table is an integer or float and try again."
+                        _display_error_message(error_dialog, err_message)
+                        return False
+
+                # check that MaxNumApps is the correct type
+                if pd.notna(max_num_apps):
+                    if not isinstance(max_num_apps, int):
+                        max_num_apps_asint = int(max_num_apps)
+                        if max_num_apps != max_num_apps_asint:
+                            err_message = f"Ensure that the MaxNumApps for rate {i} for {indx} in the Ag Practices Table is an integer and try again."
+                            _display_error_message(error_dialog, err_message)
+                            return False
 
             # make sure rate 1 has max app rate specified
             if i == 1:
                 if pd.isna(max_app_rate):
                     err_message = f"It looks like there is no max app rate specified for Rate 1 for {indx} in the Ag Practices Table. Rate 1 must have a valid application rate. Please ensure it does and try again."
                     _display_error_message(error_dialog, err_message)
+                    return False
 
             # if MRI is specified but max app rate is not for any rate, notify user
             if any(pd.notna(l) for l in [pre_e_mri, post_e_mri]):  # if any is not nan
                 if pd.isna(max_app_rate):
                     err_message = f"It looks like there is no max app rate specified for rate {i} for {indx} in the Ag Practices Table but there is an MRI specified for this rate. Please ensure a max rate is specified if an MRI is specified and try again."
                     _display_error_message(error_dialog, err_message)
+                    return False
+
+                # check that the rate pre E MRI is an integer if entered
+                if pd.notna(pre_e_mri):
+                    if not isinstance(pre_e_mri, int):
+                        pre_e_mri_asint = int(pre_e_mri)
+                        if pre_e_mri != pre_e_mri_asint:
+                            err_message = f"Ensure that the pre E MRI for rate {i} for {indx} in the Ag Practices Table is an integer and try again."
+                            _display_error_message(error_dialog, err_message)
+                            return False
+
+                # check that the rate post E MRI is an integer if entered
+                if pd.notna(post_e_mri):
+                    if not isinstance(post_e_mri, int):
+                        post_e_mri_asint = int(post_e_mri)
+                        if post_e_mri != post_e_mri_asint:
+                            err_message = f"Ensure that the post E MRI for rate {i} for {indx} in the Ag Practices Table is an integer and try again."
+                            _display_error_message(error_dialog, err_message)
+                            return False
 
     # check the rate instructions format
     rate_instructions: list = list(
@@ -170,6 +217,7 @@ def _validate_apt(config: dict[str, Any], error_dialog: QDialog):
     if not all(result is True for result in results):
         err_message = "It looks like there something wrong with the rate specific instructions in the Ag Practices Table. Please check that the formatting is valid as listed in the reader's guide and try again."
         _display_error_message(error_dialog, err_message)
+        return False
 
     return True
 
@@ -190,5 +238,6 @@ def _validate_drt(config: dict[str, Any], error_dialog: QDialog):
     except KeyError:
         err_message = "Please ensure the first column of the DRT is 'Profile' and try again."
         _display_error_message(error_dialog, err_message)
+        return False
 
     return True
