@@ -533,11 +533,16 @@ class Controller:
 
     def validate_apt(self, current_config: dict[str, Any]):
         """Validates the ag practices table. Checks several things including:
+            - the first column of the APT is "RunDescriptor"
+            - the rate instructions format is entered correctly
+            - check that a value is entered for either pre or post E MRI for all rates
+            - rate 1 has valid max app rate specified
+            - if MRI is specified but lacks other rate info, notify user
 
-
-        If there is an issue, an error is raised and the execution is terminated.
+        If there is an issue with any of the checks, an error is raised and the execution is terminated.
         """
 
+        # check that the first column of the apt is RunDescriptor
         ag_practices_excel_obj = pd.ExcelFile(
             current_config["FILE_PATHS"]["AGRONOMIC_PRACTICES_EXCEL"], engine="openpyxl"
         )
@@ -572,14 +577,44 @@ class Controller:
             else:
                 results.append(False)
 
-        if all(result is True for result in results):
-            return True
+        if not all(result is True for result in results):
+            self.error_dialog.errMsgLabel.setText(
+                "There may be something wrong with the rate specific instructions in the Ag Practices Table. Please check that the formatting is valid as listed in the reader's guide and try again."
+            )
+            self.error_dialog.exec_()
+            return False
 
-        self.error_dialog.errMsgLabel.setText(
-            "There may be something wrong with the rate specific instructions. Please check the APT and try again."
-        )
-        self.error_dialog.exec_()
-        return False
+        # check rate info validity
+        for indx, row in ag_practices.iterrows():
+            for i in [1, 2, 3, 4]:
+                max_app_rate = row[f"Rate{i}_MaxAppRate"]
+                max_num_apps = row[f"Rate{i}_MaxNumApps"]
+                rate_instr = row[f"Rate{i}_Instructions"]
+
+                # check if either pre or post E MRI is specified for any rates that have have info entered
+                if not all(pd.isna(j) for j in [max_app_rate, max_num_apps, rate_instr]):  # at least one is not nan
+                    pre_e_mri = row[f"Rate{i}_PreEmergenceMRI"]
+                    post_e_mri = row[f"Rate{i}_PostEmergenceMRI"]
+
+                    if all(pd.isna(x) for x in [pre_e_mri, post_e_mri]):
+                        self.error_dialog.errMsgLabel.setText(
+                            f"Either the Pre Emergence or Post Emergence MRI may not be specified for {indx} in Ag Practices Table. Either the Pre E or Post E MRI must be specified for any valid rate. Please see the reader's guide for more information."
+                        )
+                        self.error_dialog.exec_()
+                        return False
+
+                # make sure rate 1 has max app rate specified
+                if i == 1:
+                    if pd.isna(max_app_rate):
+                        self.error_dialog.errMsgLabel.setText(
+                            f"It looks like there is no max app rate specified for Rate 1 for {indx} in the Ag Practices Table. Rate 1 must have a valid application rate. Please ensure it does and try again."
+                        )
+                        self.error_dialog.exec_()
+                        return False
+
+                # if MRI is specified but max app rate is not for any rate, notify user
+
+        return True
 
     def validate_drt(self, current_config: dict[str, Any]):
         """Validates the drift reduction table. Checks several things including:
