@@ -9,7 +9,6 @@ import logging
 import os
 from typing import Any
 
-import pandas as pd
 from PyQt5.QtGui import QDesktopServices
 from PyQt5.QtCore import QUrl
 from PyQt5.QtWidgets import QFileDialog
