@@ -28,6 +28,11 @@
     <height>164</height>
    </size>
   </property>
+  <property name="font">
+   <font>
+    <family>Segoe UI</family>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>ERROR</string>
   </property>
@@ -55,6 +60,11 @@
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QFrame" name="frame">
+         <property name="font">
+          <font>
+           <family>Segoe UI</family>
+          </font>
+         </property>
          <property name="styleSheet">
           <string notr="true">background-color: rgb(255, 255, 255);</string>
          </property>
@@ -73,8 +83,13 @@
             <height>23</height>
            </rect>
           </property>
+          <property name="font">
+           <font>
+            <family>Segoe UI</family>
+           </font>
+          </property>
           <property name="text">
-           <string>Okay</string>
+           <string>OK</string>
           </property>
          </widget>
          <widget class="QLabel" name="errMsgLabel">
@@ -85,6 +100,11 @@
             <width>291</width>
             <height>61</height>
            </rect>
+          </property>
+          <property name="font">
+           <font>
+            <family>Segoe UI</family>
+           </font>
           </property>
           <property name="text">
            <string>TextLabel</string>

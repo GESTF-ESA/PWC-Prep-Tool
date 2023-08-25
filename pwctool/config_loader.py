@@ -72,13 +72,13 @@ def _init_gui_options(view: QWidget, config: dict[str, Any], error_dialog) -> No
                             gui_widget.clear()
                             gui_widget.addItem(setting_value)
                         else:
-                            get_xl_sheet_names(gui_widget, view.agronomicPracticesTableLocation, error_dialog)
+                            get_xl_sheet_names(gui_widget, view.agronomicPracticesTableLocation, error_dialog, "APT")
                     elif setting == "DRT_SCENARIO":
                         if view.agDriftReductionTableLocation.text() == "":
                             gui_widget.clear()
                             gui_widget.addItem(setting_value)
                         else:
-                            get_xl_sheet_names(gui_widget, view.agDriftReductionTableLocation, error_dialog)
+                            get_xl_sheet_names(gui_widget, view.agDriftReductionTableLocation, error_dialog, "DRT")
                 gui_widget.setCurrentText(setting_value)
             elif isinstance(gui_widget, QCheckBox):
                 gui_widget.setChecked(setting_value)
@@ -98,7 +98,6 @@ def _init_application_methods(view: QWidget, config: dict[str, Any]) -> None:
     """Sets the application method selection in the GUI"""
 
     for app_method in ALL_APPMETHODS:
-
         # Buried application methods (3 - 7) have depths
         if app_method in BURIED_APPMETHODS:
             # TBand-Split application method (5) has unique parameter for tband-split fraction
@@ -106,11 +105,11 @@ def _init_application_methods(view: QWidget, config: dict[str, Any]) -> None:
                 tband_split_fraction = config["APPMETH5_TBANDFRAC"]
                 view.appmeth5_tbandsplitfrac.setText(str(tband_split_fraction))
                 for depth in [4, 6, 8, 10, 12]:
-                    appmeth_depth_bool = config.get(f"APPMETH{app_method}_DEPTHS", {}).get(depth)
+                    appmeth_depth_bool = config.get(f"APPMETH{app_method}_DEPTHS", {}).get(depth, False)
                     getattr(view, f"appmeth{app_method}_depth{depth}cm").setChecked(appmeth_depth_bool)
             else:
                 for depth in ALL_DEPTHS:
-                    appmeth_depth_bool = config.get(f"APPMETH{app_method}_DEPTHS", {}).get(depth)
+                    appmeth_depth_bool = config.get(f"APPMETH{app_method}_DEPTHS", {}).get(depth, False)
                     getattr(view, f"appmeth{app_method}_depth{depth}cm").setChecked(appmeth_depth_bool)
 
         else:  # app method 1 (bare ground) and 2 (foliar)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'D:\GitHub\PWC-Tools\pwctool\ui_files\error_mesage_dialog.ui'
+# Form implementation generated from reading ui file 'D:\GitHub\PWC-Prep-Tool\pwctool\ui_files\error_mesage_dialog.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.6
 #
@@ -22,6 +22,9 @@ class Ui_ErrorMessageDialog(object):
         ErrorMessageDialog.setSizePolicy(sizePolicy)
         ErrorMessageDialog.setMinimumSize(QtCore.QSize(364, 164))
         ErrorMessageDialog.setMaximumSize(QtCore.QSize(364, 164))
+        font = QtGui.QFont()
+        font.setFamily("Segoe UI")
+        ErrorMessageDialog.setFont(font)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(ErrorMessageDialog)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.scrollArea = QtWidgets.QScrollArea(ErrorMessageDialog)
@@ -38,15 +41,24 @@ class Ui_ErrorMessageDialog(object):
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.scrollAreaWidgetContents)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.frame = QtWidgets.QFrame(self.scrollAreaWidgetContents)
+        font = QtGui.QFont()
+        font.setFamily("Segoe UI")
+        self.frame.setFont(font)
         self.frame.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")
         self.okayError = QtWidgets.QPushButton(self.frame)
         self.okayError.setGeometry(QtCore.QRect(230, 90, 75, 23))
+        font = QtGui.QFont()
+        font.setFamily("Segoe UI")
+        self.okayError.setFont(font)
         self.okayError.setObjectName("okayError")
         self.errMsgLabel = QtWidgets.QLabel(self.frame)
         self.errMsgLabel.setGeometry(QtCore.QRect(16, 19, 291, 61))
+        font = QtGui.QFont()
+        font.setFamily("Segoe UI")
+        self.errMsgLabel.setFont(font)
         self.errMsgLabel.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.errMsgLabel.setWordWrap(True)
         self.errMsgLabel.setObjectName("errMsgLabel")
@@ -60,5 +72,5 @@ class Ui_ErrorMessageDialog(object):
     def retranslateUi(self, ErrorMessageDialog):
         _translate = QtCore.QCoreApplication.translate
         ErrorMessageDialog.setWindowTitle(_translate("ErrorMessageDialog", "ERROR"))
-        self.okayError.setText(_translate("ErrorMessageDialog", "Okay"))
+        self.okayError.setText(_translate("ErrorMessageDialog", "OK"))
         self.errMsgLabel.setText(_translate("ErrorMessageDialog", "TextLabel"))

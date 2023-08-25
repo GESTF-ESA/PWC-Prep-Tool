@@ -1,8 +1,7 @@
 """Utility functions for the GUI"""
 
 import pandas as pd
-from PyQt5.QtWidgets import QComboBox
-from PyQt5.QtWidgets import QLineEdit
+from PyQt5.QtWidgets import QComboBox, QDialog, QLineEdit
 
 from pwctool.constants import (
     ALL_APPMETHODS,
@@ -14,8 +13,13 @@ from pwctool.constants import (
 )
 
 
-def get_xl_sheet_names(drop_down: QComboBox, text_widget: QLineEdit, error_dialog) -> None:
+def get_xl_sheet_names(drop_down: QComboBox, text_widget: QLineEdit, error_dialog: QDialog, table: str) -> None:
     """Gets the Excel sheet names for the APT or DRT and updates drop down"""
+
+    error_messages = {
+        "APT": "Invalid Agronomic Practices Table path, please correct and try again.",
+        "DRT": "Invalid Drift Reduction Table path, please correct and try again.",
+    }
 
     file_path = text_widget.text()
     drop_down.clear()
@@ -24,12 +28,11 @@ def get_xl_sheet_names(drop_down: QComboBox, text_widget: QLineEdit, error_dialo
     else:
         try:
             sheets: list = pd.ExcelFile(file_path).sheet_names
-            drop_down.addItems(sheets)
-        except (AssertionError, OSError, FileNotFoundError):
-            error_dialog.errMsgLabel.setText(
-                "The path may be incorrect for the Agronomic Practices Table or Drift Reducation Table."
-            )
+        except FileNotFoundError:
+            error_dialog.errMsgLabel.setText(error_messages.get(table, "Unknown Table"))
             error_dialog.exec_()
+        else:
+            drop_down.addItems(sheets)
 
 
 def enable_disable_app_methods(view, app_method: int, enable_disable_flag: bool) -> None:
@@ -68,7 +71,6 @@ def enable_disable_app_methods(view, app_method: int, enable_disable_flag: bool)
                 getattr(view, f"appmeth{app_method}_depth{depth}cm").setEnabled(enable_disable_flag)
 
     else:  # application methods 1 (bare ground) and 2 (aerial)
-
         # enable distance related widgets
         appmeth_distancelabel = getattr(view, f"appmeth{app_method}distancelabel")
         appmeth_distancelabel.setStyleSheet(f"color:{color}")

@@ -7,10 +7,8 @@ Manages GUI-user interactions
 from functools import partial
 import logging
 import os
-import re
 from typing import Any
 
-import pandas as pd
 from PyQt5.QtGui import QDesktopServices
 from PyQt5.QtCore import QUrl
 from PyQt5.QtWidgets import QFileDialog
@@ -24,6 +22,7 @@ from pwctool.gui_utils import (
     restrict_application_methods,
     enable_disable_app_methods,
 )
+from pwctool.validate_inputs import validate_input_files
 
 from pwctool.constants import (
     VERSION,
@@ -89,7 +88,7 @@ class Controller:
                 config_settings = yaml.safe_load(config_file)  # load yml file
             except yaml.YAMLError:
                 self.error_dialog.errMsgLabel.setText(
-                    "\nERROR:  Something may be wrong with the configuration file. Please fix it and try again."
+                    "\nERROR:  Something is wrong with the configuration file. Please fix it or create a new one and try again."
                 )
                 self.error_dialog.exec_()
                 return {}
@@ -360,7 +359,7 @@ class Controller:
         file_path = self.browse_file_explorer(file_type)
         button.setText(file_path)
 
-        get_xl_sheet_names(self._view.APTscenario, self._view.agronomicPracticesTableLocation, self.error_dialog)
+        get_xl_sheet_names(self._view.APTscenario, self._view.agronomicPracticesTableLocation, self.error_dialog, "APT")
 
     def select_drt(self, button, file_type: str):
         """Browses file explorer for DRT and updates text display with file path.
@@ -368,7 +367,7 @@ class Controller:
         file_path = self.browse_file_explorer(file_type)
         button.setText(file_path)
 
-        get_xl_sheet_names(self._view.DRTscenario, self._view.agDriftReductionTableLocation, self.error_dialog)
+        get_xl_sheet_names(self._view.DRTscenario, self._view.agDriftReductionTableLocation, self.error_dialog, "DRT")
 
     # ======================== BINS =============================================
 
@@ -463,142 +462,10 @@ class Controller:
         file_handler.setLevel(logging.DEBUG)  # log file gets everything
         logger.addHandler(file_handler)
 
-    def validate_config(self, current_config: dict[str, Any]) -> bool:
-        """Checks that each input file/folder exists"""
-
-        if not os.path.exists(current_config["FILE_PATHS"]["OUTPUT_DIR"]):
-            self.error_dialog.errMsgLabel.setText(
-                "Output directory does not exist. Please choose a valid directory and try again."
-            )
-            self.error_dialog.exec_()
-            return False
-
-        if not os.path.exists(current_config["FILE_PATHS"]["AGRONOMIC_PRACTICES_EXCEL"]):
-            self.error_dialog.errMsgLabel.setText(
-                "The agronomic practices table does not exist or the path is incorrect. Please ensure it is valid and try again."
-            )
-            self.error_dialog.exec_()
-            return False
-
-        if not os.path.exists(current_config["FILE_PATHS"]["AGDRIFT_REDUCTION_TABLE"]):
-            self.error_dialog.errMsgLabel.setText(
-                "The AgDRIFT Reduction table does not exist or the path is incorrect. Please ensure it is valid and try again."
-            )
-            self.error_dialog.exec_()
-            return False
-
-        if not os.path.exists(current_config["FILE_PATHS"]["SCENARIO_FILES_PATH"]):
-            self.error_dialog.errMsgLabel.setText(
-                "The scenario files directory does not exist or the path is incorrect. Please ensure it is valid and try again."
-            )
-            self.error_dialog.exec_()
-            return False
-
-        if current_config["USE_CASE"] == "Use Case #1":
-            if not os.path.exists(current_config["FILE_PATHS"]["INGR_FATE_PARAMS"]):
-                self.error_dialog.errMsgLabel.setText(
-                    "The ingr. fate parameters table does not exist or the path is incorrect. Please ensure it is valid and try again."
-                )
-                self.error_dialog.exec_()
-                return False
-
-            if not os.path.exists(current_config["FILE_PATHS"]["WETTEST_MONTH_CSV"]):
-                self.error_dialog.errMsgLabel.setText(
-                    "The wettest month table does not exist or the path is incorrect. Please ensure it is valid and try again."
-                )
-                self.error_dialog.exec_()
-                return False
-
-            if not os.path.exists(current_config["FILE_PATHS"]["BIN_TO_LANDSCAPE"]):
-                self.error_dialog.errMsgLabel.setText(
-                    "The bin to landscape lookup table does not exist or the path is incorrect. Please ensure it is valid and try again."
-                )
-                self.error_dialog.exec_()
-                return False
-
-        elif current_config["USE_CASE"] == "Use Case #2":
-            if not os.path.exists(current_config["FILE_PATHS"]["PWC_BATCH_CSV"]):
-                self.error_dialog.errMsgLabel.setText(
-                    "The input pwc batch file does not exist or the path is incorrect. Please ensure it is valid and try again."
-                )
-                self.error_dialog.exec_()
-                return False
-
-        if current_config["RUN_ID"] == "":
-            self.error_dialog.errMsgLabel.setText("Please create a run id and try again.")
-            self.error_dialog.exec_()
-            return False
-
-        return True
-
-    def validate_apt_and_drt(self, current_config: dict[str, Any]):
-        """Validates the APT and DRT.
-
-        Checks that the first column name in each table is correct.
-        For APT, checks rate instructions format.
-        """
-
-        ag_practices_excel_obj = pd.ExcelFile(
-            current_config["FILE_PATHS"]["AGRONOMIC_PRACTICES_EXCEL"], engine="openpyxl"
-        )
-        ag_practices: pd.DataFrame = pd.read_excel(ag_practices_excel_obj, sheet_name=current_config["APT_SCENARIO"])
-
-        try:
-            ag_practices.set_index(keys="RunDescriptor", inplace=True)
-        except KeyError:
-            self.error_dialog.errMsgLabel.setText(
-                "Please ensure the first column of the APT is 'RunDescriptor' and try again."
-            )
-            self.error_dialog.exec_()
-            return False
-
-        # check the drt first column name
-        drift_reduction_table: pd.DataFrame = pd.read_excel(
-            current_config["FILE_PATHS"]["AGDRIFT_REDUCTION_TABLE"],
-            sheet_name=current_config["DRT_SCENARIO"],
-        )
-        try:
-            drift_reduction_table.set_index(keys="Profile", inplace=True)
-        except KeyError:
-            self.error_dialog.errMsgLabel.setText(
-                "Please ensure the first column of the DRT is 'Profile' and try again."
-            )
-            self.error_dialog.exec_()
-            return False
-
-        # check the rate instructions format
-        rate_instructions: list = list(
-            ag_practices.loc[:, ag_practices.columns.str.contains("Instructions")].to_numpy().flatten()
-        )
-
-        pattern1 = "[YN]_[HE][+-][0-9]+"  # for example: Y_H-30, N_E+30
-        pattern2 = "[YN]_[HE0-9+-]+>[HE0-9+-]+"  # for example: N_0501>0615
-
-        results = []
-        for rate_instruction in rate_instructions:
-            # check if rate instructions conform to general formatting
-            if (
-                pd.isna(rate_instruction)
-                or re.search(pattern1, rate_instruction)
-                or re.search(pattern2, rate_instruction)
-            ):
-                results.append(True)
-            else:
-                results.append(False)
-
-        if all(result is True for result in results):
-            return True
-
-        self.error_dialog.errMsgLabel.setText(
-            "There may be something wrong with the rate specific instructions. Please check the APT and try again."
-        )
-        self.error_dialog.exec_()
-        return False
-
     def run_tool(self):
         """Runs the application assignment algorithm"""
         current_config: dict[str, Any] = generate_configuration_from_gui(self._view)
-        if self.validate_config(current_config) and self.validate_apt_and_drt(current_config):
+        if validate_input_files(current_config, self.error_dialog):
             self.setup_logging(current_config)
             # start algorithm thread and connect signals to slots
             self.adt_algo_worker = PwcToolAlgoThread(current_config)
@@ -663,6 +530,7 @@ class Controller:
                 self._view.APTscenario,
                 self._view.agronomicPracticesTableLocation,
                 self.error_dialog,
+                "APT",
             )
         )
         self._view.agronomicPracticesTableLocation.editingFinished.connect(
@@ -671,7 +539,11 @@ class Controller:
 
         self._view.agDriftReductionTableLocation.editingFinished.connect(
             partial(
-                get_xl_sheet_names, self._view.DRTscenario, self._view.agDriftReductionTableLocation, self.error_dialog
+                get_xl_sheet_names,
+                self._view.DRTscenario,
+                self._view.agDriftReductionTableLocation,
+                self.error_dialog,
+                "DRT",
             )
         )
 
