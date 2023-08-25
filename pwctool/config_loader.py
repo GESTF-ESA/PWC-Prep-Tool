@@ -98,7 +98,6 @@ def _init_application_methods(view: QWidget, config: dict[str, Any]) -> None:
     """Sets the application method selection in the GUI"""
 
     for app_method in ALL_APPMETHODS:
-
         # Buried application methods (3 - 7) have depths
         if app_method in BURIED_APPMETHODS:
             # TBand-Split application method (5) has unique parameter for tband-split fraction
@@ -107,10 +106,14 @@ def _init_application_methods(view: QWidget, config: dict[str, Any]) -> None:
                 view.appmeth5_tbandsplitfrac.setText(str(tband_split_fraction))
                 for depth in [4, 6, 8, 10, 12]:
                     appmeth_depth_bool = config.get(f"APPMETH{app_method}_DEPTHS", {}).get(depth)
+                    if appmeth_depth_bool is None:
+                        appmeth_depth_bool = False
                     getattr(view, f"appmeth{app_method}_depth{depth}cm").setChecked(appmeth_depth_bool)
             else:
                 for depth in ALL_DEPTHS:
                     appmeth_depth_bool = config.get(f"APPMETH{app_method}_DEPTHS", {}).get(depth)
+                    if appmeth_depth_bool is None:
+                        appmeth_depth_bool = False
                     getattr(view, f"appmeth{app_method}_depth{depth}cm").setChecked(appmeth_depth_bool)
 
         else:  # app method 1 (bare ground) and 2 (foliar)
