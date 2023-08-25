@@ -34,36 +34,44 @@ def _validate_config(config: dict[str, Any], error_dialog: QDialog) -> bool:
     if not os.path.exists(config["FILE_PATHS"]["OUTPUT_DIR"]):
         err_message = "Output directory does not exist. Please choose a valid directory and try again."
         _display_error_message(error_dialog, err_message)
+        return False
 
     if not os.path.exists(config["FILE_PATHS"]["AGRONOMIC_PRACTICES_EXCEL"]):
         err_message = "The agronomic practices table does not exist or the path is incorrect. Please ensure it is valid and try again."
         _display_error_message(error_dialog, err_message)
+        return False
 
     if not os.path.exists(config["FILE_PATHS"]["AGDRIFT_REDUCTION_TABLE"]):
         err_message = "The AgDRIFT Reduction table does not exist or the path is incorrect. Please ensure it is valid and try again."
         _display_error_message(error_dialog, err_message)
+        return False
 
     if not os.path.exists(config["FILE_PATHS"]["SCENARIO_FILES_PATH"]):
         err_message = "The scenario files directory does not exist or the path is incorrect. Please ensure it is valid and try again."
         _display_error_message(error_dialog, err_message)
+        return False
 
     if config["USE_CASE"] == "Use Case #1":
         if not os.path.exists(config["FILE_PATHS"]["INGR_FATE_PARAMS"]):
             err_message = "The ingr. fate parameters table does not exist or the path is incorrect. Please ensure it is valid and try again."
             _display_error_message(error_dialog, err_message)
+            return False
 
         if not os.path.exists(config["FILE_PATHS"]["WETTEST_MONTH_CSV"]):
             err_message = "The wettest month table does not exist or the path is incorrect. Please ensure it is valid and try again."
             _display_error_message(error_dialog, err_message)
+            return False
 
         if not os.path.exists(config["FILE_PATHS"]["BIN_TO_LANDSCAPE"]):
             err_message = "The bin to landscape lookup table does not exist or the path is incorrect. Please ensure it is valid and try again."
             _display_error_message(error_dialog, err_message)
+            return False
 
     elif config["USE_CASE"] == "Use Case #2":
         if not os.path.exists(config["FILE_PATHS"]["PWC_BATCH_CSV"]):
             err_message = "The input pwc batch file does not exist or the path is incorrect. Please ensure it is valid and try again."
             _display_error_message(error_dialog, err_message)
+            return False
 
     if config["RUN_ID"] == "":
         error_dialog.errMsgLabel.setText("Please create a run id and try again.")
