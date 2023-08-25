@@ -1,8 +1,7 @@
 """Utility functions for the GUI"""
 
 import pandas as pd
-from PyQt5.QtWidgets import QComboBox
-from PyQt5.QtWidgets import QLineEdit
+from PyQt5.QtWidgets import QComboBox, QDialog, QLineEdit
 
 from pwctool.constants import (
     ALL_APPMETHODS,
@@ -14,7 +13,7 @@ from pwctool.constants import (
 )
 
 
-def get_xl_sheet_names(drop_down: QComboBox, text_widget: QLineEdit, error_dialog) -> None:
+def get_xl_sheet_names(drop_down: QComboBox, text_widget: QLineEdit, error_dialog: QDialog, table: str) -> None:
     """Gets the Excel sheet names for the APT or DRT and updates drop down"""
 
     file_path = text_widget.text()
@@ -25,11 +24,17 @@ def get_xl_sheet_names(drop_down: QComboBox, text_widget: QLineEdit, error_dialo
         try:
             sheets: list = pd.ExcelFile(file_path).sheet_names
             drop_down.addItems(sheets)
-        except (AssertionError, OSError, FileNotFoundError):
-            error_dialog.errMsgLabel.setText(
-                "The path may be incorrect for the Agronomic Practices Table or Drift Reducation Table."
-            )
-            error_dialog.exec_()
+        except FileNotFoundError:
+            if table == "APT":
+                error_dialog.errMsgLabel.setText(
+                    "The path is incorrect for the Agronomic Practices Table. Please ensure it is correct and try again."
+                )
+                error_dialog.exec_()
+            elif table == "DRT":
+                error_dialog.errMsgLabel.setText(
+                    "The path is incorrect for the Drift Reduction Table. Please ensure it is correct and try again."
+                )
+                error_dialog.exec_()
 
 
 def enable_disable_app_methods(view, app_method: int, enable_disable_flag: bool) -> None:

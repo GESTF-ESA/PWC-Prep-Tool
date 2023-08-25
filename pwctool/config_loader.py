@@ -72,13 +72,13 @@ def _init_gui_options(view: QWidget, config: dict[str, Any], error_dialog) -> No
                             gui_widget.clear()
                             gui_widget.addItem(setting_value)
                         else:
-                            get_xl_sheet_names(gui_widget, view.agronomicPracticesTableLocation, error_dialog)
+                            get_xl_sheet_names(gui_widget, view.agronomicPracticesTableLocation, error_dialog, "APT")
                     elif setting == "DRT_SCENARIO":
                         if view.agDriftReductionTableLocation.text() == "":
                             gui_widget.clear()
                             gui_widget.addItem(setting_value)
                         else:
-                            get_xl_sheet_names(gui_widget, view.agDriftReductionTableLocation, error_dialog)
+                            get_xl_sheet_names(gui_widget, view.agDriftReductionTableLocation, error_dialog, "DRT")
                 gui_widget.setCurrentText(setting_value)
             elif isinstance(gui_widget, QCheckBox):
                 gui_widget.setChecked(setting_value)

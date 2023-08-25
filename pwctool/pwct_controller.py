@@ -88,7 +88,7 @@ class Controller:
                 config_settings = yaml.safe_load(config_file)  # load yml file
             except yaml.YAMLError:
                 self.error_dialog.errMsgLabel.setText(
-                    "\nERROR:  Something may be wrong with the configuration file. Please fix it and try again."
+                    "\nERROR:  Something is wrong with the configuration file. Please fix it or create a new one and try again."
                 )
                 self.error_dialog.exec_()
                 return {}
@@ -359,7 +359,7 @@ class Controller:
         file_path = self.browse_file_explorer(file_type)
         button.setText(file_path)
 
-        get_xl_sheet_names(self._view.APTscenario, self._view.agronomicPracticesTableLocation, self.error_dialog)
+        get_xl_sheet_names(self._view.APTscenario, self._view.agronomicPracticesTableLocation, self.error_dialog, "APT")
 
     def select_drt(self, button, file_type: str):
         """Browses file explorer for DRT and updates text display with file path.
@@ -367,7 +367,7 @@ class Controller:
         file_path = self.browse_file_explorer(file_type)
         button.setText(file_path)
 
-        get_xl_sheet_names(self._view.DRTscenario, self._view.agDriftReductionTableLocation, self.error_dialog)
+        get_xl_sheet_names(self._view.DRTscenario, self._view.agDriftReductionTableLocation, self.error_dialog, "DRT")
 
     # ======================== BINS =============================================
 
@@ -530,6 +530,7 @@ class Controller:
                 self._view.APTscenario,
                 self._view.agronomicPracticesTableLocation,
                 self.error_dialog,
+                "APT",
             )
         )
         self._view.agronomicPracticesTableLocation.editingFinished.connect(
@@ -538,7 +539,11 @@ class Controller:
 
         self._view.agDriftReductionTableLocation.editingFinished.connect(
             partial(
-                get_xl_sheet_names, self._view.DRTscenario, self._view.agDriftReductionTableLocation, self.error_dialog
+                get_xl_sheet_names,
+                self._view.DRTscenario,
+                self._view.agDriftReductionTableLocation,
+                self.error_dialog,
+                "DRT",
             )
         )
 

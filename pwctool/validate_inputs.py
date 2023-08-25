@@ -32,12 +32,14 @@ def _validate_config(config: dict[str, Any], error_dialog: QDialog) -> bool:
     """Checks that each input file/folder in the config exists"""
 
     if not os.path.exists(config["FILE_PATHS"]["OUTPUT_DIR"]):
-        err_message = "Output directory does not exist. Please choose a valid directory and try again."
+        err_message = "The output directory does not exist. Please choose a valid directory and try again."
         _display_error_message(error_dialog, err_message)
         return False
 
     if not os.path.exists(config["FILE_PATHS"]["AGRONOMIC_PRACTICES_EXCEL"]):
-        err_message = "The agronomic practices table does not exist or the path is incorrect. Please ensure it is valid and try again."
+        err_message = (
+            "The Ag Practices Table does not exist or the path is incorrect. Please ensure it is valid and try again."
+        )
         _display_error_message(error_dialog, err_message)
         return False
 
@@ -114,9 +116,11 @@ def _validate_apt(config: dict[str, Any], error_dialog: QDialog):
     try:
         ag_practices.set_index(keys="RunDescriptor", inplace=True)
     except KeyError:
-        err_message = "Ensure the first column of the APT is 'RunDescriptor' and try again."
+        err_message = "Ensure the first column of the Ag Practices Table is 'RunDescriptor' and try again."
         _display_error_message(error_dialog, err_message)
         return False
+
+    # TODO: check that the drift profile values are correct
 
     for indx, row in ag_practices.iterrows():
         # check that the annual restrictions and PHI are entered
