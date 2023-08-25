@@ -105,17 +105,11 @@ def _init_application_methods(view: QWidget, config: dict[str, Any]) -> None:
                 tband_split_fraction = config["APPMETH5_TBANDFRAC"]
                 view.appmeth5_tbandsplitfrac.setText(str(tband_split_fraction))
                 for depth in [4, 6, 8, 10, 12]:
-                    appmeth_depth_bool = config.get(f"APPMETH{app_method}_DEPTHS", {}).get(depth)
-                    # If the depth is not in the config file, set it to False
-                    if appmeth_depth_bool is None:
-                        appmeth_depth_bool = False
+                    appmeth_depth_bool = config.get(f"APPMETH{app_method}_DEPTHS", {}).get(depth, False)
                     getattr(view, f"appmeth{app_method}_depth{depth}cm").setChecked(appmeth_depth_bool)
             else:
                 for depth in ALL_DEPTHS:
-                    appmeth_depth_bool = config.get(f"APPMETH{app_method}_DEPTHS", {}).get(depth)
-                    # If the depth is not in the config file, set it to False
-                    if appmeth_depth_bool is None:
-                        appmeth_depth_bool = False
+                    appmeth_depth_bool = config.get(f"APPMETH{app_method}_DEPTHS", {}).get(depth, False)
                     getattr(view, f"appmeth{app_method}_depth{depth}cm").setChecked(appmeth_depth_bool)
 
         else:  # app method 1 (bare ground) and 2 (foliar)
