@@ -16,6 +16,11 @@ from pwctool.constants import (
 def get_xl_sheet_names(drop_down: QComboBox, text_widget: QLineEdit, error_dialog: QDialog, table: str) -> None:
     """Gets the Excel sheet names for the APT or DRT and updates drop down"""
 
+    error_messages = {
+        "APT": "Invalid Agronomic Practices Table path, please correct and try again.",
+        "DRT": "Invalid Drift Reduction Table path, please correct and try again.",
+    }
+
     file_path = text_widget.text()
     drop_down.clear()
     if file_path == "":
@@ -23,18 +28,11 @@ def get_xl_sheet_names(drop_down: QComboBox, text_widget: QLineEdit, error_dialo
     else:
         try:
             sheets: list = pd.ExcelFile(file_path).sheet_names
-            drop_down.addItems(sheets)
         except FileNotFoundError:
-            if table == "APT":
-                error_dialog.errMsgLabel.setText(
-                    "The path is incorrect for the Agronomic Practices Table. Please ensure it is correct and try again."
-                )
-                error_dialog.exec_()
-            elif table == "DRT":
-                error_dialog.errMsgLabel.setText(
-                    "The path is incorrect for the Drift Reduction Table. Please ensure it is correct and try again."
-                )
-                error_dialog.exec_()
+            error_dialog.errMsgLabel.setText(error_messages.get(table, "Unknown Table"))
+            error_dialog.exec_()
+        else:
+            drop_down.addItems(sheets)
 
 
 def enable_disable_app_methods(view, app_method: int, enable_disable_flag: bool) -> None:
@@ -73,7 +71,6 @@ def enable_disable_app_methods(view, app_method: int, enable_disable_flag: bool)
                 getattr(view, f"appmeth{app_method}_depth{depth}cm").setEnabled(enable_disable_flag)
 
     else:  # application methods 1 (bare ground) and 2 (aerial)
-
         # enable distance related widgets
         appmeth_distancelabel = getattr(view, f"appmeth{app_method}distancelabel")
         appmeth_distancelabel.setStyleSheet(f"color:{color}")
