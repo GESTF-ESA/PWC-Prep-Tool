@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'D:\GitHub\PWC-Tools\pwctool\ui_files\error_mesage_dialog.ui'
+# Form implementation generated from reading ui file 'D:\GitHub\PWC-Prep-Tool\pwctool\ui_files\error_mesage_dialog.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.6
 #
@@ -60,5 +60,5 @@ class Ui_ErrorMessageDialog(object):
     def retranslateUi(self, ErrorMessageDialog):
         _translate = QtCore.QCoreApplication.translate
         ErrorMessageDialog.setWindowTitle(_translate("ErrorMessageDialog", "ERROR"))
-        self.okayError.setText(_translate("ErrorMessageDialog", "Okay"))
+        self.okayError.setText(_translate("ErrorMessageDialog", "OK"))
         self.errMsgLabel.setText(_translate("ErrorMessageDialog", "TextLabel"))
