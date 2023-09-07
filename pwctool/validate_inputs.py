@@ -162,7 +162,7 @@ def _validate_apt(config: dict[str, Any], error_dialog: QDialog):
 
         # check rate info validity
         for i in [1, 2, 3, 4]:
-            max_app_rate = row[f"Rate{i}_MaxAppRate"]
+            max_app_rate = row[f"Rate{i}_MaxAppRate_lbsacre"]
             max_num_apps = row[f"Rate{i}_MaxNumApps"]
             rate_instr = row[f"Rate{i}_Instructions"]
             pre_e_mri = row[f"Rate{i}_PreEmergenceMRI"]

@@ -446,9 +446,7 @@ class PwcToolAlgoThread(qtc.QThread):
         ingred_fate_params = dict(zip(ingredient_fate_params_table["Parameter"], ingredient_fate_params_table["Value"]))
 
         # convert lbs/acre to kg/ha for all rate fields
-        ag_practices_table["MaxAnnAmt_lbsacre"] = (
-            ag_practices_table["MaxAnnAmt_lbsacre"] * 1.120851
-        )  # convert from lbs/ac to kg/ha
+        ag_practices_table["MaxAnnAmt_lbsacre"] = ag_practices_table["MaxAnnAmt_lbsacre"] * 1.120851
         ag_practices_table["PostEmergence_MaxAmt_lbsacre"] = (
             ag_practices_table["PostEmergence_MaxAmt_lbsacre"] * 1.120851
         )

@@ -224,14 +224,14 @@ def prepare_apt(apt: pd.DataFrame) -> pd.DataFrame:
         # for these rows, interval is a valid interval but
         # the amount is unspecified, so write it as max ann amt
         apt.loc[
-            pd.isna(apt[f"{interval}_MaxAmt"])
+            pd.isna(apt[f"{interval}_MaxAmt_lbsacre"])
             & (
                 (pd.notna(apt[f"Rate1_{interval}MRI"]))
                 | (pd.notna(apt[f"Rate2_{interval}MRI"]))
                 | (pd.notna(apt[f"Rate3_{interval}MRI"]))
                 | (pd.notna(apt[f"Rate4_{interval}MRI"]))
             ),
-            f"{interval}_MaxAmt",
+            f"{interval}_MaxAmt_lbsacre",
         ] = apt["MaxAnnAmt_lbsacre"]
 
         # get all rows where interval_MaxAmt is NA and
@@ -239,12 +239,12 @@ def prepare_apt(apt: pd.DataFrame) -> pd.DataFrame:
         # for these rows, interval is not a valid interval
         # so write the amount as zero
         apt.loc[
-            pd.isna(apt[f"{interval}_MaxAmt"])
+            pd.isna(apt[f"{interval}_MaxAmt_lbsacre"])
             & (pd.isna(apt[f"Rate1_{interval}MRI"]))
             & (pd.isna(apt[f"Rate2_{interval}MRI"]))
             & (pd.isna(apt[f"Rate3_{interval}MRI"]))
             & (pd.isna(apt[f"Rate4_{interval}MRI"])),
-            f"{interval}_MaxAmt",
+            f"{interval}_MaxAmt_lbsacre",
         ] = 0
 
         # same thing for number of apps
