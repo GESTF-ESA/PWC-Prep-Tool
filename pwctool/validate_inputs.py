@@ -111,6 +111,14 @@ def _validate_apt(config: dict[str, Any], error_dialog: QDialog):
         err_message = "You might have the Ag Practices Table open in Excel. Please close it before running."
         _display_error_message(error_dialog, err_message)
         return False
+    except ValueError:
+        if config["APT_SCENARIO"] == "":
+            err_message = "Something is wrong with the specified Ag Practices Table sheet name. Please respecify the Ag Practices Table path and try again."
+            _display_error_message(error_dialog, err_message)
+        else:
+            err_message = "An unknown error occured. Please save the configuration, reload it, and try executing again."
+            _display_error_message(error_dialog, err_message)
+        return False
 
     # check that the first column of the apt is RunDescriptor
     try:
