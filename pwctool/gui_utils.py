@@ -36,7 +36,7 @@ def get_xl_sheet_names(drop_down: QComboBox, text_widget: QLineEdit, error_dialo
         except FileNotFoundError:
             error_dialog.errMsgLabel.setText(fnf_error_messages.get(table, "Unknown Table"))
             error_dialog.exec_()
-        except PermissionError:
+        except PermissionError:  # this happens when apt/drt is open when user loads a config
             error_dialog.errMsgLabel.setText(pm_error_messages.get(table, "Unknown Table"))
             error_dialog.exec_()
         else:
