@@ -24,6 +24,7 @@ import numpy as np
 from pwctool.pwct_batchfile_qc import qc_batch_file  # pylint: disable=import-error
 from pwctool.pwct_batchfile_qc import standardize_field_names  # pylint: disable=import-error
 from pwctool.pwct_algo_functions import lookup_states_from_crop  # pylint: disable=import-error
+from pwctool.pwct_algo_functions import get_drift_profile  # pylint: disable=import-error
 from pwctool.pwct_algo_functions import lookup_huc_from_state  # pylint: disable=import-error
 from pwctool.pwct_algo_functions import get_all_potential_app_dates  # pylint: disable=import-error
 from pwctool.pwct_algo_functions import get_interval  # pylint: disable=import-error
@@ -35,13 +36,10 @@ from pwctool.pwct_algo_functions import no_more_apps_can_be_made  # pylint: disa
 from pwctool.pwct_algo_functions import derive_instruction_date_restrictions  # pylint: disable=import-error
 
 from pwctool.constants import (
-    ALL_BINS,
     ALL_APPMETHODS,
     BURIED_APPMETHODS,
     ALL_DISTANCES,
-    ALL_DEPTHS,
     FOLIAR_APPMETHOD,
-    TBAND_APPMETHOD,
 )
 
 logger = logging.getLogger("adt_logger")  # retrieve logger configured in app_dates.py
@@ -491,7 +489,7 @@ class PwcToolAlgoThread(qtc.QThread):
             )
             huc2s = lookup_huc_from_state(self.state_to_huc_lookup_table, states)
             application_method = run_ag_pract["ApplicationMethod"]
-            drift_profile = run_ag_pract["DriftProfile"]
+            drift_profile = get_drift_profile(run_ag_pract)
             run_distances = run_distances_all_methods[application_method]
             depths, tband = self.get_app_method_depths_and_tband(application_method)
 
