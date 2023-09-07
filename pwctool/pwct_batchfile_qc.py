@@ -208,9 +208,9 @@ def prepare_apt(apt: pd.DataFrame) -> pd.DataFrame:
     """
 
     # convert amt field units to kg/ha to match batch file
-    apt["MaxAnnAmt"] = apt["MaxAnnAmt"] * 1.120851  # convert from lbs/ac to kg/ha
-    apt["PostEmergence_MaxAmt"] = apt["PostEmergence_MaxAmt"] * 1.120851
-    apt["PreEmergence_MaxAmt"] = apt["PreEmergence_MaxAmt"] * 1.120851
+    apt["MaxAnnAmt_lbsacre"] = apt["MaxAnnAmt_lbsacre"] * 1.120851  # convert from lbs/ac to kg/ha
+    apt["PostEmergence_MaxAmt_lbsacre"] = apt["PostEmergence_MaxAmt_lbsacre"] * 1.120851
+    apt["PreEmergence_MaxAmt_lbsacre"] = apt["PreEmergence_MaxAmt_lbsacre"] * 1.120851
 
     # apt.replace(to_replace=np.nan, value=pd.NA, inplace=True)
     apt = apt.reset_index(drop=False)
@@ -232,7 +232,7 @@ def prepare_apt(apt: pd.DataFrame) -> pd.DataFrame:
                 | (pd.notna(apt[f"Rate4_{interval}MRI"]))
             ),
             f"{interval}_MaxAmt",
-        ] = apt["MaxAnnAmt"]
+        ] = apt["MaxAnnAmt_lbsacre"]
 
         # get all rows where interval_MaxAmt is NA and
         # all of the rate specific interval MRIs are NA
@@ -372,13 +372,13 @@ def qc_batch_file(
         storage_table["Label_Ann_NumApps"].append(run_ag_practices["MaxAnnNumApps"])
 
         # maximum annual amount
-        if sum(app_rates) <= (run_ag_practices["MaxAnnAmt"] + APP_AMT_THRESHOLD):
+        if sum(app_rates) <= (run_ag_practices["MaxAnnAmt_lbsacre"] + APP_AMT_THRESHOLD):
             storage_table["Check_Ann_Amt_NotExceeded"].append(True)
         else:
             storage_table["Check_Ann_Amt_NotExceeded"].append(False)
         storage_table["Modeled_Ann_Amt"].append(sum(app_rates))
-        storage_table["Label_Ann_Amt"].append(run_ag_practices["MaxAnnAmt"])
-        storage_table["Difference_Ann_Amt"].append(sum(app_rates) - run_ag_practices["MaxAnnAmt"])
+        storage_table["Label_Ann_Amt"].append(run_ag_practices["MaxAnnAmt_lbsacre"])
+        storage_table["Difference_Ann_Amt"].append(sum(app_rates) - run_ag_practices["MaxAnnAmt_lbsacre"])
 
         # pre-emergence num apps
         if num_apps_pre <= run_ag_practices["PreEmergence_MaxNumApps"]:
@@ -389,13 +389,13 @@ def qc_batch_file(
         storage_table["Label_PreE_NumApps"].append(run_ag_practices["PreEmergence_MaxNumApps"])
 
         # pre-emergence max amt
-        if sum_app_rates_pre <= (run_ag_practices["PreEmergence_MaxAmt"] + APP_AMT_THRESHOLD):
+        if sum_app_rates_pre <= (run_ag_practices["PreEmergence_MaxAmt_lbsacre"] + APP_AMT_THRESHOLD):
             storage_table["Check_PreE_Amt_NotExceeded"].append(True)
         else:
             storage_table["Check_PreE_Amt_NotExceeded"].append(False)
         storage_table["Modeled_PreE_Amt"].append(sum_app_rates_pre)
-        storage_table["Label_PreE_Amt"].append(run_ag_practices["PreEmergence_MaxAmt"])
-        storage_table["Difference_PreE_Amt"].append(sum_app_rates_pre - run_ag_practices["PreEmergence_MaxAmt"])
+        storage_table["Label_PreE_Amt"].append(run_ag_practices["PreEmergence_MaxAmt_lbsacre"])
+        storage_table["Difference_PreE_Amt"].append(sum_app_rates_pre - run_ag_practices["PreEmergence_MaxAmt_lbsacre"])
 
         # post-emergence num apps
         if num_apps_post <= run_ag_practices["PostEmergence_MaxNumApps"]:
@@ -406,13 +406,15 @@ def qc_batch_file(
         storage_table["Label_PostE_NumApps"].append(run_ag_practices["PostEmergence_MaxNumApps"])
 
         # post-emergece max amt
-        if sum_app_rates_post <= (run_ag_practices["PostEmergence_MaxAmt"] + APP_AMT_THRESHOLD):
+        if sum_app_rates_post <= (run_ag_practices["PostEmergence_MaxAmt_lbsacre"] + APP_AMT_THRESHOLD):
             storage_table["Check_PostE_Amt_NotExceeded"].append(True)
         else:
             storage_table["Check_PostE_Amt_NotExceeded"].append(False)
         storage_table["Modeled_PostE_Amt"].append(sum_app_rates_post)
-        storage_table["Label_PostE_Amt"].append(run_ag_practices["PostEmergence_MaxAmt"])
-        storage_table["Difference_PostE_Amt"].append(sum_app_rates_post - run_ag_practices["PostEmergence_MaxAmt"])
+        storage_table["Label_PostE_Amt"].append(run_ag_practices["PostEmergence_MaxAmt_lbsacre"])
+        storage_table["Difference_PostE_Amt"].append(
+            sum_app_rates_post - run_ag_practices["PostEmergence_MaxAmt_lbsacre"]
+        )
 
         # check MRIs
         modeled_mris = []

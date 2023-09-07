@@ -397,8 +397,8 @@ def adjust_app_rate(app_rate: int, appdate_interval: str, ag_practices: pd.Serie
     if (count.at[appdate_interval, "amt_applied"] + app_rate) > ag_practices[f"{appdate_interval}_MaxAmt"]:
         app_rate = ag_practices[f"{appdate_interval}_MaxAmt"] - count.at[appdate_interval, "amt_applied"]
     # If interval application can be made, but max amount exceeds annual max amount, apply what you can
-    if (app_rate > 0) and (count.at["Total", "amt_applied"] + app_rate > ag_practices["MaxAnnAmt"]):
-        app_rate = ag_practices["MaxAnnAmt"] - count.at["Total", "amt_applied"]
+    if (app_rate > 0) and (count.at["Total", "amt_applied"] + app_rate > ag_practices["MaxAnnAmt_lbsacre"]):
+        app_rate = ag_practices["MaxAnnAmt_lbsacre"] - count.at["Total", "amt_applied"]
 
     return app_rate
 
@@ -423,7 +423,7 @@ def no_more_apps_can_be_made(count: pd.DataFrame, ag_practices: pd.Series):
 
     # If maximum annual limits have been reached, we are done assigning application dates for this run
     if (count.at["Total", "num_apps"] == ag_practices["MaxAnnNumApps"]) or (
-        count.at["Total", "amt_applied"] == ag_practices["MaxAnnAmt"]
+        count.at["Total", "amt_applied"] == ag_practices["MaxAnnAmt_lbsacre"]
     ):
         return True
 
@@ -432,10 +432,10 @@ def no_more_apps_can_be_made(count: pd.DataFrame, ag_practices: pd.Series):
     # the post-emergence num apps or amt applied is met
     if (
         (count.at["PreEmergence", "num_apps"] == ag_practices["PreEmergence_MaxNumApps"])
-        or (count.at["PreEmergence", "amt_applied"] == ag_practices["PreEmergence_MaxAmt"])
+        or (count.at["PreEmergence", "amt_applied"] == ag_practices["PreEmergence_MaxAmt_lbsacre"])
     ) and (
         (count.at["PostEmergence", "num_apps"] == ag_practices["PostEmergence_MaxNumApps"])
-        or (count.at["PostEmergence", "amt_applied"] == ag_practices["PostEmergence_MaxAmt"])
+        or (count.at["PostEmergence", "amt_applied"] == ag_practices["PostEmergence_MaxAmt_lbsacre"])
     ):
         return True
 

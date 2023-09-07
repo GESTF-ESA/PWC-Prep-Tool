@@ -124,8 +124,8 @@ def _validate_apt(config: dict[str, Any], error_dialog: QDialog):
 
     for indx, row in ag_practices.iterrows():
         # check that the annual restrictions and PHI are entered
-        if any(pd.isna(y) for y in [row["MaxAnnAmt"], row["MaxAnnNumApps"], row["PHI"]]):
-            err_message = f"The MaxAnnAmt, MaxAnnNumApps, or PHI is not specified for {indx} in Ag Practices Table. Ensure these are entered correctly and try again."
+        if any(pd.isna(y) for y in [row["MaxAnnAmt_lbsacre"], row["MaxAnnNumApps"], row["PHI"]]):
+            err_message = f"The MaxAnnAmt_lbsacre, MaxAnnNumApps, or PHI is not specified for {indx} in Ag Practices Table. Ensure these are entered correctly and try again."
             _display_error_message(error_dialog, err_message)
             return False
 
@@ -138,16 +138,16 @@ def _validate_apt(config: dict[str, Any], error_dialog: QDialog):
             return False
 
         # check that the annual maximum amount is an integer or float
-        if not isinstance(row["MaxAnnAmt"], (int, float)):
+        if not isinstance(row["MaxAnnAmt_lbsacre"], (int, float)):
             err_message = f"Ensure the AnnMaxAmt for {indx} in Ag Practices Table is an integer or float and try again."
             _display_error_message(error_dialog, err_message)
             return False
 
         # check that the pre E and post E maxamt and maxnumapps are the correct type if entered
-        for max_amt in ["PreEmergence_MaxAmt", "PostEmergence_MaxAmt"]:
+        for max_amt in ["PreEmergence_MaxAmt_lbsacre", "PostEmergence_MaxAmt_lbsacre"]:
             if pd.notna(row[max_amt]):
                 if not isinstance(row[max_amt], (int, float)):
-                    err_message = f"Ensure the PreEmergence_MaxAmt and PostEmergence_MaxAmt for {indx} in Ag Practices Table are an integer or float and try again."
+                    err_message = f"Ensure the PreEmergence_MaxAmt_lbsacre and PostEmergence_MaxAmt_lbsacre for {indx} in Ag Practices Table are an integer or float and try again."
                     _display_error_message(error_dialog, err_message)
                     return False
 
