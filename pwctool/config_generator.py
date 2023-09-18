@@ -33,6 +33,7 @@ def generate_configuration_from_gui(view) -> dict[str, Any]:
         "RANDOM_START_DATES": view.randomStartDatesBool.isChecked(),
         "RANDOM_SEED": view.randomSeed.text(),
         "DATE_PRIORITIZATION": view.datePriorComboBox.currentText(),
+        "WETMONTH_PRIORITIZATION": view.wettestMonthPrior.isChecked(),
     }
 
     _add_residential_adjustment_factor(config, view)

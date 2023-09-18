@@ -170,6 +170,7 @@ class Controller:
         config["RANDOM_SEED"] = ""
         config["RUN_ID"] = ""
         config["DATE_PRIORITIZATION"] = ""
+        config["WETMONTH_PRIORITIZATION"] = True
 
         init_gui_settings_from_config(self._view, config, self.error_dialog)
         self.deactivate_irrelevant_widgets()
@@ -271,6 +272,10 @@ class Controller:
                 enable_disable_app_methods(self._view, i, False)
 
             # date assignment parameters
+            self._view.wettestMonthPrior.setEnabled(False)
+            self._view.wettestMonthDesc.setStyleSheet("color:grey")
+            self._view.wettestMonthPriorLable.setStyleSheet("color: grey")
+
             self._view.datePriorComboBox.setEnabled(False)
             self._view.datePriorDesc.setStyleSheet("color:grey")
             self._view.datePriorLabel.setStyleSheet("color: grey")
@@ -326,14 +331,18 @@ class Controller:
         self._view.applicationsTabs.setStyleSheet("color: black")
 
         # date assignment parameters
+        self._view.wettestMonthPrior.setEnabled(True)
+        self._view.wettestMonthDesc.setStyleSheet("color: black")
+        self._view.wettestMonthPriorLable.setStyleSheet("color: black")
+
         self._view.datePriorComboBox.setEnabled(True)
-        self._view.datePriorDesc.setStyleSheet("color:black")
+        self._view.datePriorDesc.setStyleSheet("color: black")
         self._view.datePriorLabel.setStyleSheet("color: black")
 
         self._view.randomStartDatesBool.setEnabled(True)
         self._view.randomSeed.setEnabled(True)
-        self._view.randomDateDesc.setStyleSheet("color:black")
-        self._view.randomDateLabel.setStyleSheet("color:black")
+        self._view.randomDateDesc.setStyleSheet("color: black")
+        self._view.randomDateLabel.setStyleSheet("color: black")
         self._view.randomSeedLabel.setStyleSheet("color: black")
 
         # residential ADJ factor

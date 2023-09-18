@@ -60,30 +60,31 @@ def _init_gui_options(view: QWidget, config: dict[str, Any], error_dialog) -> No
         "RANDOM_SEED": view.randomSeed,
         "DATE_PRIORITIZATION": view.datePriorComboBox,
         "RESIDENTIAL_ADJ_FACTOR": view.resADJFactor,
+        "WETMONTH_PRIORITIZATION": view.wettestMonthPrior,
     }
 
     for setting, gui_widget in setting_mappings.items():
         setting_value = config.get(setting)
-        if setting_value:
-            if isinstance(gui_widget, QComboBox):
-                if gui_widget.findText(setting_value) == -1:  # setting_value not in combo box list
-                    if setting == "APT_SCENARIO":
-                        if view.agronomicPracticesTableLocation.text() == "":
-                            gui_widget.clear()
-                            gui_widget.addItem(setting_value)
-                        else:
-                            get_xl_sheet_names(gui_widget, view.agronomicPracticesTableLocation, error_dialog, "APT")
-                    elif setting == "DRT_SCENARIO":
-                        if view.agDriftReductionTableLocation.text() == "":
-                            gui_widget.clear()
-                            gui_widget.addItem(setting_value)
-                        else:
-                            get_xl_sheet_names(gui_widget, view.agDriftReductionTableLocation, error_dialog, "DRT")
-                gui_widget.setCurrentText(setting_value)
-            elif isinstance(gui_widget, QCheckBox):
-                gui_widget.setChecked(setting_value)
-            else:
-                gui_widget.setText(str(setting_value))
+        # if setting_value:
+        if isinstance(gui_widget, QComboBox):
+            if gui_widget.findText(setting_value) == -1:  # setting_value not in combo box list
+                if setting == "APT_SCENARIO":
+                    if view.agronomicPracticesTableLocation.text() == "":
+                        gui_widget.clear()
+                        gui_widget.addItem(setting_value)
+                    else:
+                        get_xl_sheet_names(gui_widget, view.agronomicPracticesTableLocation, error_dialog, "APT")
+                elif setting == "DRT_SCENARIO":
+                    if view.agDriftReductionTableLocation.text() == "":
+                        gui_widget.clear()
+                        gui_widget.addItem(setting_value)
+                    else:
+                        get_xl_sheet_names(gui_widget, view.agDriftReductionTableLocation, error_dialog, "DRT")
+            gui_widget.setCurrentText(setting_value)
+        elif isinstance(gui_widget, QCheckBox):
+            gui_widget.setChecked(setting_value)
+        else:
+            gui_widget.setText(str(setting_value))
 
 
 def _init_aquatic_bins(view: QWidget, config: dict[str, Any]) -> None:

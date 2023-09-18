@@ -20,7 +20,7 @@ from pwctool.constants import BURIED_APPMETHODS
 
 
 def lookup_states_from_crop(
-    crop_to_state_lookup_table: pd.DataFrame, run_ag_practices: pd.Series, label_convention_states: dict[str, list[str]]
+    crop_to_state_lookup_table: pd.DataFrame, run_ag_practices: pd.Series, label_convention_states: dict[str, str]
 ) -> list:
 
     run_apt_states: str = run_ag_practices["States"].replace(" ", "")
@@ -85,34 +85,6 @@ def get_drift_profile(run_ag_practices: pd.Series) -> str:
         drift_profile = run_ag_practices["DriftProfile"]
 
     return drift_profile
-
-
-def get_all_potential_app_dates(wettest_month_table: pd.DataFrame, huc2: str) -> list:
-    """Gets all the potential application dates for the entire year. Returns a
-    list of dates sorted in order of wettest months.
-
-    Args:
-        wettest_month_table (pd.DataFrame): wettest months dataframe
-        huc2 (str): huc2 id
-    Returns:
-        list: potential app dates
-    """
-
-    # map months to number of days in the month
-    days_in_month: dict = {}
-    for month in range(1, 13):
-        _, days_in_month[month] = calendar.monthrange(2021, month)
-
-    wettest_months = wettest_month_table.loc[huc2, :].values.tolist()
-    potential_app_dates = []
-
-    for month in wettest_months:
-        num_days_in_month = days_in_month[month]
-
-        for day in range(1, num_days_in_month + 1):
-            potential_app_dates.append(date(year=2021, month=month, day=day))
-
-    return potential_app_dates
 
 
 def get_interval(app_date: date, ag_practices: pd.Series) -> str:
