@@ -87,34 +87,6 @@ def get_drift_profile(run_ag_practices: pd.Series) -> str:
     return drift_profile
 
 
-def get_all_potential_app_dates(wettest_month_table: pd.DataFrame, huc2: str) -> list:
-    """Gets all the potential application dates for the entire year. Returns a
-    list of dates sorted in order of wettest months.
-
-    Args:
-        wettest_month_table (pd.DataFrame): wettest months dataframe
-        huc2 (str): huc2 id
-    Returns:
-        list: potential app dates
-    """
-
-    # map months to number of days in the month
-    days_in_month: dict = {}
-    for month in range(1, 13):
-        _, days_in_month[month] = calendar.monthrange(2021, month)
-
-    wettest_months = wettest_month_table.loc[huc2, :].values.tolist()
-    potential_app_dates = []
-
-    for month in wettest_months:
-        num_days_in_month = days_in_month[month]
-
-        for day in range(1, num_days_in_month + 1):
-            potential_app_dates.append(date(year=2021, month=month, day=day))
-
-    return potential_app_dates
-
-
 def get_interval(app_date: date, ag_practices: pd.Series) -> str:
     """Determines the interval for an application date. Post emergence interval is
     inclusive. Meaning if the app_date falls on the emergence or harvest date, it

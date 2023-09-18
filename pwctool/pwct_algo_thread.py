@@ -26,7 +26,6 @@ from pwctool.pwct_batchfile_qc import standardize_field_names  # pylint: disable
 from pwctool.pwct_algo_functions import lookup_states_from_crop  # pylint: disable=import-error
 from pwctool.pwct_algo_functions import get_drift_profile  # pylint: disable=import-error
 from pwctool.pwct_algo_functions import lookup_huc_from_state  # pylint: disable=import-error
-from pwctool.pwct_algo_functions import get_all_potential_app_dates  # pylint: disable=import-error
 from pwctool.pwct_algo_functions import get_interval  # pylint: disable=import-error
 from pwctool.pwct_algo_functions import get_rate  # pylint: disable=import-error
 from pwctool.pwct_algo_functions import check_app_validity  # pylint: disable=import-error
@@ -817,7 +816,7 @@ class PwcToolAlgoThread(qtc.QThread):
         # use np.inf (i.e., no limit) for unspecified constraints
         ag_practices.replace(to_replace=pd.NA, value=np.inf, inplace=True)
 
-        potential_app_dates = get_all_potential_app_dates(wettest_month_table, huc2)
+        potential_app_dates = self.get_all_potential_app_dates(wettest_month_table, huc2)
 
         loop_count = 0
         apps_can_be_made = True
@@ -921,6 +920,37 @@ class PwcToolAlgoThread(qtc.QThread):
                 self._error_max_amt.append(run_name)
 
         return applications
+
+    def get_all_potential_app_dates(self, wettest_month_table: pd.DataFrame, huc2: str) -> list:
+        """Gets all the potential application dates for the entire year. Returns a
+        list of dates sorted in sequential order or according to wettest months.
+
+        Args:
+            wettest_month_table (pd.DataFrame): wettest months table
+            huc2 (str): huc2 id
+        Returns:
+            list: potential app dates
+        """
+
+        # map months to number of days in the month
+        days_in_month: dict = {}
+        for month in range(1, 13):
+            _, days_in_month[month] = calendar.monthrange(2021, month)
+
+        potential_app_dates = []
+
+        if self.settings["WETMONTH_PRIORITIZATION"]:
+            months = wettest_month_table.loc[huc2, :].values.tolist()
+        else:
+            months = [month for month in range(1, 13)]
+
+        for month in months:
+            num_days_in_month = days_in_month[month]
+
+            for day in range(1, num_days_in_month + 1):
+                potential_app_dates.append(date(year=2021, month=month, day=day))
+
+        return potential_app_dates
 
     def get_start_date(self, potential_date: date):
         """Selects a random start date if random start dates is turned on"""
