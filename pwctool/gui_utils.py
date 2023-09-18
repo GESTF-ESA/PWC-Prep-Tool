@@ -16,9 +16,14 @@ from pwctool.constants import (
 def get_xl_sheet_names(drop_down: QComboBox, text_widget: QLineEdit, error_dialog: QDialog, table: str) -> None:
     """Gets the Excel sheet names for the APT or DRT and updates drop down"""
 
-    error_messages = {
+    fnf_error_messages = {
         "APT": "Invalid Agronomic Practices Table path, please correct and try again.",
         "DRT": "Invalid Drift Reduction Table path, please correct and try again.",
+    }
+
+    pm_error_messages = {
+        "APT": "Please close the Agronomic Practices Table before loading a configuration to avoid permission error and try again.",
+        "DRT": "Please close the Drift Reduction Table before loading a configuration to avoid permission error and try again.",
     }
 
     file_path = text_widget.text()
@@ -29,7 +34,10 @@ def get_xl_sheet_names(drop_down: QComboBox, text_widget: QLineEdit, error_dialo
         try:
             sheets: list = pd.ExcelFile(file_path).sheet_names
         except FileNotFoundError:
-            error_dialog.errMsgLabel.setText(error_messages.get(table, "Unknown Table"))
+            error_dialog.errMsgLabel.setText(fnf_error_messages.get(table, "Unknown Table"))
+            error_dialog.exec_()
+        except PermissionError:  # this happens when apt/drt is open when user loads a config
+            error_dialog.errMsgLabel.setText(pm_error_messages.get(table, "Unknown Table"))
             error_dialog.exec_()
         else:
             drop_down.addItems(sheets)

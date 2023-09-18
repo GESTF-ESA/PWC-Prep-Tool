@@ -16,6 +16,8 @@ import numpy as np
 
 logger = logging.getLogger("adt_logger")  # retrieve logger configured in app_dates.py
 
+from pwctool.constants import BURIED_APPMETHODS
+
 
 def lookup_states_from_crop(
     crop_to_state_lookup_table: pd.DataFrame, run_ag_practices: pd.Series, label_convention_states: dict[str, list[str]]
@@ -69,6 +71,20 @@ def lookup_huc_from_state(state_to_huc_lookup_table: pd.DataFrame, states: list[
     model_hucs = sorted(model_hucs)
 
     return model_hucs
+
+
+def get_drift_profile(run_ag_practices: pd.Series) -> str:
+    """Gets the drift profile associate with the use (row in APT) app method.
+    If the use is specified as an incorporated method (3-7), make sure the
+    drift profile is NODRIFT
+    """
+
+    if run_ag_practices["ApplicationMethod"] in BURIED_APPMETHODS:
+        drift_profile = "NODRIFT"
+    else:
+        drift_profile = run_ag_practices["DriftProfile"]
+
+    return drift_profile
 
 
 def get_all_potential_app_dates(wettest_month_table: pd.DataFrame, huc2: str) -> list:
