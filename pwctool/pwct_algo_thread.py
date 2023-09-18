@@ -446,13 +446,15 @@ class PwcToolAlgoThread(qtc.QThread):
         ingred_fate_params = dict(zip(ingredient_fate_params_table["Parameter"], ingredient_fate_params_table["Value"]))
 
         # convert lbs/acre to kg/ha for all rate fields
-        ag_practices_table["MaxAnnAmt"] = ag_practices_table["MaxAnnAmt"] * 1.120851  # convert from lbs/ac to kg/ha
-        ag_practices_table["PostEmergence_MaxAmt"] = ag_practices_table["PostEmergence_MaxAmt"] * 1.120851
-        ag_practices_table["PreEmergence_MaxAmt"] = ag_practices_table["PreEmergence_MaxAmt"] * 1.120851
-        ag_practices_table["Rate1_MaxAppRate"] = ag_practices_table["Rate1_MaxAppRate"] * 1.120851
-        ag_practices_table["Rate2_MaxAppRate"] = ag_practices_table["Rate2_MaxAppRate"] * 1.120851
-        ag_practices_table["Rate3_MaxAppRate"] = ag_practices_table["Rate3_MaxAppRate"] * 1.120851
-        ag_practices_table["Rate4_MaxAppRate"] = ag_practices_table["Rate4_MaxAppRate"] * 1.120851
+        ag_practices_table["MaxAnnAmt_lbsacre"] = ag_practices_table["MaxAnnAmt_lbsacre"] * 1.120851
+        ag_practices_table["PostEmergence_MaxAmt_lbsacre"] = (
+            ag_practices_table["PostEmergence_MaxAmt_lbsacre"] * 1.120851
+        )
+        ag_practices_table["PreEmergence_MaxAmt_lbsacre"] = ag_practices_table["PreEmergence_MaxAmt_lbsacre"] * 1.120851
+        ag_practices_table["Rate1_MaxAppRate_lbsacre"] = ag_practices_table["Rate1_MaxAppRate_lbsacre"] * 1.120851
+        ag_practices_table["Rate2_MaxAppRate_lbsacre"] = ag_practices_table["Rate2_MaxAppRate_lbsacre"] * 1.120851
+        ag_practices_table["Rate3_MaxAppRate_lbsacre"] = ag_practices_table["Rate3_MaxAppRate_lbsacre"] * 1.120851
+        ag_practices_table["Rate4_MaxAppRate_lbsacre"] = ag_practices_table["Rate4_MaxAppRate_lbsacre"] * 1.120851
         # use zero for PHI if not specified
         ag_practices_table["PHI"].fillna(value=0, inplace=True)
 
@@ -847,7 +849,7 @@ class PwcToolAlgoThread(qtc.QThread):
                     and (app_rate > 0)
                     and (count.at[rate_id, "num_apps"] + 1 <= ag_practices[f"{rate_id}_MaxNumApps"])
                     and (count.at["Total", "num_apps"] + 1 <= ag_practices["MaxAnnNumApps"])
-                    and (count.at["Total", "amt_applied"] + app_rate <= ag_practices["MaxAnnAmt"])
+                    and (count.at["Total", "amt_applied"] + app_rate <= ag_practices["MaxAnnAmt_lbsacre"])
                 ):
                     # add application to the list and update counts
                     applications.append((app_date, app_rate))
@@ -909,9 +911,9 @@ class PwcToolAlgoThread(qtc.QThread):
             )
             logger.debug(f"\nFinal Totals:\n{count}")
 
-            if count.at["Total", "Amt. Applied (kg/ha)"] + 0.01 < ag_practices["MaxAnnAmt"]:
+            if count.at["Total", "Amt. Applied (kg/ha)"] + 0.01 < ag_practices["MaxAnnAmt_lbsacre"]:
                 logger.warning(
-                    f"\n WARNING: Annual maximum application amount of {ag_practices['MaxAnnAmt']} kg AI/ha not applied."
+                    f"\n WARNING: Annual maximum application amount of {ag_practices['MaxAnnAmt_lbsacre']} kg AI/ha not applied."
                 )
                 logger.warning(" Please ensure the agronomic practices table (APT) is correct.")
                 logger.warning(" If the APT is correct, and random dates is turned on, it may be")

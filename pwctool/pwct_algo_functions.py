@@ -146,7 +146,7 @@ def get_rate(
 
         for i in range(1, 5):
 
-            if ag_practices[f"Rate{i}_MaxAppRate"] == np.inf:  # rate doesn't exist
+            if ag_practices[f"Rate{i}_MaxAppRate_lbsacre"] == np.inf:  # rate doesn't exist
                 rate_id = pd.NA  # all valid rates have been accounted for
                 app_rate = 0
                 valid_app_rate = False
@@ -162,16 +162,16 @@ def get_rate(
 
                         # if the interval limits are not reached
                         if (count.at[rate_interval, "num_apps"] < ag_practices[f"{rate_interval}_MaxNumApps"]) and (
-                            count.at[rate_interval, "amt_applied"] < ag_practices[f"{rate_interval}_MaxAmt"]
+                            count.at[rate_interval, "amt_applied"] < ag_practices[f"{rate_interval}_MaxAmt_lbsacre"]
                         ):
                             rate_id = f"Rate{i}"
-                            app_rate = ag_practices[f"Rate{i}_MaxAppRate"]
+                            app_rate = ag_practices[f"Rate{i}_MaxAppRate_lbsacre"]
                             valid_app_rate = True
                             break
 
                     elif len(ag_practices[f"Rate{i}_ValidIntervals"]) == 2:
                         rate_id = f"Rate{i}"
-                        app_rate = ag_practices[f"Rate{i}_MaxAppRate"]
+                        app_rate = ag_practices[f"Rate{i}_MaxAppRate_lbsacre"]
                         valid_app_rate = True
                         break
 
@@ -183,7 +183,7 @@ def get_rate(
     else:  # date prioritization is wettest month
         for i in range(1, 5):
 
-            if ag_practices[f"Rate{i}_MaxAppRate"] == np.inf:  # rate doesn't exist
+            if ag_practices[f"Rate{i}_MaxAppRate_lbsacre"] == np.inf:  # rate doesn't exist
                 rate_id = pd.NA  # all valid rates have been accounted for
                 app_rate = 0
                 valid_app_rate = False
@@ -200,7 +200,7 @@ def get_rate(
                         if meets_instruction_constraints(app_date, ag_practices, f"Rate{i}"):
 
                             rate_id = f"Rate{i}"
-                            app_rate = ag_practices[f"Rate{i}_MaxAppRate"]
+                            app_rate = ag_practices[f"Rate{i}_MaxAppRate_lbsacre"]
                             valid_app_rate = True
                             break
 
@@ -240,7 +240,9 @@ def check_app_validity(
         return bool(
             (appdate_interval in ag_practices[f"{rate_id}_ValidIntervals"])
             and (count.at[appdate_interval, "num_apps"] + 1 <= ag_practices[f"{appdate_interval}_MaxNumApps"])
-            and (count.at[appdate_interval, "amt_applied"] + 0.001 <= ag_practices[f"{appdate_interval}_MaxAmt"])
+            and (
+                count.at[appdate_interval, "amt_applied"] + 0.001 <= ag_practices[f"{appdate_interval}_MaxAmt_lbsacre"]
+            )
             and (meets_instruction_constraints(app_date, ag_practices, rate_id))
             and (not within_mri(app_date, applications, int(ag_practices[f"{rate_id}_{appdate_interval}MRI"])))
             and (not within_phi(app_date, appdate_interval, ag_practices))
@@ -394,11 +396,11 @@ def adjust_app_rate(app_rate: int, appdate_interval: str, ag_practices: pd.Serie
         int: potentially adjusted application rate
     """
     # If interval application can be made, but max amount exceeds interval max amount, apply what you can
-    if (count.at[appdate_interval, "amt_applied"] + app_rate) > ag_practices[f"{appdate_interval}_MaxAmt"]:
-        app_rate = ag_practices[f"{appdate_interval}_MaxAmt"] - count.at[appdate_interval, "amt_applied"]
+    if (count.at[appdate_interval, "amt_applied"] + app_rate) > ag_practices[f"{appdate_interval}_MaxAmt_lbsacre"]:
+        app_rate = ag_practices[f"{appdate_interval}_MaxAmt_lbsacre"] - count.at[appdate_interval, "amt_applied"]
     # If interval application can be made, but max amount exceeds annual max amount, apply what you can
-    if (app_rate > 0) and (count.at["Total", "amt_applied"] + app_rate > ag_practices["MaxAnnAmt"]):
-        app_rate = ag_practices["MaxAnnAmt"] - count.at["Total", "amt_applied"]
+    if (app_rate > 0) and (count.at["Total", "amt_applied"] + app_rate > ag_practices["MaxAnnAmt_lbsacre"]):
+        app_rate = ag_practices["MaxAnnAmt_lbsacre"] - count.at["Total", "amt_applied"]
 
     return app_rate
 
@@ -423,7 +425,7 @@ def no_more_apps_can_be_made(count: pd.DataFrame, ag_practices: pd.Series):
 
     # If maximum annual limits have been reached, we are done assigning application dates for this run
     if (count.at["Total", "num_apps"] == ag_practices["MaxAnnNumApps"]) or (
-        count.at["Total", "amt_applied"] == ag_practices["MaxAnnAmt"]
+        count.at["Total", "amt_applied"] == ag_practices["MaxAnnAmt_lbsacre"]
     ):
         return True
 
@@ -432,17 +434,17 @@ def no_more_apps_can_be_made(count: pd.DataFrame, ag_practices: pd.Series):
     # the post-emergence num apps or amt applied is met
     if (
         (count.at["PreEmergence", "num_apps"] == ag_practices["PreEmergence_MaxNumApps"])
-        or (count.at["PreEmergence", "amt_applied"] == ag_practices["PreEmergence_MaxAmt"])
+        or (count.at["PreEmergence", "amt_applied"] == ag_practices["PreEmergence_MaxAmt_lbsacre"])
     ) and (
         (count.at["PostEmergence", "num_apps"] == ag_practices["PostEmergence_MaxNumApps"])
-        or (count.at["PostEmergence", "amt_applied"] == ag_practices["PostEmergence_MaxAmt"])
+        or (count.at["PostEmergence", "amt_applied"] == ag_practices["PostEmergence_MaxAmt_lbsacre"])
     ):
         return True
 
     # check if the all the rates have been exausted
     exhausted_rates = []
     for i in [1, 2, 3, 4]:
-        if ag_practices[f"Rate{i}_MaxAppRate"] != np.inf:  # rate exists
+        if ag_practices[f"Rate{i}_MaxAppRate_lbsacre"] != np.inf:  # rate exists
             if count.at[f"Rate{i}", "num_apps"] == ag_practices[f"Rate{i}_MaxNumApps"]:
                 exhausted_rates.append(True)  # rate is exhausted
             else:
