@@ -3211,7 +3211,7 @@
                       </font>
                      </property>
                      <property name="text">
-                      <string>Select how to prioritize application dates to ensure conservatism.  If Max App. Rate is selected, the application dates will be prioritized based on the highest application rates.  If wettest month is selected, application dates will be prioritized based on the wettest month.</string>
+                      <string>In rare cases, wettest month prioritization and the maximum application rate cannot both be prioritized to the fullest degree of conservatism. In these cases, the user may specify one to be prioritized. This is only applicable if wettest month parameterization is turned on and there is a use defined in the Ag Practices Table that has specific characteristics. See documentation for more.</string>
                      </property>
                      <property name="wordWrap">
                       <bool>true</bool>
