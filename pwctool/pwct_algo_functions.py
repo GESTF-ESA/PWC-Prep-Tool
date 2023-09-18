@@ -20,7 +20,7 @@ from pwctool.constants import BURIED_APPMETHODS
 
 
 def lookup_states_from_crop(
-    crop_to_state_lookup_table: pd.DataFrame, run_ag_practices: pd.Series, label_convention_states: dict[str, list[str]]
+    crop_to_state_lookup_table: pd.DataFrame, run_ag_practices: pd.Series, label_convention_states: dict[str, str]
 ) -> list:
 
     run_apt_states: str = run_ag_practices["States"].replace(" ", "")
