@@ -3089,7 +3089,7 @@
                  <item row="0" column="0">
                   <layout class="QHBoxLayout" name="horizontalLayout_4">
                    <item>
-                    <widget class="QLabel" name="datePriorLabel_2">
+                    <widget class="QLabel" name="wettestMonthPriorLable">
                      <property name="font">
                       <font>
                        <family>Segoe UI</family>
@@ -3104,7 +3104,7 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QCheckBox" name="checkBox">
+                    <widget class="QCheckBox" name="wettestMonthPrior">
                      <property name="text">
                       <string/>
                      </property>
@@ -3127,7 +3127,7 @@
                     </spacer>
                    </item>
                    <item>
-                    <widget class="QLabel" name="datePriorDesc_2">
+                    <widget class="QLabel" name="wettestMonthDesc">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                        <horstretch>0</horstretch>
