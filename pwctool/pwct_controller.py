@@ -21,6 +21,7 @@ from pwctool.gui_utils import (
     get_xl_sheet_names,
     restrict_application_methods,
     enable_disable_app_methods,
+    enable_disable_assessment_type,
 )
 from pwctool.validate_inputs import validate_input_files
 
@@ -114,6 +115,9 @@ class Controller:
         config = {}
         config["USE_CASE"] = use_case
 
+        config["ASSESSMENT_TYPE"] = "fifra"
+        config["SCN_HUCS"] = "new"
+
         config["FILE_PATHS"] = {}
         config["FILE_PATHS"]["PWC_BATCH_CSV"] = ""
         config["FILE_PATHS"]["OUTPUT_DIR"] = ""
@@ -173,6 +177,7 @@ class Controller:
         config["WETMONTH_PRIORITIZATION"] = True
 
         init_gui_settings_from_config(self._view, config, self.error_dialog)
+        enable_disable_assessment_type(self._view)
         self.deactivate_irrelevant_widgets()
         self.saved_config_path = ""
 
@@ -286,6 +291,22 @@ class Controller:
             self._view.randomDateLabel.setStyleSheet("color:grey")
             self._view.randomSeedLabel.setStyleSheet("color: grey")
 
+            # disable assessment tab widgets
+            self._view.fifraRadButton.setEnabled(False)
+            self._view.fifraRadButton.setStyleSheet("color:grey")
+            self._view.esaRadButton.setEnabled(False)
+            self._view.esaRadButton.setStyleSheet("color:grey")
+
+            self._view.newScnHucRadButton.setEnabled(False)
+            self._view.newScnHucRadButton.setStyleSheet("color:grey")
+            self._view.legacyScnHucRadButton.setEnabled(False)
+            self._view.legacyScnHucRadButton.setStyleSheet("color:grey")
+
+            self._view.assessmentTypeLabel.setStyleSheet("color:grey")
+            self._view.scnHucLabel.setStyleSheet("color:grey")
+            self._view.assessmentDesc.setStyleSheet("color:grey")
+            self._view.assessmentDesc2.setStyleSheet("color:grey")
+
             # residential ADJ factor
             self._view.resADJFactorLabel.setStyleSheet("color: grey")
             self._view.redADJFactDesc.setStyleSheet("color: grey")
@@ -302,6 +323,23 @@ class Controller:
         self._view.pwcBatchFileLocation.setEnabled(True)
         self._view.pwcBatchFileLabel.setStyleSheet("color: black")
         self._view.fileBrowseSourcePWCBatch.setEnabled(True)
+
+        # enable assessment tab widgets
+        self._view.fifraRadButton.setEnabled(True)
+        self._view.fifraRadButton.setStyleSheet("color:black")
+        self._view.esaRadButton.setEnabled(True)
+        self._view.esaRadButton.setStyleSheet("color:black")
+
+        self._view.newScnHucRadButton.setEnabled(True)
+        self._view.newScnHucRadButton.setStyleSheet("color:black")
+        self._view.legacyScnHucRadButton.setEnabled(True)
+        self._view.legacyScnHucRadButton.setStyleSheet("color:black")
+
+        self._view.assessmentTypeLabel.setStyleSheet("color:black")
+        self._view.scnHucLabel.setStyleSheet("color:black")
+        self._view.assessmentDesc.setStyleSheet("color:black")
+        self._view.assessmentDesc2.setStyleSheet("color:black")
+
         # other tables
         self._view.wettestMonthTableLocation.setEnabled(True)
         self._view.fileBrowseWettestMonthTable.setStyleSheet("color: black")
@@ -509,6 +547,10 @@ class Controller:
         # use case
         self._view.useCaseComboBox.currentTextChanged.connect(self.update_use_case_description)
         self._view.useCaseComboBox.currentTextChanged.connect(self.deactivate_irrelevant_widgets)
+
+        # assessment tab
+        self._view.fifraRadButton.toggled.connect(partial(enable_disable_assessment_type, self._view))
+        self._view.esaRadButton.toggled.connect(partial(enable_disable_assessment_type, self._view))
 
         # set file locations
         self._view.fileBrowseSourcePWCBatch.clicked.connect(

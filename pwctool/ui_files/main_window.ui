@@ -1264,7 +1264,7 @@
                   </layout>
                  </item>
                  <item row="1" column="2" colspan="2">
-                  <widget class="QLabel" name="label_2">
+                  <widget class="QLabel" name="assessmentDesc2">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                      <horstretch>0</horstretch>
@@ -1729,7 +1729,7 @@
                     </font>
                    </property>
                    <property name="currentIndex">
-                    <number>0</number>
+                    <number>6</number>
                    </property>
                    <widget class="QWidget" name="bareGroundAppTab">
                     <attribute name="title">

@@ -13,6 +13,23 @@ from pwctool.constants import (
 )
 
 
+def enable_disable_assessment_type(view):
+    """Enables and disables widgets based on assessment type selection"""
+
+    if view.fifraRadButton.isChecked():
+
+        # scenario/hucs
+        view.newScnHucRadButton.setChecked(True)
+        view.legacyScnHucRadButton.setEnabled(False)
+        view.legacyScnHucRadButton.setStyleSheet("color:grey")
+
+    if view.esaRadButton.isChecked():
+
+        # scenario/hucs
+        view.legacyScnHucRadButton.setEnabled(True)
+        view.legacyScnHucRadButton.setStyleSheet("color:black")
+
+
 def get_xl_sheet_names(drop_down: QComboBox, text_widget: QLineEdit, error_dialog: QDialog, table: str) -> None:
     """Gets the Excel sheet names for the APT or DRT and updates drop down"""
 

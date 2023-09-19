@@ -21,6 +21,7 @@ from pwctool.gui_utils import get_xl_sheet_names
 def init_gui_settings_from_config(view: QWidget, config: dict[str, Any], error_dialog: QDialog) -> None:
     """Sets the GUI settings based on the values in the config file"""
 
+    _init_assessment_widgets(view, config)
     _init_file_paths(view, config)
     _init_gui_options(view, config, error_dialog)
     _init_aquatic_bins(view, config)
@@ -28,6 +29,20 @@ def init_gui_settings_from_config(view: QWidget, config: dict[str, Any], error_d
 
     # Reset the progress bar
     view.progressBar.setValue(0)
+
+
+def _init_assessment_widgets(view, config: dict[str, Any]) -> None:
+    """Sets the assessment widgets"""
+
+    if config["ASSESSMENT_TYPE"] == "fifra":
+        view.fifraRadButton.setChecked(True)
+    else:
+        view.esaRadButton.setChecked(True)
+
+    if config["SCN_HUCS"] == "new":
+        view.newScnHucRadButton.setChecked(True)
+    else:
+        view.legacyScnHucRadButton.setChecked(True)
 
 
 def _init_file_paths(view: QWidget, config: dict[str, Any]) -> None:

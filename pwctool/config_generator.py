@@ -39,6 +39,7 @@ def generate_configuration_from_gui(view) -> dict[str, Any]:
     _add_residential_adjustment_factor(config, view)
     _add_bin_settings(config, view)
     _add_appmeth_settings(config, view)
+    _add_assessment_settings(config, view)
 
     return config
 
@@ -106,3 +107,17 @@ def _add_appmeth_settings(config: dict[str, Any], view) -> None:
                     config[f"APPMETH{method_num}_DRIFT_ONLY"][distance] = getattr(
                         view, f"appmeth{method_num}_{distance}_driftonly"
                     ).isChecked()
+
+
+def _add_assessment_settings(config: dict[str, Any], view):
+    """Adds the assessment settings to the config"""
+
+    if view.fifraRadButton.isChecked():
+        config["ASSESSMENT_TYPE"] = "fifra"
+    else:
+        config["ASSESSMENT_TYPE"] = "esa"
+
+    if view.newScnHucRadButton.isChecked():
+        config["SCN_HUCS"] = "new"
+    else:
+        config["SCN_HUCS"] = "legacy"
