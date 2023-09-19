@@ -258,7 +258,7 @@ class Controller:
             self._view.fileBrowseBintoLandscapeParams.setEnabled(False)
             self._view.binToLandscapeTable.setStyleSheet("color: grey")
 
-            # disable bin tab
+            # disable waterbody widgets
             self._view.binsParamDescription.setStyleSheet("color: grey")
             self._view.binLabel.setStyleSheet("color:grey")
             self._view.binSelectAll.setEnabled(False)
@@ -266,6 +266,13 @@ class Controller:
             self._view.bin4CheckBox.setEnabled(False)
             self._view.bin7CheckBox.setEnabled(False)
             self._view.bin10CheckBox.setEnabled(False)
+
+            self._view.fifraWBLabel.setStyleSheet("color:grey")
+            self._view.fifraWBSelectAll.setEnabled(False)
+            self._view.fifraWBClearAll.setEnabled(False)
+            self._view.indxResCheckBox.setEnabled(False)
+            self._view.farmPondCheckBox.setEnabled(False)
+            self._view.wetlandCheckBox.setEnabled(False)
 
             # disable app distances tab
             self._view.applicationsTabDesc1.setStyleSheet("color: grey")
@@ -354,7 +361,7 @@ class Controller:
         self._view.fileBrowseBintoLandscapeParams.setEnabled(True)
         self._view.binToLandscapeTable.setStyleSheet("color: black")
 
-        # enable bin tab
+        # enable waterbody widgets
         self._view.binsParamDescription.setStyleSheet("color: black")
         self._view.binLabel.setStyleSheet("color:black")
         self._view.binSelectAll.setEnabled(True)
@@ -362,6 +369,13 @@ class Controller:
         self._view.bin4CheckBox.setEnabled(True)
         self._view.bin7CheckBox.setEnabled(True)
         self._view.bin10CheckBox.setEnabled(True)
+
+        self._view.fifraWBLabel.setStyleSheet("color:black")
+        self._view.fifraWBSelectAll.setEnabled(True)
+        self._view.fifraWBClearAll.setEnabled(True)
+        self._view.indxResCheckBox.setEnabled(True)
+        self._view.farmPondCheckBox.setEnabled(True)
+        self._view.wetlandCheckBox.setEnabled(True)
 
         # enable app distances tab
         self._view.applicationsTabDesc1.setStyleSheet("color: black")

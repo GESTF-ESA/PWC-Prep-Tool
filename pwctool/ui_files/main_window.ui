@@ -705,7 +705,7 @@
                </font>
               </property>
               <property name="text">
-               <string>Bin Parameters</string>
+               <string>Waterbody Parameters</string>
               </property>
              </widget>
             </item>
@@ -1359,7 +1359,7 @@
                  <item row="0" column="0">
                   <widget class="QLabel" name="binsParamDescription">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
@@ -1407,7 +1407,7 @@
                      <rect>
                       <x>10</x>
                       <y>11</y>
-                      <width>249</width>
+                      <width>251</width>
                       <height>131</height>
                      </rect>
                     </property>
@@ -1429,7 +1429,7 @@
                         </font>
                        </property>
                        <property name="text">
-                        <string>Waterbody</string>
+                        <string>ESA Waterbody</string>
                        </property>
                       </widget>
                      </item>
@@ -1442,7 +1442,7 @@
                         </font>
                        </property>
                        <property name="text">
-                        <string>Flowing - ESA Bin 4 (Index Reservoir)</string>
+                        <string>Bin 4</string>
                        </property>
                       </widget>
                      </item>
@@ -1455,7 +1455,7 @@
                         </font>
                        </property>
                        <property name="text">
-                        <string>Static - ESA Bin 7 (Farm Pond)</string>
+                        <string>Bin 7</string>
                        </property>
                       </widget>
                      </item>
@@ -1468,7 +1468,7 @@
                         </font>
                        </property>
                        <property name="text">
-                        <string>Wetland - ESA Bin 1</string>
+                        <string>Bin 1</string>
                        </property>
                       </widget>
                      </item>
@@ -1513,6 +1513,153 @@
                        </item>
                        <item>
                         <widget class="QPushButton" name="binClearAll">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>60</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>50</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                         <property name="font">
+                          <font>
+                           <family>Segoe UI</family>
+                           <pointsize>10</pointsize>
+                          </font>
+                         </property>
+                         <property name="statusTip">
+                          <string>Clear selection</string>
+                         </property>
+                         <property name="text">
+                          <string>Clear</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                    </layout>
+                   </widget>
+                   <widget class="QWidget" name="layoutWidget_2">
+                    <property name="geometry">
+                     <rect>
+                      <x>195</x>
+                      <y>10</y>
+                      <width>247</width>
+                      <height>131</height>
+                     </rect>
+                    </property>
+                    <layout class="QVBoxLayout" name="verticalLayout_7">
+                     <item>
+                      <widget class="QLabel" name="fifraWBLabel">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <family>Segoe UI</family>
+                         <pointsize>10</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>FIFRA Waterbody</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QCheckBox" name="indxResCheckBox">
+                       <property name="font">
+                        <font>
+                         <family>Segoe UI</family>
+                         <pointsize>10</pointsize>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Index Reservoir</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QCheckBox" name="farmPondCheckBox">
+                       <property name="font">
+                        <font>
+                         <family>Segoe UI</family>
+                         <pointsize>10</pointsize>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Farm Pond</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QCheckBox" name="wetlandCheckBox">
+                       <property name="font">
+                        <font>
+                         <family>Segoe UI</family>
+                         <pointsize>10</pointsize>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Wetland</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_22" stretch="0,0">
+                       <property name="rightMargin">
+                        <number>118</number>
+                       </property>
+                       <item>
+                        <widget class="QPushButton" name="fifraWBSelectAll">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>60</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>50</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                         <property name="font">
+                          <font>
+                           <family>Segoe UI</family>
+                           <pointsize>10</pointsize>
+                          </font>
+                         </property>
+                         <property name="statusTip">
+                          <string>Select all distances for ground applications</string>
+                         </property>
+                         <property name="text">
+                          <string>All</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="fifraWBClearAll">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                            <horstretch>0</horstretch>
