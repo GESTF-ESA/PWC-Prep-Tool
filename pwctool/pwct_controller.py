@@ -22,6 +22,7 @@ from pwctool.gui_utils import (
     restrict_application_methods,
     enable_disable_app_methods,
     enable_disable_assessment_type,
+    enable_disable_wettest_month_table,
 )
 from pwctool.validate_inputs import validate_input_files
 
@@ -178,6 +179,7 @@ class Controller:
 
         init_gui_settings_from_config(self._view, config, self.error_dialog)
         enable_disable_assessment_type(self._view)
+        enable_disable_wettest_month_table(self._view)
         self.deactivate_irrelevant_widgets()
         self.saved_config_path = ""
 
@@ -565,6 +567,9 @@ class Controller:
         # assessment tab
         self._view.fifraRadButton.toggled.connect(partial(enable_disable_assessment_type, self._view))
         self._view.esaRadButton.toggled.connect(partial(enable_disable_assessment_type, self._view))
+
+        # date assignment tab
+        self._view.wettestMonthPrior.stateChanged.connect(partial(enable_disable_wettest_month_table, self._view))
 
         # set file locations
         self._view.fileBrowseSourcePWCBatch.clicked.connect(

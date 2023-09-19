@@ -13,6 +13,23 @@ from pwctool.constants import (
 )
 
 
+def enable_disable_wettest_month_table(view):
+    """Enables and disables the wettest month file location based on wettest
+    month checkbox"""
+
+    if view.wettestMonthPrior.isChecked():
+        view.wettestMonthTableLabel.setStyleSheet("color:black")
+        view.wettestMonthTableLocation.setEnabled(True)
+        view.fileBrowseWettestMonthTable.setEnabled(True)
+        view.fileBrowseWettestMonthTable.setStyleSheet("color:black")
+
+    else:
+        view.wettestMonthTableLabel.setStyleSheet("color:grey")
+        view.wettestMonthTableLocation.setEnabled(False)
+        view.fileBrowseWettestMonthTable.setEnabled(False)
+        view.fileBrowseWettestMonthTable.setStyleSheet("color:grey")
+
+
 def enable_disable_assessment_type(view):
     """Enables and disables widgets based on assessment type selection"""
 

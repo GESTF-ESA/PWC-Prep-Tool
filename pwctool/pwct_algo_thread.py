@@ -12,7 +12,7 @@ import random
 import sys
 import calendar
 from datetime import date
-from typing import Any
+from typing import Any, Union
 
 from PyQt5 import QtCore as qtc
 
@@ -289,9 +289,13 @@ class PwcToolAlgoThread(qtc.QThread):
             # read relavent tables
             ag_practices_table = self.read_ag_practices_table()
             drift_reduction_table = self.read_drift_reduction_table()
-            wettest_month_table = pd.read_csv(self.settings["FILE_PATHS"]["WETTEST_MONTH_CSV"], index_col="HUC2")
             ingredient_fate_params_table = self.read_ingredient_fate_parameters_table()
             bin_to_landsape_params_lookup_table = self.read_bin_to_landscape_lookup_table()
+
+            if self.settings["WETMONTH_PRIORITIZATION"]:
+                wettest_month_table = pd.read_csv(self.settings["FILE_PATHS"]["WETTEST_MONTH_CSV"], index_col="HUC2")
+            else:
+                wettest_month_table = None
 
             self.generate_batch_file_from_scratch(
                 ag_practices_table,
@@ -418,7 +422,7 @@ class PwcToolAlgoThread(qtc.QThread):
         self,
         ag_practices_table: pd.DataFrame,
         drift_reduction_table: pd.DataFrame,
-        wettest_month_table: pd.DataFrame,
+        wettest_month_table: Union[pd.DataFrame, None],
         ingredient_fate_params_table: pd.DataFrame,
         bin_to_landsape_params_lookup_table: pd.DataFrame,
     ):
@@ -578,8 +582,9 @@ class PwcToolAlgoThread(qtc.QThread):
                                 if first_run_in_huc:
                                     logger.debug("\nRun Ag. Practices:")
                                     logger.debug(run_ag_pract)
-                                    logger.debug("\nWettest Months:")
-                                    logger.debug(wettest_month_table.loc[huc2, :].T)
+                                    if self.settings["WETMONTH_PRIORITIZATION"]:
+                                        logger.debug("\nWettest Months:")
+                                        logger.debug(wettest_month_table.loc[huc2, :].T)
 
                                 run_storage: dict[str, Any] = {}  # new run (row) in batch file
 
@@ -777,7 +782,7 @@ class PwcToolAlgoThread(qtc.QThread):
 
     def assign_application_dates(
         self,
-        wettest_month_table: pd.DataFrame,
+        wettest_month_table: Union[pd.DataFrame, None],
         ag_practices: pd.Series,
         huc2: str,
         first_run_in_huc: bool,
@@ -921,7 +926,7 @@ class PwcToolAlgoThread(qtc.QThread):
 
         return applications
 
-    def get_all_potential_app_dates(self, wettest_month_table: pd.DataFrame, huc2: str) -> list:
+    def get_all_potential_app_dates(self, wettest_month_table: Union[pd.DataFrame, None], huc2: str) -> list:
         """Gets all the potential application dates for the entire year. Returns a
         list of dates sorted in sequential order or according to wettest months.
 
