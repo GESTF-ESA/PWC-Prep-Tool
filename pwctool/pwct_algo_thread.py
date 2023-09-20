@@ -15,11 +15,12 @@ from datetime import date
 from typing import Any, Union
 
 from PyQt5 import QtCore as qtc
+from PyQt5.QtWidgets import QDialog
 
 import pandas as pd
 import numpy as np
 
-import debugpy
+# import debugpy
 
 from pwctool.pwct_batchfile_qc import qc_batch_file  # pylint: disable=import-error
 from pwctool.pwct_batchfile_qc import standardize_field_names  # pylint: disable=import-error
@@ -34,268 +35,19 @@ from pwctool.pwct_algo_functions import adjust_app_rate  # pylint: disable=impor
 from pwctool.pwct_algo_functions import no_more_apps_can_be_made  # pylint: disable=import-error
 from pwctool.pwct_algo_functions import derive_instruction_date_restrictions  # pylint: disable=import-error
 
-from pwctool.constants import ALL_APPMETHODS, BURIED_APPMETHODS, ALL_DISTANCES, FOLIAR_APPMETHOD, WATERBODY_PARAMS
+from pwctool.constants import (
+    ALL_APPMETHODS,
+    BURIED_APPMETHODS,
+    ALL_DISTANCES,
+    FOLIAR_APPMETHOD,
+    WATERBODY_PARAMS,
+    CROP_TO_STATE_LUT,
+    LABEL_CONV_STATES,
+    STATE_TO_HUC_LUT_LEGACY_ESA,
+    STATE_TO_HUC_LUT_NEW,
+)
 
 logger = logging.getLogger("adt_logger")  # retrieve logger configured in app_dates.py
-
-# fmt: off
-CROP_TO_STATE_LUT:dict[str,list] = {
-    "ALMONDS":	"AL,AZ,AR,CA,CO,FL,GA,IL,KY,MS,MO,NM,OH,SC,TN,TX,UT,VA,WA",
-    "APPLES":	"AL,AK,AZ,AR,CA,CO,CT,FL,GA,HI,ID,IL,IN,IA,KS,KY,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "APRICOTS":	"AL,AZ,AR,CA,CO,GA,HI,ID,IL,IA,KS,KY,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,SC,SD,TN,TX,UT,VA,WA,WV,WI",
-    "ARONIA BERRIES":	"CA,IL,IA,KS,KY,MD,MA,MI,MN,MO,MT,NE,NJ,NC,ND,OH,OR,PA,SD,TN,VT,VA,WA,WI",
-    "ARTICHOKES":	"AZ,CA,CO,HI,MD,MA,MN,MO,NH,NM,NY,NC,OH,OR,SC,TX,VT,VA,WA,WI",
-    "ASPARAGUS":	"AL,AK,AZ,AR,CA,CO,CT,FL,GA,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI",
-    "AVOCADOS":	"CA,FL,HI,LA,TX",
-    "BANANAS":	"CA,FL,HI,SC,TX",
-    "BARLEY":	"AL,AK,AZ,CA,CO,CT,DE,GA,ID,IL,IN,IA,KS,KY,ME,MD,MA,MI,MN,MO,MT,NE,NV,NJ,NM,NY,NC,ND,OH,OK,OR,PA,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "BEANS":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "BEANS, DRY EDIBLE, (EXCL CHICKPEAS & LIMA)":	"AZ,CA,CO,HI,ID,IL,KS,ME,MA,MI,MN,MT,NE,NV,NM,NY,NC,ND,OH,OK,OR,SD,TX,VT,VA,WA,WI,WY",
-    "BEETS":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "BLACKBERRIES":	"AL,AZ,AR,CA,CO,CT,DE,FL,GA,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NH,NJ,NM,NY,NC,OH,OK,OR,PA,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI",
-    "BLUEBERRIES":	"AL,AZ,AR,CA,CO,CT,DE,FL,GA,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NH,NJ,NM,NY,NC,OH,OK,OR,PA,RI,SC,SD,TN,TX,VT,VA,WA,WV,WI",
-    "BOYSENBERRIES":	"CA,NJ,NY,OR,PA,SC,TN,TX,UT,WA",
-    "BROCCOLI":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,ID,IL,IN,IA,KS,KY,LA,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "BRUSSELS SPROUTS":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MO,MT,NE,NJ,NM,NY,NC,OH,OR,PA,RI,SC,SD,TN,TX,VT,VA,WV,WI",
-    "BUCKWHEAT":	"ID,IL,IA,ME,MI,MN,MO,MT,NE,NJ,NY,ND,OH,OR,PA,SD,WA,WI",
-    "CABBAGE":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "CAMELINA":	"MS,MT",
-    "CANOLA	":	"CO,ID,IN,KS,KY,LA,MN,MO,MT,ND,OK,OR,PA,TN,TX,WA",
-    "CARROTS":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "CAULIFLOWER":	"AL,AK,AZ,AR,CA,CO,CT,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,MD,MA,MI,MN,MS,MO,MT,NE,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI",
-    "CELERY":	"AK,AZ,AR,CA,CO,CT,GA,HI,ID,IL,IN,IA,KS,KY,ME,MD,MA,MI,MN,MO,MT,NE,NH,NJ,NM,NY,NC,OH,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV",
-    "CHERIMOYAS":	"CA,HI",
-    "CHERRIES":	"AL,AK,AZ,AR,CA,CO,CT,FL,GA,HI,ID,IL,IN,IA,KS,KY,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "CHESTNUTS":	"AL,AR,CA,CT,FL,GA,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MS,MO,NJ,NM,NY,NC,OH,OR,PA,RI,SC,TN,TX,VT,VA,WA,WV,WI",
-    "CHICKPEAS":	"AZ,CA,ID,MN,MT,NE,ND,OR,SD,WA,WY",
-    "CHICORY":	"CA,CT,IL,KY,LA,ME,MD,MA,MT,NJ,NY,NC,OR,PA,SC,VT,VA,WA,WI",
-    "CITRUS TOTALS":	"AL,AZ,CA,FL,GA,HI,LA,SC,TX",
-    "CITRUS, OTHER":	"CA,HI,TX",
-    "COFFEE":	"HI",
-    "CORN, GRAIN":	"AL,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "CORN, SILAGE":	"AL,AZ,AR,CA,CO,CT,DE,FL,GA,ID,IL,IN,IA,KS,KY,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "CORN, TRADITIONAL OR INDIAN":	"AZ,CA,CO,CT,IL,IN,IA,KY,ME,MD,MA,MN,NJ,NM,NY,NC,OH,OR,PA,TN,UT,WA,WI",
-    "COTTON":	"AL,AZ,AR,CA,FL,GA,KS,LA,MS,MO,NM,NC,OK,SC,TN,TX,VA",
-    "CRANBERRIES":	"ME,MA,MI,NJ,OR,WA,WI",
-    "CUCUMBERS":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "CURRANTS":	"AK,CA,IL,IN,MD,MA,MI,MN,MT,NH,NJ,NY,ND,OH,OR,PA,SD,UT,VT,WA,WI",
-    "DAIKON":	"AZ,CA,CO,CT,FL,GA,HI,IL,IN,IA,KS,LA,ME,MD,MA,MI,MN,MO,MT,NE,NH,NJ,NM,NY,NC,OH,OR,PA,SC,TN,TX,VT,VA,WA,WI",
-    "DATES":	"AZ,CA,NM",
-    "EGGPLANT":	"AL,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "ELDERBERRIES":	"AL,CA,CO,CT,FL,GA,IL,IN,IA,KS,KY,ME,MD,MA,MI,MN,MS,MO,NE,NH,NJ,NY,NC,OH,OK,OR,PA,SC,SD,TN,TX,VT,VA,WA,WV,WI",
-    "EMMER & SPELT":	"IL,IN,KY,ME,MD,MI,MO,MT,NY,ND,OH,PA,WA,WV,WI",
-    "ESCAROLE & ENDIVE":	"CA,CO,CT,FL,GA,HI,IL,IN,IA,KY,ME,MD,MA,MI,MN,MO,MT,NH,NJ,NY,NC,OH,OR,PA,TN,VT,VA,WA,WI",
-    "FIGS":	"AL,AR,CA,DE,FL,GA,IL,KY,LA,MD,MS,MO,NJ,NM,NY,NC,OK,OR,PA,SC,TN,TX,VA,WA,WV",
-    "FLAXSEED":	"ID,MN,MT,ND,OR,SD,WA",
-    "GARLIC":	"AL,AK,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,NE,NV,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TX,UT,VT,VA,WA,WV,WI,WY",
-    "GINGER ROOT":	"AL,AZ,CA,CT,FL,GA,HI,ID,IL,IN,KS,KY,ME,MD,MA,MI,MN,MS,MO,NJ,NY,NC,OR,PA,SC,TN,VT,VA,WI",
-    "GINSENG":	"CA,KY,NY,NC,SC,TN,WI",
-    "GRAPEFRUIT":	"AL,AZ,CA,FL,HI,LA,TX",
-    "GRAPES":	"AL,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI",
-    "GRASSES & LEGUMESTOTALS":	"CA,CO,FL,GA,ID,KS,KY,MN,MT,NE,NV,OR,UT,WA,WY",
-    "GREENS":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "GUAR":	"OK,TX",
-    "GUAVAS":	"CA,FL,HI,TX",
-    "HAY":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "HAY & HAYLAGE":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "HAY, (EXCL ALFALFA)":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "HAY, ALFALFA":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "HAY, IRRIGATED":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,ID,IL,IN,IA,KS,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,WA,WI,WY",
-    "HAYLAGE":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "HAYLAGE, ALFALFA":	"AL,AZ,AR,CA,CO,CT,DE,FL,GA,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "HAZELNUTS":	"AL,AR,CA,CO,CT,FL,GA,ID,IL,IN,IA,KS,KY,ME,MD,MA,MI,MN,MS,MO,NE,NJ,NM,NY,NC,OH,OK,OR,PA,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI",
-    "HERBS":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SD,TN,TX,UT,VT,VA,WA,WI,WY",
-    "HERBS, DRY":	"AK,CA,CO,CT,GA,HI,KY,ME,MA,MI,MT,NM,NY,NC,OR,PA,SD,TN,TX,VT,VA,WV",
-    "HOPS":	"AR,CO,CT,ID,IL,IN,IA,KY,ME,MD,MA,MI,MN,MO,MT,NV,NJ,NM,NY,NC,OH,OR,PA,TN,VT,VA,WA,WI",
-    "HORSERADISH":	"AL,AZ,CA,CO,CT,HI,IL,IN,IA,KS,KY,ME,MD,MA,MI,MN,MO,NE,NH,NJ,NY,NC,OH,PA,SD,TN,VT,VA,WA,WV",
-    "JOJOBA":	"AZ,CA",
-    "KIWIFRUIT":	"AL,CA,FL,GA,MS,MO,NC,OR,PA,SC,TN,VT,VA,WA,WV",
-    "KUMQUATS":	"CA,FL,HI,TX",
-    "LEGUMES, ALFALFA,SEED":	"AZ,CA,ID,KS,MT,NE,OR,PA,SD,TX,UT,VA,WA,WY",
-    "LEMONS":	"AZ,CA,FL,GA,HI,LA,MS,TX",
-    "LENTILS":	"CA,ID,MN,MT,NE,NY,ND,SD,WA",
-    "LETTUCE":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "LIMES":	"AL,AZ,CA,FL,GA,HI,LA,MS,TX",
-    "LOGANBERRIES":	"CA,FL,MI,NC,OR,TN,WA",
-    "MACADAMIAS":	"CA,FL,HI",
-    "MANGOES":	"CA,FL,HI,TX",
-    "MELONS":	"AL,AZ,AR,CA,CO,CT,DE,FL,GA,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "MINT, OIL":	"CA,ID,IN,OR,TN,WA,WV,WI",
-    "MISCANTHUS":	"MO,NC",
-    "MUSTARD, SEED":	"CA,ID,MT,NC,ND,OR,WA",
-    "NECTARINES":	"AL,AZ,AR,CA,CO,CT,FL,GA,ID,IL,IN,KS,KY,ME,MD,MA,MI,MS,MO,NH,NJ,NM,NY,NC,OH,OK,OR,PA,SC,TN,TX,UT,WA,WV",
-    "OATS":	"AL,AK,AR,CA,CO,FL,GA,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NJ,NM,NY,NC,ND,OH,OK,OR,PA,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "OKRA":	"AL,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,NE,NJ,NM,NY,NC,OH,OK,OR,PA,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI",
-    "OLIVES":	"AZ,CA,GA,IL,OR,TX",
-    "ONIONS":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "ORANGES":	"AL,AZ,CA,FL,GA,HI,LA,MS,SC,TX",
-    "ORCHARDS":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "PAPAYAS":	"CA,FL,HI,TX",
-    "PARSLEY":	"AL,AK,AR,CA,CO,CT,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MO,MT,NE,NV,NH,NJ,NM,NY,NC,OH,OR,PA,RI,SD,TN,UT,VT,VA,WA,WV,WI",
-    "PASSION FRUIT":	"CA,FL,HI",
-    "PEACHES":	"AL,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,OH,OK,OR,PA,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI",
-    "PEANUTS":	"AL,AR,CA,FL,GA,HI,LA,MS,NM,NC,OK,SC,TX,VA",
-    "PEARS":	"AL,AZ,AR,CA,CO,CT,DE,GA,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI",
-    "PEAS":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "PEAS, AUSTRIAN WINTER":	"CO,ID,MT,OR,WA",
-    "PEAS, DRY EDIBLE":	"CA,CO,ID,IL,IA,KS,MI,MN,MO,MT,NE,NM,NY,ND,OK,OR,SC,SD,TX,WA,WI,WY",
-    "PECANS":	"AL,AZ,AR,CA,FL,GA,IL,IN,KS,KY,LA,MD,MI,MS,MO,NE,NV,NM,NY,NC,OH,OK,SC,TN,TX,UT,VA",
-    "PEPPERS":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "PERSIMMONS":	"AL,AR,CA,CT,FL,GA,HI,IL,IN,IA,KS,KY,LA,MD,MI,MS,MO,NJ,NY,NC,OH,OK,OR,PA,SC,TN,TX,VA,WA,WV,WI",
-    "PINEAPPLES":	"HI",
-    "PISTACHIOS":	"AZ,CA,NV,NM,TX,UT",
-    "PLUMS":	"AL,AZ,AR,CA,CO,CT,ID,IL,IN,IA,KY,LA,ME,MA,MI,MS,MO,MT,NE,NV,NM,NY,NC,ND,OH,OK,OR,PA,SC,SD,TN,TX,UT,VT,VA,WA,WV,WY",
-    "POMEGRANATES":	"AL,AZ,CA,FL,GA,HI,LA,MS,NV,NM,SC,TX,UT",
-    "POTATOES":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SD,TN,TX,UT,VT,VA,WA,WV,WI",
-    "PRUNES":	"CA,CO,ID,IL,ME,MA,MI,MO,MT,NM,NY,OH,OR,PA,TN,UT,WA",
-    "PUMPKINS":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "RADISHES":	"AL,AK,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "RAPESEED":	"ID,MI,NC,OR,PA,SC",
-    "RASPBERRIES":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,ID,IL,IN,IA,KS,KY,ME,MD,MA,MI,MN,MS,MO,MT,NE,NH,NJ,NM,NY,NC,ND,OH,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "RHUBARB":	"AL,AK,AR,CO,CT,GA,HI,ID,IL,IN,IA,KS,KY,ME,MD,MA,MI,MN,MS,MO,MT,NE,NJ,NM,NY,NC,OH,OR,PA,RI,SD,TN,UT,VT,VA,WA,WV,WI,WY",
-    "RICE":	"AR,CA,FL,LA,MS,MO,TN,TX",
-    "RYE":	"AL,CA,CO,CT,DE,FL,GA,ID,IL,IN,IA,KS,KY,ME,MD,MA,MI,MN,MO,MT,NE,NJ,NY,NC,ND,OH,OK,OR,PA,SC,SD,TN,TX,VT,VA,WA,WV,WI",
-    "SAFFLOWER":	"CA,ID,MT,ND,SD,UT",
-    "SESAME":	"FL,KS,OK,TX",
-    "SORGHUM, GRAIN":	"AL,AZ,AR,CA,CO,DE,FL,GA,ID,IL,IN,IA,KS,KY,LA,MD,MI,MN,MS,MO,MT,NE,NJ,NM,NY,NC,ND,OH,OK,PA,SC,SD,TN,TX,VA,WV,WI",
-    "SORGHUM, SILAGE":	"AL,AZ,AR,CA,CO,FL,GA,ID,IL,IN,IA,KS,KY,LA,MD,MI,MN,MO,NE,NJ,NM,NY,NC,ND,OH,OK,OR,PA,SC,SD,TN,TX,UT,VA,WV,WI,WY",
-    "SOYBEANS":	"AL,AR,CO,CT,DE,FL,GA,HI,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NJ,NM,NY,NC,ND,OH,OK,PA,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "SPINACH":	"AL,AK,AZ,AR,CA,CO,DE,FL,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,OH,OK,OR,PA,RI,SC,SD,TX,UT,VT,VA,WA,WV,WI,WY",
-    "SQUASH":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "STRAWBERRIES":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI",
-    "SUGARBEETS":	"CO,ID,MI,MN,MT,NE,ND,OR,WY",
-    "SUNFLOWER":	"AL,CA,CO,FL,GA,IL,IN,IA,KS,KY,MD,MI,MN,MO,MT,NE,NJ,NY,NC,ND,OH,OK,OR,PA,SC,SD,TN,TX,VA,WA,WV,WI,WY",
-    "SWEET CORN":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "SWEET POTATOES":	"AL,AZ,AR,CA,CO,CT,DE,FL,GA,HI,IL,IN,IA,KS,KY,LA,ME,MD,MA,MN,MS,MT,NE,NH,NJ,NM,NY,NC,ND,OH,OK,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI",
-    "TANGELOS":	"AL,AZ,CA,FL,HI,TX",
-    "TANGERINES":	"AL,AZ,CA,FL,GA,HI,LA,MS,TX",
-    "TARO":	"CA,HI,ME,MA",
-    "TOBACCO":	"CT,FL,GA,IN,KY,MD,MA,MO,NC,OH,PA,SC,TN,VA,WI",
-    "TOMATOES":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,NE,NV,NH,NJ,NM,NY,NC,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "TRITICALE":	"CA,CO,ID,IL,IN,IA,KS,MD,MI,MN,MO,MT,NE,NY,NC,ND,OH,OK,OR,PA,SD,TN,TX,UT,VA,WA,WI,WY",
-    "TURNIPS":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,TN,TX,VT,VA,WA,WV,WI,WY",
-    "VEGETABLE TOTALS":	"AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "WALNUTS":	"AL,AZ,AR,CA,CO,FL,GA,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,NE,NV,NJ,NM,NY,NC,OH,OK,OR,PA,RI,SC,TN,TX,UT,VT,VA,WA,WV,WI",
-    "WATERCRESS":	"CA,CT,HI,IL,ME,MD,MA,MI,MN,MS,NY,NC,OH,OR,TN,VA,WA,WI",
-    "WHEAT":	"AL,AK,AZ,AR,CA,CO,DE,FL,GA,ID,IL,IN,IA,KS,KY,LA,ME,MD,MI,MN,MS,MO,MT,NE,NV,NJ,NM,NY,NC,ND,OH,OK,OR,PA,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "WHEAT, SPRING, DURUM":	"AZ,CA,CO,ID,MN,MT,NM,NY,ND,OR,SD",
-    "WHEAT, WINTER":	"AL,AR,CA,CO,DE,FL,GA,ID,IL,IN,IA,KS,KY,LA,ME,MD,MI,MN,MS,MO,MT,NE,NJ,NM,NY,NC,ND,OH,OR,PA,SC,SD,TN,TX,UT,VT,VA,WA,WV,WY",
-    "WILD RICE":	"CA,MN",
-}
-# fmt: on
-
-LABEL_CONV_STATES = {
-    "ALL": "AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY",
-    "EastofRockies": "MT,WY,CO,NM,ND,SD,NE,AR,CT,DE,FL,GA,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,NV,NH,NJ,NY,NC,OH,OK,PA,RI,SC,TN,TX,VT,VA,WV,WI",
-    "WestofRockies": "WA,OR,CA,ID,NV,MT,WY,UT,CO,AZ,NM,AK,HI",
-}
-
-STATE_TO_HUC_LUT_LEGACY_ESA = {
-    "AK": "19a,19b",
-    "AL": "3,6",
-    "AR": "8,11a",
-    "AZ": "14,15a,15b",
-    "CA": "17a,18a,18b",
-    "CO": "10a,10b,11b,13,14",
-    "CT": "1",
-    "DC": "2",
-    "DE": "2",
-    "FL": "3",
-    "GA": "3,6",
-    "HI": "20a,20b",
-    "IA": "7,10a",
-    "ID": "17b",
-    "IL": "5,7",
-    "IN": "7,5,4",
-    "KS": "10a,11a,11b",
-    "KY": "5",
-    "LA": "8,11a",
-    "MA": "1",
-    "MD": "2",
-    "ME": "1",
-    "MI": "4",
-    "MN": "4,7,9",
-    "MO": "7,10a,11a",
-    "MS": "3,8",
-    "MT": "10b,17b",
-    "NC": "3,6",
-    "ND": "9,10b",
-    "NE": "10a",
-    "NH": "1",
-    "NJ": "2",
-    "NM": "11b,12b,13,14,15a,15b",
-    "NV": "15a,16a,16b",
-    "NY": "2,4",
-    "OH": "4,5",
-    "OK": "11a,11b",
-    "OR": "17a,17b",
-    "PA": "2,5",
-    "RI": "1",
-    "SC": "3",
-    "SD": "10a,10b",
-    "TN": "5,6,8",
-    "TX": "11a,11b,12a,12b,13",
-    "UT": "14,15a,16a",
-    "VA": "2,3,5,6",
-    "VT": "1,4",
-    "WA": "17a,17b",
-    "WI": "4,7",
-    "WV": "2,5",
-    "WY": "10b,14,17b",
-}
-
-STATE_TO_HUC_LUT_NEW = {
-    # "AK":
-    "AL": "03W,06",
-    "AR": "08,11",
-    "AZ": "14,15",
-    "CA": "18",
-    "CO": "10L,11,13,14",
-    "CT": "01",
-    "DE": "02",
-    "FL": "03S,03W",
-    "GA": "03S,03W,03N,06",
-    # "HI": "",
-    "IA": "07,10L",
-    "ID": "17",
-    "IL": "05,07",
-    "IN": "04,05",
-    "KS": "10L,11",
-    "KY": "05",
-    "LA": "08,11",
-    "MA": "01",
-    "MD": "02",
-    "ME": "01",
-    "MI": "04",
-    "MN": "07,09",
-    "MO": "07,08,10L,11",
-    "MS": "03W,08",
-    "MT": "10U,17",
-    "NC": "03N,06",
-    "ND": "09,10U",
-    "NE": "10L,10U",
-    "NH": "01",
-    "NJ": "02",
-    "NM": "11,12,13,14,15",
-    "NV": "15,16",
-    "NY": "02,04",
-    "OH": "04,05",
-    "OK": "11",
-    "OR": "17,18",
-    "PA": "02,05",
-    "RI": "01",
-    "SC": "03N",
-    "SD": "10U",
-    "TN": "05,06,08",
-    "TX": "11,12,13",
-    "UT": "14,16",
-    "VA": "02,03N,05,06",
-    "VT": "01,02",
-    "WA": "17",
-    "WI": "04,07",
-    "WV": "02,05",
-    "WY": "10U,10L,17",
-}
 
 
 class PwcToolAlgoThread(qtc.QThread):
@@ -308,7 +60,6 @@ class PwcToolAlgoThread(qtc.QThread):
         super().__init__()
 
         self.settings = settings
-
         self._scenarios: dict[str, tuple[date, date]] = {}
         self._error_max_amt: list[str] = []
         self._error_scn_file_notexist: list[str] = []
@@ -332,7 +83,7 @@ class PwcToolAlgoThread(qtc.QThread):
         """
         self.update_diagnostics.emit("\nInitializing...")
 
-        debugpy.debug_this_thread()
+        # debugpy.debug_this_thread()
 
         # create new batch file
         if self.settings["USE_CASE"] == "Use Case #1":
@@ -538,7 +289,7 @@ class PwcToolAlgoThread(qtc.QThread):
             depths, tband = self.get_app_method_depths_and_tband(application_method)
 
             for huc2 in huc2s:
-                run_names = []
+                run_names: list[str] = []
                 scenario_base, scenario_full = self.create_scenario_name(run_ag_pract, huc2)
                 if not os.path.exists(os.path.join(self.settings["FILE_PATHS"]["SCENARIO_FILES_PATH"], scenario_full)):
                     self._error_scn_file_notexist.append(scenario_base)
@@ -588,8 +339,8 @@ class PwcToolAlgoThread(qtc.QThread):
                             drift_value = drift_reduction_table.at[drift_profile_bin, distance]
                             eff = drift_reduction_table.at[drift_profile_bin, "Efficiency"]
                         except KeyError:
-                            logger.warning(f"\n ERROR: drift profile {drift_profile_bin} may not be in the DRT.")
-                            logger.warning(f" Skipping all bin {drift_profile_bin} runs...")
+                            logger.warning("\n ERROR: drift profile %s may not be in the DRT.", drift_profile_bin)
+                            logger.warning(" Skipping all bin %s runs...", drift_profile_bin)
                             continue
 
                         # RD, R, D
@@ -667,9 +418,9 @@ class PwcToolAlgoThread(qtc.QThread):
                                 first_run_in_huc = False
                                 num_runs += 1
 
-                logger.debug(f"\nRuns for {run_ag_pract['RunDescriptor']} in HUC {huc2}:\n")
+                logger.debug("\nRuns for %s in HUC {huc2}:\n", run_ag_pract["RunDescriptor"])
                 for run_name in run_names:
-                    logger.debug(f"{run_name}")
+                    logger.debug(run_name)
 
         self.update_progress.emit(100)
 
@@ -684,8 +435,8 @@ class PwcToolAlgoThread(qtc.QThread):
                 index=False,
             )
         except PermissionError:
-            self.update_diagnostics.emit("\nError: An excel file with the same name as the new batch file is open.")
-            self.update_diagnostics.emit("Please close it and rerun the PWC Tool.")
+            self.update_diagnostics.emit("\n ERROR: A csv file with the same name as the new batch file is open.")
+            self.update_diagnostics.emit("Please close it and try again.")
             self.update_progress.emit(0)
             return False
 

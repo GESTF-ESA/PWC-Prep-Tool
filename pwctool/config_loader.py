@@ -78,8 +78,7 @@ def _init_gui_options(view: QWidget, config: dict[str, Any], error_dialog) -> No
     }
 
     for setting, gui_widget in setting_mappings.items():
-        setting_value = config.get(setting)
-        # if setting_value:
+        setting_value: str = config.get(setting)
         if isinstance(gui_widget, QComboBox):
             if gui_widget.findText(setting_value) == -1:  # setting_value not in combo box list
                 if setting == "APT_SCENARIO":
