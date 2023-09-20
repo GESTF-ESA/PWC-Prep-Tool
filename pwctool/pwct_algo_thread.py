@@ -19,7 +19,7 @@ from PyQt5 import QtCore as qtc
 import pandas as pd
 import numpy as np
 
-# import debugpy
+import debugpy
 
 from pwctool.pwct_batchfile_qc import qc_batch_file  # pylint: disable=import-error
 from pwctool.pwct_batchfile_qc import standardize_field_names  # pylint: disable=import-error
@@ -251,56 +251,56 @@ STATE_TO_HUC_LUT_LEGACY_ESA = {
 
 STATE_TO_HUC_LUT_NEW = {
     # "AK":
-    "AL": "3W,6",
-    "AR": "8,11",
+    "AL": "03W,06",
+    "AR": "08,11",
     # "AS": "",
     "AZ": "14,15",
     "CA": "18",
     "CO": "10L,11,13,14",
-    "CT": "1",
+    "CT": "01",
     # "DC": "",
-    "DE": "2",
-    "FL": "3S,3W",
-    "GA": "3S,3W,3N,6",
+    "DE": "02",
+    "FL": "03S,03W",
+    "GA": "03S,03W,03N,06",
     # "HI": "",
-    "IA": "7,10L",
+    "IA": "07,10L",
     "ID": "17",
-    "IL": "5,7",
-    "IN": "4,5",
+    "IL": "05,07",
+    "IN": "04,05",
     "KS": "10L,11",
-    "KY": "5",
-    "LA": "8,11",
-    "MA": "1",
-    "MD": "2",
-    "ME": "1",
-    "MI": "4",
-    "MN": "7,9",
-    "MO": "7,8,10L,11",
-    "MS": "3W,8",
+    "KY": "05",
+    "LA": "08,11",
+    "MA": "01",
+    "MD": "02",
+    "ME": "01",
+    "MI": "04",
+    "MN": "07,09",
+    "MO": "07,08,10L,11",
+    "MS": "03W,08",
     "MT": "10U,17",
-    "NC": "3N,6",
-    "ND": "9,10U",
+    "NC": "03N,06",
+    "ND": "09,10U",
     "NE": "10L,10U",
-    "NH": "1",
-    "NJ": "2",
+    "NH": "01",
+    "NJ": "02",
     "NM": "11,12,13,14,15",
     "NV": "15,16",
-    "NY": "2,4",
-    "OH": "4,5",
+    "NY": "02,04",
+    "OH": "04,05",
     "OK": "11",
     "OR": "17,18",
-    "PA": "2,5",
-    "RI": "1",
-    "SC": "3N",
+    "PA": "02,05",
+    "RI": "01",
+    "SC": "03N",
     "SD": "10U",
-    "TN": "5,6,8",
+    "TN": "05,06,08",
     "TX": "11,12,13",
     "UT": "14,16",
-    "VA": "2,3N,5,6",
-    "VT": "1,2",
+    "VA": "02,03N,05,06",
+    "VT": "01,02",
     "WA": "17",
-    "WI": "4,7",
-    "WV": "2,5",
+    "WI": "04,07",
+    "WV": "02,05",
     "WY": "10U,10L,17",
 }
 
@@ -319,12 +319,18 @@ class PwcToolAlgoThread(qtc.QThread):
         self._scenarios: dict[str, tuple[date, date]] = {}
         self._error_max_amt: list[str] = []
         self._error_scn_file_notexist: list[str] = []
-        self.state_to_huc_lookup_table = pd.DataFrame.from_dict(
-            data=STATE_TO_HUC_LUT, orient="index", columns=["HUC2s"]
-        )
         self.crop_to_state_lookup_table = pd.DataFrame.from_dict(
             data=CROP_TO_STATE_LUT, orient="index", columns=["States"]
         )
+
+        if self.settings["SCN_HUCS"] == "new":
+            self.state_to_huc_lookup_table = pd.DataFrame.from_dict(
+                data=STATE_TO_HUC_LUT_NEW, orient="index", columns=["HUC2s"]
+            )
+        else:
+            self.state_to_huc_lookup_table = pd.DataFrame.from_dict(
+                data=STATE_TO_HUC_LUT_LEGACY_ESA, orient="index", columns=["HUC2s"]
+            )
 
     def run(self):
         """Manages PWC tool algorithm components.
@@ -333,7 +339,7 @@ class PwcToolAlgoThread(qtc.QThread):
         """
         self.update_diagnostics.emit("\nInitializing...")
 
-        # debugpy.debug_this_thread()
+        debugpy.debug_this_thread()
 
         # create new batch file
         if self.settings["USE_CASE"] == "Use Case #1":
@@ -510,6 +516,7 @@ class PwcToolAlgoThread(qtc.QThread):
         ag_practices_table["Rate2_MaxAppRate_lbsacre"] = ag_practices_table["Rate2_MaxAppRate_lbsacre"] * 1.120851
         ag_practices_table["Rate3_MaxAppRate_lbsacre"] = ag_practices_table["Rate3_MaxAppRate_lbsacre"] * 1.120851
         ag_practices_table["Rate4_MaxAppRate_lbsacre"] = ag_practices_table["Rate4_MaxAppRate_lbsacre"] * 1.120851
+
         # use zero for PHI if not specified
         ag_practices_table["PHI"].fillna(value=0, inplace=True)
 
@@ -554,15 +561,12 @@ class PwcToolAlgoThread(qtc.QThread):
 
             for huc2 in huc2s:
                 run_names = []
-                scenario_base = f"{run_ag_pract['Scenario']}{huc2}"
-                scenario_full = f"{scenario_base}.scn"
-
+                scenario_base, scenario_full = self.create_scenario_name(run_ag_pract, huc2)
                 if not os.path.exists(os.path.join(self.settings["FILE_PATHS"]["SCENARIO_FILES_PATH"], scenario_full)):
                     self._error_scn_file_notexist.append(scenario_base)
                     logger.warning(f"\n {scenario_base} may not exist. Skipping huc {huc2}")
                     continue
 
-                # get emergence and harvest date
                 run_ag_pract["Emergence"], run_ag_pract["Harvest"] = self.get_scenario_dates(scenario_full)
                 first_run_in_huc = True
 
@@ -768,6 +772,28 @@ class PwcToolAlgoThread(qtc.QThread):
 
         return depths, tband
 
+    def create_scenario_name(self, run_ag_pract: pd.Series, huc2: str):
+        """Creates the scenario file name based on the use and huc2 provided in the APT"""
+
+        if self.settings["SCN_HUCS"] == "new":
+
+            letter_lut = {
+                "Koc 100 to 3000": "B",
+                "Koc over 3000": "C",
+                "Koc under 100": "A",
+            }
+
+            koc_folder_name = os.path.basename(self.settings["FILE_PATHS"]["SCENARIO_FILES_PATH"])
+            letter = letter_lut[koc_folder_name]
+
+            scenario_base = f"{run_ag_pract['Scenario']}-r{huc2}-{letter}_V4"
+            scenario_full = f"{scenario_base}.scn2"
+        else:
+            scenario_base = f"{run_ag_pract['Scenario']}{huc2}"
+            scenario_full = f"{scenario_base}.scn"
+
+        return scenario_base, scenario_full
+
     def get_run_distances_for_each_app_method(self) -> dict[int, list]:
         """Gets the run distances selected by the user for each application method.
 
@@ -799,20 +825,36 @@ class PwcToolAlgoThread(qtc.QThread):
             tuple[date, date]: emergence and harvest dates for the run
                 from the EPA scenario
         """
+        # if scenario has already been processed, get stored dates
         if scenario in self._scenarios:
-            # Scenario has already been processed, return stored dates
             emergence_date, harvest_date = self._scenarios[scenario]
         else:
             scenario_file = os.path.join(self.settings["FILE_PATHS"]["SCENARIO_FILES_PATH"], scenario)
+
+            # change how dates are extracted based on new or legacy (esa) scn files
             # extract date information from specific lines in .scn files
-            emergence_day = int(linecache.getline(scenario_file, 28))
-            emergence_month = int(linecache.getline(scenario_file, 29))
-            harvest_day = int(linecache.getline(scenario_file, 32))
-            harvest_month = int(linecache.getline(scenario_file, 33))
-            # use arbitrary year that is not a leap year to complete the date
+            if self.settings["SCN_HUCS"] == "new":
+
+                scn_file_line: list = linecache.getline(scenario_file, 32).split(",")
+
+                emergence_day = int(scn_file_line[0])
+                emergence_month = int(scn_file_line[1])
+                harvest_day = int(scn_file_line[4])
+                harvest_month = int(scn_file_line[5])
+
+            else:
+                emergence_day = int(linecache.getline(scenario_file, 28))
+                emergence_month = int(linecache.getline(scenario_file, 29))
+                harvest_day = int(linecache.getline(scenario_file, 32))
+                harvest_month = int(linecache.getline(scenario_file, 33))
+
+            # use arbitrary (non-leap) year to complete the date
             emergence_date = date(year=2021, month=emergence_month, day=emergence_day)
             harvest_date = date(year=2021, month=harvest_month, day=harvest_day)
+
+            # store for accessing later if needed
             self._scenarios[scenario] = (emergence_date, harvest_date)
+
         return emergence_date, harvest_date
 
     def get_transport_mechanisms(self, application_method, drift_profile, distance):
