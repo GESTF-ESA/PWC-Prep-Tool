@@ -56,7 +56,6 @@ def _init_file_paths(view: QWidget, config: dict[str, Any]) -> None:
         "SCENARIO_FILES_PATH": view.scenarioFilesDirectoryLocation,
         "AGDRIFT_REDUCTION_TABLE": view.agDriftReductionTableLocation,
         "INGR_FATE_PARAMS": view.ingrFateParamsLocation,
-        "BIN_TO_LANDSCAPE": view.binToLandscapeParamsLocation,
     }
     for name, qline_edit in file_path_mappings.items():
         file_path = config.get("FILE_PATHS", {}).get(name)
@@ -107,7 +106,10 @@ def _init_aquatic_bins(view: QWidget, config: dict[str, Any]) -> None:
 
     for bin_number in ALL_BINS:
         bin_value_bool = config.get("BINS", {}).get(bin_number)
-        getattr(view, f"bin{bin_number}CheckBox").setChecked(bin_value_bool)
+        if config["SCN_HUCS"] == "new":
+            getattr(view, f"bin{bin_number}CheckBoxFIFRA").setChecked(bin_value_bool)
+        else:
+            getattr(view, f"bin{bin_number}CheckBoxESA").setChecked(bin_value_bool)
 
 
 def _init_application_methods(view: QWidget, config: dict[str, Any]) -> None:

@@ -1,5 +1,7 @@
 """Constants for the pwctool package."""
 
+import pandas as pd
+
 VERSION = "1.0.101"
 
 # default directory for file explorer browsing
@@ -23,3 +25,17 @@ BURIED_APPMETHODS: list[int] = [3, 4, 5, 6, 7]
 FOLIAR_APPMETHOD: int = 2
 
 TBAND_APPMETHOD: int = 5
+
+WATERBODY_PARAMS = pd.DataFrame(
+    data={
+        "FlowAvgTime": [1, 0, 1],
+        "Field Size (m2)": [1730000, 100000, 100000],
+        "Waterbody Area (m2)": [52600, 10000, 10000],
+        "Init Depth (m)": [2.74, 2, 0.15],
+        "Max Depth (m)": [2.74, 2, 0.15],
+        "HL (m)": [600, 357, 357],
+        "PUA": [1, 1, 1],
+        "Baseflow": [0, 0, 0],
+    },
+    index=[4, 7, 10],
+)

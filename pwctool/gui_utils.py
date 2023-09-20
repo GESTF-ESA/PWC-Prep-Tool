@@ -44,16 +44,16 @@ def enable_disable_assessment_type(view):
         view.fifraWBLabel.setStyleSheet("color:black")
         view.fifraWBSelectAll.setEnabled(True)
         view.fifraWBClearAll.setEnabled(True)
-        view.indxResCheckBox.setEnabled(True)
-        view.farmPondCheckBox.setEnabled(True)
-        view.wetlandCheckBox.setEnabled(True)
+        view.bin4CheckBoxFIFRA.setEnabled(True)
+        view.bin7CheckBoxFIFRA.setEnabled(True)
+        view.bin10CheckBoxFIFRA.setEnabled(True)
 
         view.binLabel.setStyleSheet("color:grey")
         view.binSelectAll.setEnabled(False)
         view.binClearAll.setEnabled(False)
-        view.bin4CheckBox.setEnabled(False)
-        view.bin7CheckBox.setEnabled(False)
-        view.bin10CheckBox.setEnabled(False)
+        view.bin4CheckBoxESA.setEnabled(False)
+        view.bin7CheckBoxESA.setEnabled(False)
+        view.bin10CheckBoxESA.setEnabled(False)
 
     if view.esaRadButton.isChecked():
 
@@ -65,16 +65,16 @@ def enable_disable_assessment_type(view):
         view.fifraWBLabel.setStyleSheet("color:grey")
         view.fifraWBSelectAll.setEnabled(False)
         view.fifraWBClearAll.setEnabled(False)
-        view.indxResCheckBox.setEnabled(False)
-        view.farmPondCheckBox.setEnabled(False)
-        view.wetlandCheckBox.setEnabled(False)
+        view.bin4CheckBoxFIFRA.setEnabled(False)
+        view.bin7CheckBoxFIFRA.setEnabled(False)
+        view.bin10CheckBoxFIFRA.setEnabled(False)
 
         view.binLabel.setStyleSheet("color:black")
         view.binSelectAll.setEnabled(True)
         view.binClearAll.setEnabled(True)
-        view.bin4CheckBox.setEnabled(True)
-        view.bin7CheckBox.setEnabled(True)
-        view.bin10CheckBox.setEnabled(True)
+        view.bin4CheckBoxESA.setEnabled(True)
+        view.bin7CheckBoxESA.setEnabled(True)
+        view.bin10CheckBoxESA.setEnabled(True)
 
 
 def get_xl_sheet_names(drop_down: QComboBox, text_widget: QLineEdit, error_dialog: QDialog, table: str) -> None:

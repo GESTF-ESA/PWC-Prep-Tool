@@ -34,12 +34,7 @@ from pwctool.pwct_algo_functions import adjust_app_rate  # pylint: disable=impor
 from pwctool.pwct_algo_functions import no_more_apps_can_be_made  # pylint: disable=import-error
 from pwctool.pwct_algo_functions import derive_instruction_date_restrictions  # pylint: disable=import-error
 
-from pwctool.constants import (
-    ALL_APPMETHODS,
-    BURIED_APPMETHODS,
-    ALL_DISTANCES,
-    FOLIAR_APPMETHOD,
-)
+from pwctool.constants import ALL_APPMETHODS, BURIED_APPMETHODS, ALL_DISTANCES, FOLIAR_APPMETHOD, WATERBODY_PARAMS
 
 logger = logging.getLogger("adt_logger")  # retrieve logger configured in app_dates.py
 
@@ -253,12 +248,10 @@ STATE_TO_HUC_LUT_NEW = {
     # "AK":
     "AL": "03W,06",
     "AR": "08,11",
-    # "AS": "",
     "AZ": "14,15",
     "CA": "18",
     "CO": "10L,11,13,14",
     "CT": "01",
-    # "DC": "",
     "DE": "02",
     "FL": "03S,03W",
     "GA": "03S,03W,03N,06",
@@ -350,7 +343,6 @@ class PwcToolAlgoThread(qtc.QThread):
             ag_practices_table = self.read_ag_practices_table()
             drift_reduction_table = self.read_drift_reduction_table()
             ingredient_fate_params_table = self.read_ingredient_fate_parameters_table()
-            bin_to_landsape_params_lookup_table = self.read_bin_to_landscape_lookup_table()
 
             if self.settings["WETMONTH_PRIORITIZATION"]:
                 wettest_month_table = pd.read_csv(self.settings["FILE_PATHS"]["WETTEST_MONTH_CSV"], index_col="HUC2")
@@ -362,7 +354,6 @@ class PwcToolAlgoThread(qtc.QThread):
                 drift_reduction_table,
                 wettest_month_table,
                 ingredient_fate_params_table,
-                bin_to_landsape_params_lookup_table,
             )
 
         # QC existing batch file
@@ -429,17 +420,6 @@ class PwcToolAlgoThread(qtc.QThread):
 
         return ingred_fate_param_table
 
-    def read_bin_to_landscape_lookup_table(self) -> pd.DataFrame:
-        """Reads the bin to landscape lookup table
-
-        Returns:
-            pd.DataFrame: bin to landscape lookup table
-        """
-
-        bin_to_landscape_lookup_table = pd.read_csv(self.settings["FILE_PATHS"]["BIN_TO_LANDSCAPE"], index_col="Bin")
-
-        return bin_to_landscape_lookup_table
-
     #### QC BATCH FILE ####
 
     def quality_check_batch_file(
@@ -484,7 +464,6 @@ class PwcToolAlgoThread(qtc.QThread):
         drift_reduction_table: pd.DataFrame,
         wettest_month_table: Union[pd.DataFrame, None],
         ingredient_fate_params_table: pd.DataFrame,
-        bin_to_landsape_params_lookup_table: pd.DataFrame,
     ):
         """Generates batch file from scratch. Uses the ag practices table,
         the GUI, and other input tables to generate a batch file. Uses the
@@ -499,7 +478,6 @@ class PwcToolAlgoThread(qtc.QThread):
             drift_reduction_table (pd.DataFrame): drift reduction table
             wettest_month_table (pd.DataFrame): wettest month table
             ingredient_fate_params_table (pd.DataFrame): ingredient to fate params table
-            bin_to_landsape_params_lookup_table (pd.DataFrame): bin to landscape params lookup table
         """
 
         start_time = time.time()  # start timer
@@ -602,14 +580,7 @@ class PwcToolAlgoThread(qtc.QThread):
                     ) = derive_instruction_date_restrictions(rate, run_ag_pract)
 
                 for bin_ in bins_:
-                    try:
-                        landscape_params: dict[str, float] = (
-                            bin_to_landsape_params_lookup_table.loc[int(bin_), :].copy(deep=True).to_dict()
-                        )
-                    except KeyError:
-                        logger.warning(f"\n ERROR: bin {bin_} may not be in the bin to landscape params table.")
-                        logger.warning(f" Skipping all bin {bin_} runs...")
-                        continue
+                    waterbody_params = self.get_water_params(bin_)
 
                     for distance in run_distances:
                         drift_profile_bin = f"{bin_}-{drift_profile}"
@@ -660,7 +631,7 @@ class PwcToolAlgoThread(qtc.QThread):
                                 run_storage.update(blank_fields)
 
                                 run_storage["AquaticBin"] = bin_
-                                run_storage.update(landscape_params)
+                                run_storage.update(waterbody_params)
 
                                 run_storage["Num_Daysheds"] = 1
                                 run_storage["IRF1"] = 1
@@ -856,6 +827,19 @@ class PwcToolAlgoThread(qtc.QThread):
             self._scenarios[scenario] = (emergence_date, harvest_date)
 
         return emergence_date, harvest_date
+
+    def get_water_params(self, bin_: str):
+        """Gets the water body params based on the bin and assessment"""
+
+        # get bin params
+        waterbody_params: dict[str, float] = WATERBODY_PARAMS.loc[int(bin_), :].copy(deep=True).to_dict()
+
+        # alter to fifra if necessary
+        if self.settings["ASSESSMENT_TYPE"] == "fifra":
+            if bin_ == 4:
+                waterbody_params["FlowAvgTime"] = 0
+
+        return waterbody_params
 
     def get_transport_mechanisms(self, application_method, drift_profile, distance):
         """Get the transport mechansism associated with the application method"""

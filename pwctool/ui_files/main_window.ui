@@ -526,16 +526,6 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="binToLandscapeParamsLocation">
-              <property name="font">
-               <font>
-                <family>Segoe UI</family>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QLineEdit" name="wettestMonthTableLocation">
               <property name="font">
                <font>
@@ -681,31 +671,6 @@
               </property>
               <property name="text">
                <string>Fate Parameters</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="binToLandscapeTable">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>160</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>Segoe UI</family>
-                <pointsize>10</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Waterbody Parameters</string>
               </property>
              </widget>
             </item>
@@ -871,31 +836,6 @@
             </item>
             <item>
              <widget class="QPushButton" name="fileBrowseIngrFateParams">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>Segoe UI</family>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Browse</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="fileBrowseBintoLandscapeParams">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -1343,58 +1283,7 @@
                  <enum>QFrame::Raised</enum>
                 </property>
                 <layout class="QGridLayout" name="gridLayout_16">
-                 <item row="1" column="0">
-                  <spacer name="binsParamDescriptionSpacer">
-                   <property name="orientation">
-                    <enum>Qt::Vertical</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>20</width>
-                     <height>150</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item row="0" column="0">
-                  <widget class="QLabel" name="binsParamDescription">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <family>Segoe UI</family>
-                     <pointsize>10</pointsize>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Waterbody types to model.  An individual PWC run corresponding to each waterbody type selected will be prepared for all uses specified in the Agronomic Practices Table (APT).</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-                   </property>
-                   <property name="wordWrap">
-                    <bool>true</bool>
-                   </property>
-                   <property name="margin">
-                    <number>3</number>
-                   </property>
-                   <property name="indent">
-                    <number>0</number>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="1" rowspan="2">
-                  <widget class="Line" name="line_3">
-                   <property name="orientation">
-                    <enum>Qt::Vertical</enum>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="2" rowspan="2">
+                 <item row="0" column="2" rowspan="3">
                   <widget class="QFrame" name="binsSelectFrame">
                    <property name="frameShape">
                     <enum>QFrame::StyledPanel</enum>
@@ -1434,7 +1323,7 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QCheckBox" name="bin4CheckBox">
+                      <widget class="QCheckBox" name="bin4CheckBoxESA">
                        <property name="font">
                         <font>
                          <family>Segoe UI</family>
@@ -1447,7 +1336,7 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QCheckBox" name="bin7CheckBox">
+                      <widget class="QCheckBox" name="bin7CheckBoxESA">
                        <property name="font">
                         <font>
                          <family>Segoe UI</family>
@@ -1460,7 +1349,7 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QCheckBox" name="bin10CheckBox">
+                      <widget class="QCheckBox" name="bin10CheckBoxESA">
                        <property name="font">
                         <font>
                          <family>Segoe UI</family>
@@ -1468,7 +1357,7 @@
                         </font>
                        </property>
                        <property name="text">
-                        <string>Bin 1</string>
+                        <string>Bin 10</string>
                        </property>
                       </widget>
                      </item>
@@ -1581,7 +1470,7 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QCheckBox" name="indxResCheckBox">
+                      <widget class="QCheckBox" name="bin4CheckBoxFIFRA">
                        <property name="font">
                         <font>
                          <family>Segoe UI</family>
@@ -1594,7 +1483,7 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QCheckBox" name="farmPondCheckBox">
+                      <widget class="QCheckBox" name="bin7CheckBoxFIFRA">
                        <property name="font">
                         <font>
                          <family>Segoe UI</family>
@@ -1607,7 +1496,7 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QCheckBox" name="wetlandCheckBox">
+                      <widget class="QCheckBox" name="bin10CheckBoxFIFRA">
                        <property name="font">
                         <font>
                          <family>Segoe UI</family>
@@ -1696,6 +1585,103 @@
                      </item>
                     </layout>
                    </widget>
+                  </widget>
+                 </item>
+                 <item row="0" column="1" rowspan="3">
+                  <widget class="Line" name="line_3">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0">
+                  <spacer name="binsParamDescriptionSpacer">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>150</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="binsParamDescription">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>300</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>300</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <family>Segoe UI</family>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Waterbody types to model.  An individual PWC run corresponding to each waterbody type selected will be prepared for all uses specified in the Agronomic Practices Table (APT).</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                   </property>
+                   <property name="wordWrap">
+                    <bool>true</bool>
+                   </property>
+                   <property name="margin">
+                    <number>3</number>
+                   </property>
+                   <property name="indent">
+                    <number>0</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="label_2">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>300</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>300</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <family>Segoe UI</family>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>ESA bin 4 corresponds with index reservior, except for the 'FlowAvgTime' value. ESA bin 7 corresponds with Farm Pond exactly. ESA bin 10 corresponds with Wetland exactly. Please see the documentation for what values are used.</string>
+                   </property>
+                   <property name="wordWrap">
+                    <bool>true</bool>
+                   </property>
                   </widget>
                  </item>
                 </layout>
@@ -1876,7 +1862,7 @@
                     </font>
                    </property>
                    <property name="currentIndex">
-                    <number>6</number>
+                    <number>0</number>
                    </property>
                    <widget class="QWidget" name="bareGroundAppTab">
                     <attribute name="title">

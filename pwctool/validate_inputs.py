@@ -65,11 +65,6 @@ def _validate_config(config: dict[str, Any], error_dialog: QDialog) -> bool:
                 _display_error_message(error_dialog, err_message)
                 return False
 
-        if not os.path.exists(config["FILE_PATHS"]["BIN_TO_LANDSCAPE"]):
-            err_message = "The bin to landscape lookup table does not exist or the path is incorrect. Please ensure it is valid and try again."
-            _display_error_message(error_dialog, err_message)
-            return False
-
     elif config["USE_CASE"] == "Use Case #2":
         if not os.path.exists(config["FILE_PATHS"]["PWC_BATCH_CSV"]):
             err_message = "The input pwc batch file does not exist or the path is incorrect. Please ensure it is valid and try again."

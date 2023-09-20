@@ -255,26 +255,22 @@ class Controller:
             self._view.fileBrowseIngrFateParams.setStyleSheet("color: grey")
             self._view.fileBrowseIngrFateParams.setEnabled(False)
             self._view.ingrFateParamsLabel.setStyleSheet("color: grey")
-            self._view.binToLandscapeParamsLocation.setEnabled(False)
-            self._view.fileBrowseBintoLandscapeParams.setStyleSheet("color: grey")
-            self._view.fileBrowseBintoLandscapeParams.setEnabled(False)
-            self._view.binToLandscapeTable.setStyleSheet("color: grey")
 
             # disable waterbody widgets
             self._view.binsParamDescription.setStyleSheet("color: grey")
             self._view.binLabel.setStyleSheet("color:grey")
             self._view.binSelectAll.setEnabled(False)
             self._view.binClearAll.setEnabled(False)
-            self._view.bin4CheckBox.setEnabled(False)
-            self._view.bin7CheckBox.setEnabled(False)
-            self._view.bin10CheckBox.setEnabled(False)
+            self._view.bin4CheckBoxESA.setEnabled(False)
+            self._view.bin7CheckBoxESA.setEnabled(False)
+            self._view.bin10CheckBoxESA.setEnabled(False)
 
             self._view.fifraWBLabel.setStyleSheet("color:grey")
             self._view.fifraWBSelectAll.setEnabled(False)
             self._view.fifraWBClearAll.setEnabled(False)
-            self._view.indxResCheckBox.setEnabled(False)
-            self._view.farmPondCheckBox.setEnabled(False)
-            self._view.wetlandCheckBox.setEnabled(False)
+            self._view.bin4CheckBoxFIFRA.setEnabled(False)
+            self._view.bin7CheckBoxFIFRA.setEnabled(False)
+            self._view.bin10CheckBoxFIFRA.setEnabled(False)
 
             # disable app distances tab
             self._view.applicationsTabDesc1.setStyleSheet("color: grey")
@@ -358,26 +354,22 @@ class Controller:
         self._view.fileBrowseIngrFateParams.setStyleSheet("color: black")
         self._view.fileBrowseIngrFateParams.setEnabled(True)
         self._view.ingrFateParamsLabel.setStyleSheet("color: black")
-        self._view.binToLandscapeParamsLocation.setEnabled(True)
-        self._view.fileBrowseBintoLandscapeParams.setStyleSheet("color: black")
-        self._view.fileBrowseBintoLandscapeParams.setEnabled(True)
-        self._view.binToLandscapeTable.setStyleSheet("color: black")
 
         # enable waterbody widgets
         self._view.binsParamDescription.setStyleSheet("color: black")
         self._view.binLabel.setStyleSheet("color:black")
         self._view.binSelectAll.setEnabled(True)
         self._view.binClearAll.setEnabled(True)
-        self._view.bin4CheckBox.setEnabled(True)
-        self._view.bin7CheckBox.setEnabled(True)
-        self._view.bin10CheckBox.setEnabled(True)
+        self._view.bin4CheckBoxESA.setEnabled(True)
+        self._view.bin7CheckBoxESA.setEnabled(True)
+        self._view.bin10CheckBoxESA.setEnabled(True)
 
         self._view.fifraWBLabel.setStyleSheet("color:black")
         self._view.fifraWBSelectAll.setEnabled(True)
         self._view.fifraWBClearAll.setEnabled(True)
-        self._view.indxResCheckBox.setEnabled(True)
-        self._view.farmPondCheckBox.setEnabled(True)
-        self._view.wetlandCheckBox.setEnabled(True)
+        self._view.bin4CheckBoxFIFRA.setEnabled(True)
+        self._view.bin7CheckBoxFIFRA.setEnabled(True)
+        self._view.bin10CheckBoxFIFRA.setEnabled(True)
 
         # enable app distances tab
         self._view.applicationsTabDesc1.setStyleSheet("color: black")
@@ -434,11 +426,17 @@ class Controller:
 
     # ======================== BINS =============================================
 
-    def alter_all_bins(self, state: bool):
-        """Alters all the bin checkboxes"""
-        self._view.bin4CheckBox.setChecked(state)
-        self._view.bin7CheckBox.setChecked(state)
-        self._view.bin10CheckBox.setChecked(state)
+    def alter_all_bins_esa(self, state: bool):
+        """Alters all the esa bin checkboxes"""
+        self._view.bin4CheckBoxESA.setChecked(state)
+        self._view.bin7CheckBoxESA.setChecked(state)
+        self._view.bin10CheckBoxESA.setChecked(state)
+
+    def alter_all_bins_fifra(self, state: bool):
+        """Alters all the fifra bin checkboxes"""
+        self._view.bin4CheckBoxFIFRA.setChecked(state)
+        self._view.bin7CheckBoxFIFRA.setChecked(state)
+        self._view.bin10CheckBoxFIFRA.setChecked(state)
 
     # ======================== APP METHODs =============================================
 
@@ -589,9 +587,6 @@ class Controller:
         self._view.fileBrowseIngrFateParams.clicked.connect(
             partial(self.select_file, self._view.ingrFateParamsLocation, "(*.csv)")
         )
-        self._view.fileBrowseBintoLandscapeParams.clicked.connect(
-            partial(self.select_file, self._view.binToLandscapeParamsLocation, "(*.csv)")
-        )
 
         # update APT and DRT scenario combo box, update app methods based on APT
         self._view.agronomicPracticesTableLocation.editingFinished.connect(
@@ -618,8 +613,10 @@ class Controller:
         )
 
         # bins
-        self._view.binSelectAll.clicked.connect(partial(self.alter_all_bins, True))
-        self._view.binClearAll.clicked.connect(partial(self.alter_all_bins, False))
+        self._view.binSelectAll.clicked.connect(partial(self.alter_all_bins_esa, True))
+        self._view.binClearAll.clicked.connect(partial(self.alter_all_bins_esa, False))
+        self._view.fifraWBSelectAll.clicked.connect(partial(self.alter_all_bins_fifra, True))
+        self._view.fifraWBClearAll.clicked.connect(partial(self.alter_all_bins_fifra, False))
 
         # app methods
         self._view.appmeth1_selectalldistances.clicked.connect(partial(self.alter_all_distances_appmeth1, True))
