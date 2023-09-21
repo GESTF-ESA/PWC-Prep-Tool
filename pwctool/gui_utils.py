@@ -35,12 +35,15 @@ def enable_disable_assessment_type(view):
 
     if view.fifraRadButton.isChecked():
 
-        # scenario/hucs
+        # enable fifra scenarios/hucs radio button
         view.newScnHucRadButton.setChecked(True)
+        view.newScnHucRadButton.setStyleSheet("color:black")
+
+        # disable legacy scenarios/hucs radio button
         view.legacyScnHucRadButton.setEnabled(False)
         view.legacyScnHucRadButton.setStyleSheet("color:grey")
 
-        # waterbodies
+        # enable fifra waterbodies
         view.fifraWBLabel.setStyleSheet("color:black")
         view.fifraWBSelectAll.setEnabled(True)
         view.fifraWBClearAll.setEnabled(True)
@@ -48,6 +51,7 @@ def enable_disable_assessment_type(view):
         view.bin7CheckBoxFIFRA.setEnabled(True)
         view.bin10CheckBoxFIFRA.setEnabled(True)
 
+        # disable esa waterbodies
         view.binLabel.setStyleSheet("color:grey")
         view.binSelectAll.setEnabled(False)
         view.binClearAll.setEnabled(False)
@@ -58,10 +62,11 @@ def enable_disable_assessment_type(view):
     if view.esaRadButton.isChecked():
 
         # scenario/hucs
+        view.newScnHucRadButton.setChecked(False)
         view.legacyScnHucRadButton.setEnabled(True)
         view.legacyScnHucRadButton.setStyleSheet("color:black")
 
-        # waterbodies
+        # disable fifra waterbodies
         view.fifraWBLabel.setStyleSheet("color:grey")
         view.fifraWBSelectAll.setEnabled(False)
         view.fifraWBClearAll.setEnabled(False)
@@ -69,6 +74,7 @@ def enable_disable_assessment_type(view):
         view.bin7CheckBoxFIFRA.setEnabled(False)
         view.bin10CheckBoxFIFRA.setEnabled(False)
 
+        # enable esa waterbodies
         view.binLabel.setStyleSheet("color:black")
         view.binSelectAll.setEnabled(True)
         view.binClearAll.setEnabled(True)
