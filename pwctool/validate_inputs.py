@@ -22,6 +22,7 @@ def validate_input_files(config: dict[str, Any], error_dialog: QDialog):
         _validate_config(config, error_dialog)
         and _validate_apt(config, error_dialog)
         and _validate_drt(config, error_dialog)
+        and _validate_scn_dir(config, error_dialog)
     ):
         return True
     else:
@@ -268,5 +269,39 @@ def _validate_drt(config: dict[str, Any], error_dialog: QDialog):
         err_message = "Please ensure the first column of the DRT is 'Profile' and try again."
         _display_error_message(error_dialog, err_message)
         return False
+
+    return True
+
+
+def _validate_scn_dir(config: dict[str, Any], error_dialog: QDialog):
+    """Ensures that the correct scenario file directory is chosen by the user
+    based on the assessment type. Requires ESA scn file directory to be named
+    "ESA scn files" and FIFRA scn file directory to be named "FIFRA scn files" """
+
+    scn_file_dir_path: str = config["FILE_PATHS"]["SCENARIO_FILES_PATH"]
+
+    if config["ASSESSMENT_TYPE"] == "fifra":
+        if "FIFRA scn files" not in scn_file_dir_path:
+            error_dialog.errMsgLabel.setText(
+                "The incorrect scenario file directory may be selected for FIFRA runs. Please ensure one of the three Koc variations of scn files are selected and that the next level up directory is named 'FIFRA scn files'."
+            )
+            error_dialog.exec_()
+            return False
+
+        three_kocs = ["Koc 100 to 3000", "Koc over 3000", "Koc under 100"]
+        if not any(koc in scn_file_dir_path for koc in three_kocs):
+            error_dialog.errMsgLabel.setText(
+                "The incorrect scenario file directory may be selected for FIFRA runs. Please ensure one of the three Koc variations of scn files are selected and the names of the directories are: 'Koc 100 to 3000' or 'Koc over 3000' or 'Koc under 100'."
+            )
+            error_dialog.exec_()
+            return False
+
+    else:
+        if "ESA scn files" not in scn_file_dir_path:
+            error_dialog.errMsgLabel.setText(
+                "The incorrect scenario file directory may be selected for ESA runs. Please ensure the scn file directory is named 'ESA scn files'."
+            )
+            error_dialog.exec_()
+            return False
 
     return True
