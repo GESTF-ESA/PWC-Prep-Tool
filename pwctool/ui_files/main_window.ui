@@ -1175,13 +1175,13 @@
                      <property name="minimumSize">
                       <size>
                        <width>500</width>
-                       <height>50</height>
+                       <height>70</height>
                       </size>
                      </property>
                      <property name="maximumSize">
                       <size>
                        <width>500</width>
-                       <height>50</height>
+                       <height>70</height>
                       </size>
                      </property>
                      <property name="font">
@@ -1191,7 +1191,7 @@
                       </font>
                      </property>
                      <property name="text">
-                      <string>For both FIFRA and ESA assessments, users must use the appropriate scenario files directory (in the file locations pane below). For FIFRA scenarios, users must select one of the three Koc variations.</string>
+                      <string>For both FIFRA and ESA assessments, users must use the appropriate scenario files directory (in the file locations pane below). For FIFRA scenarios, users must select one of the three Koc variations. The scenario files are only used to get the emergence and harvest dates.</string>
                      </property>
                      <property name="wordWrap">
                       <bool>true</bool>
