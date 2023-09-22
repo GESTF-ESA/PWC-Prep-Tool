@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>364</width>
-    <height>164</height>
+    <height>200</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,13 +19,13 @@
   <property name="minimumSize">
    <size>
     <width>364</width>
-    <height>164</height>
+    <height>200</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>364</width>
-    <height>164</height>
+    <height>200</height>
    </size>
   </property>
   <property name="font">
@@ -54,7 +54,7 @@
         <x>0</x>
         <y>0</y>
         <width>344</width>
-        <height>144</height>
+        <height>180</height>
        </rect>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
@@ -77,8 +77,8 @@
          <widget class="QPushButton" name="okayError">
           <property name="geometry">
            <rect>
-            <x>230</x>
-            <y>90</y>
+            <x>240</x>
+            <y>130</y>
             <width>75</width>
             <height>23</height>
            </rect>
@@ -97,9 +97,27 @@
            <rect>
             <x>16</x>
             <y>19</y>
-            <width>291</width>
-            <height>61</height>
+            <width>300</width>
+            <height>80</height>
            </rect>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>300</width>
+            <height>80</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>300</width>
+            <height>80</height>
+           </size>
           </property>
           <property name="font">
            <font>

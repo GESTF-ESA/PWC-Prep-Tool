@@ -64,7 +64,12 @@ def lookup_huc_from_state(state_to_huc_lookup_table: pd.DataFrame, states: list[
 
     model_hucs: list = []
     for state in states:
-        model_hucs.append(state_to_huc_lookup_table.at[state, "HUC2s"].split(","))
+        try:
+            model_hucs.append(state_to_huc_lookup_table.at[state, "HUC2s"].split(","))
+        except KeyError:
+            # state does not have any hucs associated with it
+            # occurs for AK and HI for "new" hucs
+            pass
 
     model_hucs: list = [item for sublist in model_hucs for item in sublist]
     model_hucs = set(model_hucs)

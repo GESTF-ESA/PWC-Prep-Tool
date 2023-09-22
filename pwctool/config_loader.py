@@ -3,8 +3,8 @@ Initializes the GUI with information from a config file
 """
 
 from typing import Any
-
-from PyQt5.QtWidgets import QCheckBox, QComboBox, QWidget, QDialog
+import pandas as pd
+from PyQt5.QtWidgets import QCheckBox, QComboBox, QWidget, QDialog, QLineEdit
 
 from pwctool.constants import (
     ALL_BINS,
@@ -15,12 +15,12 @@ from pwctool.constants import (
     FOLIAR_APPMETHOD,
     TBAND_APPMETHOD,
 )
-from pwctool.gui_utils import get_xl_sheet_names
 
 
 def init_gui_settings_from_config(view: QWidget, config: dict[str, Any], error_dialog: QDialog) -> None:
     """Sets the GUI settings based on the values in the config file"""
 
+    _init_assessment_widgets(view, config)
     _init_file_paths(view, config)
     _init_gui_options(view, config, error_dialog)
     _init_aquatic_bins(view, config)
@@ -28,6 +28,15 @@ def init_gui_settings_from_config(view: QWidget, config: dict[str, Any], error_d
 
     # Reset the progress bar
     view.progressBar.setValue(0)
+
+
+def _init_assessment_widgets(view, config: dict[str, Any]) -> None:
+    """Sets the assessment widgets"""
+
+    if config["ASSESSMENT_TYPE"] == "fifra":
+        view.fifraRadButton.setChecked(True)
+    else:
+        view.esaRadButton.setChecked(True)
 
 
 def _init_file_paths(view: QWidget, config: dict[str, Any]) -> None:
@@ -41,7 +50,6 @@ def _init_file_paths(view: QWidget, config: dict[str, Any]) -> None:
         "SCENARIO_FILES_PATH": view.scenarioFilesDirectoryLocation,
         "AGDRIFT_REDUCTION_TABLE": view.agDriftReductionTableLocation,
         "INGR_FATE_PARAMS": view.ingrFateParamsLocation,
-        "BIN_TO_LANDSCAPE": view.binToLandscapeParamsLocation,
     }
     for name, qline_edit in file_path_mappings.items():
         file_path = config.get("FILE_PATHS", {}).get(name)
@@ -64,8 +72,7 @@ def _init_gui_options(view: QWidget, config: dict[str, Any], error_dialog) -> No
     }
 
     for setting, gui_widget in setting_mappings.items():
-        setting_value = config.get(setting)
-        # if setting_value:
+        setting_value: str = config.get(setting)
         if isinstance(gui_widget, QComboBox):
             if gui_widget.findText(setting_value) == -1:  # setting_value not in combo box list
                 if setting == "APT_SCENARIO":
@@ -92,7 +99,10 @@ def _init_aquatic_bins(view: QWidget, config: dict[str, Any]) -> None:
 
     for bin_number in ALL_BINS:
         bin_value_bool = config.get("BINS", {}).get(bin_number)
-        getattr(view, f"bin{bin_number}CheckBox").setChecked(bin_value_bool)
+        if config["ASSESSMENT_TYPE"] == "fifra":
+            getattr(view, f"bin{bin_number}CheckBoxFIFRA").setChecked(bin_value_bool)
+        else:
+            getattr(view, f"bin{bin_number}CheckBoxESA").setChecked(bin_value_bool)
 
 
 def _init_application_methods(view: QWidget, config: dict[str, Any]) -> None:
@@ -124,3 +134,33 @@ def _init_application_methods(view: QWidget, config: dict[str, Any]) -> None:
                     getattr(view, f"appmeth{app_method}_{distance}_driftonly").setChecked(
                         appmeth_driftonly_distance_bool
                     )
+
+
+def get_xl_sheet_names(drop_down: QComboBox, text_widget: QLineEdit, error_dialog: QDialog, table: str) -> None:
+    """Gets the Excel sheet names for the APT or DRT and updates drop down"""
+
+    fnf_error_messages = {
+        "APT": "Invalid Agronomic Practices Table path, please correct and try again.",
+        "DRT": "Invalid Drift Reduction Table path, please correct and try again.",
+    }
+
+    pm_error_messages = {
+        "APT": "Please close the Agronomic Practices Table before loading a configuration to avoid permission error and try again.",
+        "DRT": "Please close the Drift Reduction Table before loading a configuration to avoid permission error and try again.",
+    }
+
+    file_path = text_widget.text()
+    drop_down.clear()
+    if file_path == "":
+        drop_down.addItem("Specify file path before selecting")
+    else:
+        try:
+            sheets: list = pd.ExcelFile(file_path).sheet_names
+        except FileNotFoundError:
+            error_dialog.errMsgLabel.setText(fnf_error_messages.get(table, "Unknown Table"))
+            error_dialog.exec_()
+        except PermissionError:  # this happens when apt/drt is open when user loads a config
+            error_dialog.errMsgLabel.setText(pm_error_messages.get(table, "Unknown Table"))
+            error_dialog.exec_()
+        else:
+            drop_down.addItems(sheets)

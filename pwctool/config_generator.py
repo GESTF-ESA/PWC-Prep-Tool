@@ -26,7 +26,6 @@ def generate_configuration_from_gui(view) -> dict[str, Any]:
             "SCENARIO_FILES_PATH": view.scenarioFilesDirectoryLocation.text(),
             "AGDRIFT_REDUCTION_TABLE": view.agDriftReductionTableLocation.text(),
             "INGR_FATE_PARAMS": view.ingrFateParamsLocation.text(),
-            "BIN_TO_LANDSCAPE": view.binToLandscapeParamsLocation.text(),
         },
         "APT_SCENARIO": view.APTscenario.currentText(),
         "DRT_SCENARIO": view.DRTscenario.currentText(),
@@ -36,6 +35,7 @@ def generate_configuration_from_gui(view) -> dict[str, Any]:
         "WETMONTH_PRIORITIZATION": view.wettestMonthPrior.isChecked(),
     }
 
+    _add_assessment_settings(config, view)
     _add_residential_adjustment_factor(config, view)
     _add_bin_settings(config, view)
     _add_appmeth_settings(config, view)
@@ -57,7 +57,10 @@ def _add_bin_settings(config: dict[str, Any], view) -> None:
 
     config["BINS"] = {}
     for bin_number in ALL_BINS:
-        config["BINS"][bin_number] = getattr(view, f"bin{bin_number}CheckBox").isChecked()
+        if config["ASSESSMENT_TYPE"] == "fifra":
+            config["BINS"][bin_number] = getattr(view, f"bin{bin_number}CheckBoxFIFRA").isChecked()
+        else:
+            config["BINS"][bin_number] = getattr(view, f"bin{bin_number}CheckBoxESA").isChecked()
 
 
 def _add_appmeth_settings(config: dict[str, Any], view) -> None:
@@ -106,3 +109,12 @@ def _add_appmeth_settings(config: dict[str, Any], view) -> None:
                     config[f"APPMETH{method_num}_DRIFT_ONLY"][distance] = getattr(
                         view, f"appmeth{method_num}_{distance}_driftonly"
                     ).isChecked()
+
+
+def _add_assessment_settings(config: dict[str, Any], view):
+    """Adds the assessment settings to the config"""
+
+    if view.fifraRadButton.isChecked():
+        config["ASSESSMENT_TYPE"] = "fifra"
+    else:
+        config["ASSESSMENT_TYPE"] = "esa"
