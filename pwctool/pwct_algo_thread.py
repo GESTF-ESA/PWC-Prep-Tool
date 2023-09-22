@@ -15,7 +15,6 @@ from datetime import date
 from typing import Any, Union
 
 from PyQt5 import QtCore as qtc
-from PyQt5.QtWidgets import QDialog
 
 import pandas as pd
 import numpy as np
@@ -67,7 +66,7 @@ class PwcToolAlgoThread(qtc.QThread):
             data=CROP_TO_STATE_LUT, orient="index", columns=["States"]
         )
 
-        if self.settings["SCN_HUCS"] == "new":
+        if self.settings["ASSESSMENT_TYPE"] == "fifra":
             self.state_to_huc_lookup_table = pd.DataFrame.from_dict(
                 data=STATE_TO_HUC_LUT_NEW, orient="index", columns=["HUC2s"]
             )
@@ -497,9 +496,9 @@ class PwcToolAlgoThread(qtc.QThread):
     def create_scenario_name(self, run_ag_pract: pd.Series, huc2: str):
         """Creates the scenario file name based on the use and huc2 provided in the APT"""
 
-        if self.settings["SCN_HUCS"] == "new":
+        if self.settings["ASSESSMENT_TYPE"] == "fifra":
 
-            letter_lut = {
+            letter_lut: dict[str, str] = {
                 "Koc 100 to 3000": "B",
                 "Koc over 3000": "C",
                 "Koc under 100": "A",
@@ -555,7 +554,7 @@ class PwcToolAlgoThread(qtc.QThread):
 
             # change how dates are extracted based on new or legacy (esa) scn files
             # extract date information from specific lines in .scn files
-            if self.settings["SCN_HUCS"] == "new":
+            if self.settings["ASSESSMENT_TYPE"] == "fifra":
 
                 scn_file_line: list = linecache.getline(scenario_file, 32).split(",")
 
@@ -800,8 +799,6 @@ class PwcToolAlgoThread(qtc.QThread):
                 except ValueError:
                     logger.critical("\n ERROR: The random seed that was specified is not a valid type")
                     logger.critical(" The valid types are integer, float, string, or leave it blank.")
-                    # self.update_diagnostics.emit("\nERROR: The random seed that was specified is not a valid type")
-                    # self.update_diagnostics.emit(" The valid types are integer, float, string, or leave it blank.")
                     sys.exit()
 
             return date(

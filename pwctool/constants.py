@@ -298,3 +298,9 @@ STATE_TO_HUC_LUT_NEW = {
     "WV": "02,05",
     "WY": "10U,10L,17",
 }
+
+
+USE_CASE_DESCRIPTION = {
+    "Use Case #1": "Generate a PWC batch input file from scratch",
+    "Use Case #2": "QC an existing batch file",
+}

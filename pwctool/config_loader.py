@@ -39,11 +39,6 @@ def _init_assessment_widgets(view, config: dict[str, Any]) -> None:
     else:
         view.esaRadButton.setChecked(True)
 
-    if config["SCN_HUCS"] == "new":
-        view.newScnHucRadButton.setChecked(True)
-    else:
-        view.legacyScnHucRadButton.setChecked(True)
-
 
 def _init_file_paths(view: QWidget, config: dict[str, Any]) -> None:
     """Sets the file paths in the GUI"""
@@ -105,7 +100,7 @@ def _init_aquatic_bins(view: QWidget, config: dict[str, Any]) -> None:
 
     for bin_number in ALL_BINS:
         bin_value_bool = config.get("BINS", {}).get(bin_number)
-        if config["SCN_HUCS"] == "new":
+        if config["ASSESSMENT_TYPE"] == "fifra":
             getattr(view, f"bin{bin_number}CheckBoxFIFRA").setChecked(bin_value_bool)
         else:
             getattr(view, f"bin{bin_number}CheckBoxESA").setChecked(bin_value_bool)

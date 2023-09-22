@@ -20,9 +20,11 @@ from pwctool.pwct_algo_thread import PwcToolAlgoThread
 from pwctool.gui_utils import (
     get_xl_sheet_names,
     restrict_application_methods,
-    enable_disable_app_methods,
-    enable_disable_assessment_type,
+    enable_disable_waterbodies,
     enable_disable_wettest_month_table,
+    update_gui_usecase_change,
+    create_blank_config,
+    enable_disable_wettest_month_prior,
 )
 from pwctool.validate_inputs import validate_input_files
 
@@ -55,18 +57,12 @@ class Controller:
 
         self.saved_config_path = ""
 
-        self._use_case_descriptions = {
-            "Use Case #1": "Generate a PWC batch input file from scratch",
-            "Use Case #2": "QC an existing batch file",
-        }
-
-        self.set_default_params()
+        self._set_default_params()
         self._connect_signals()
 
-    def set_default_params(self):
+    def _set_default_params(self):
         """Parameterizes the GUI with default values"""
         self.new_config("Use Case #1")
-        self.deactivate_irrelevant_widgets()
 
     # ======================== MISCELLANEOUS =============================================
     def browse_file_explorer(self, file_type: str):
@@ -111,76 +107,15 @@ class Controller:
     def new_config(self, use_case):
         """Creates a blank configuration in the current application. Places defaults."""
 
-        self.clear_widget_deactivation()
+        blank_config = create_blank_config(use_case)
+        init_gui_settings_from_config(self._view, blank_config, self.error_dialog)
+        update_gui_usecase_change(self._view)
+        if use_case == "Use Case #1":
+            enable_disable_waterbodies(self._view)
+            enable_disable_wettest_month_table(self._view)
+            enable_disable_wettest_month_prior(self._view)
 
-        config = {}
-        config["USE_CASE"] = use_case
-
-        config["ASSESSMENT_TYPE"] = "fifra"
-        config["SCN_HUCS"] = "new"
-
-        config["FILE_PATHS"] = {}
-        config["FILE_PATHS"]["PWC_BATCH_CSV"] = ""
-        config["FILE_PATHS"]["OUTPUT_DIR"] = ""
-        config["FILE_PATHS"]["WETTEST_MONTH_CSV"] = ""
-        config["FILE_PATHS"]["AGRONOMIC_PRACTICES_EXCEL"] = ""
-        config["FILE_PATHS"]["SCENARIO_FILES_PATH"] = ""
-        config["FILE_PATHS"]["INGR_FATE_PARAMS"] = ""
-        config["FILE_PATHS"]["AGDRIFT_REDUCTION_TABLE"] = ""
-        config["FILE_PATHS"]["BIN_TO_LANDSCAPE"] = ""
-
-        config["BINS"] = {}
-        config["BINS"][4] = False
-        config["BINS"][7] = False
-        config["BINS"][10] = False
-
-        for app_method in ALL_APPMETHODS:
-
-            if app_method in BURIED_APPMETHODS:
-                if app_method == TBAND_APPMETHOD:
-                    config["APPMETH5_DEPTHS"] = {}
-                    config["APPMETH5_DEPTHS"][4] = False
-                    config["APPMETH5_DEPTHS"][6] = False
-                    config["APPMETH5_DEPTHS"][8] = False
-                    config["APPMETH5_DEPTHS"][10] = False
-                    config["APPMETH5_DEPTHS"][12] = False
-
-                    config["APPMETH5_TBANDFRAC"] = 0.5
-
-                else:
-                    config[f"APPMETH{app_method}_DEPTHS"] = {}
-                    for depth in ALL_DEPTHS:
-                        config[f"APPMETH{app_method}_DEPTHS"][depth] = False
-
-            else:  # app method 1 (bare ground) and 2 (foliar)
-                config[f"APPMETH{app_method}_DISTANCES"] = {}
-                for distance in ALL_DISTANCES:
-                    config[f"APPMETH{app_method}_DISTANCES"][distance] = False
-
-                if app_method == FOLIAR_APPMETHOD:
-                    config["APPMETH2_DRIFT_ONLY"] = {}
-                    config["APPMETH2_DRIFT_ONLY"] = {
-                        "000m": False,
-                        "030m": False,
-                        "060m": False,
-                        "090m": False,
-                        "120m": False,
-                        "150m": False,
-                    }
-
-        config["APT_SCENARIO"] = "Specify file path before selecting"
-        config["DRT_SCENARIO"] = "Specify file path before selecting"
-        config["RESIDENTIAL_ADJ_FACTOR"] = 0.587
-        config["RANDOM_START_DATES"] = False
-        config["RANDOM_SEED"] = ""
-        config["RUN_ID"] = ""
-        config["DATE_PRIORITIZATION"] = ""
-        config["WETMONTH_PRIORITIZATION"] = True
-
-        init_gui_settings_from_config(self._view, config, self.error_dialog)
-        enable_disable_assessment_type(self._view)
-        enable_disable_wettest_month_table(self._view)
-        self.deactivate_irrelevant_widgets()
+        # reset config path, diagnostic window, and progress bar
         self.saved_config_path = ""
 
         self._view.diagnosticWindow.clear()
@@ -188,8 +123,7 @@ class Controller:
         self._view.diagnosticWindow.append(
             "For information on use, see the documentation link under 'Help' in the menu bar."
         )
-        self._view.diagnosticWindow.append("Please open or enter a configuration.")
-
+        self._view.diagnosticWindow.append("Please open or create a configuration.")
         self._view.progressBar.setValue(0)
 
     def save_file(self):
@@ -224,177 +158,171 @@ class Controller:
 
     # ======================== USE CASE SELECTION =============================================
 
-    def update_use_case_description(self):
-        """Updates the use case description when a new use case is selected"""
-        new_use_case = self._view.useCaseComboBox.currentText()
-        self._view.useCaseLabel.setText(self._use_case_descriptions[new_use_case])
+    # def update_use_case_description(self):
+    #     """Updates the use case description when a new use case is selected"""
+    #     new_use_case = self._view.useCaseComboBox.currentText()
+    #     self._view.useCaseLabel.setText(self._use_case_descriptions[new_use_case])
 
-        self.clear_widget_deactivation()
-        self.new_config(new_use_case)
+    #     self.activate_all_widgets()
+    #     self.new_config(new_use_case)
 
-    def deactivate_irrelevant_widgets(self):
-        """Deactivates widgets that are not relavent for the use case."""
+    # def deactivate_irrelevant_widgets(self):
+    #     """Deactivates widgets that are not relavent for the use case."""
 
-        new_use_case = self._view.useCaseComboBox.currentText()
+    #     new_use_case = self._view.useCaseComboBox.currentText()
 
-        if new_use_case == "Use Case #1":
-            # disable source batch file parameter
-            self._view.pwcBatchFileLocation.setEnabled(False)
-            self._view.pwcBatchFileLabel.setStyleSheet("color: grey")
-            self._view.fileBrowseSourcePWCBatch.setEnabled(False)
+    #     if new_use_case == "Use Case #1":
+    #         # disable source batch file parameter
+    #         self._view.pwcBatchFileLocation.setEnabled(False)
+    #         self._view.pwcBatchFileLabel.setStyleSheet("color: grey")
+    #         self._view.fileBrowseSourcePWCBatch.setEnabled(False)
 
-        else:  # use case 2
-            # disable wettest month widgets
-            self._view.wettestMonthTableLocation.setEnabled(False)
-            self._view.fileBrowseWettestMonthTable.setStyleSheet("color: grey")
-            self._view.fileBrowseWettestMonthTable.setEnabled(False)
-            self._view.wettestMonthTableLabel.setStyleSheet("color: grey")
+    #     else:  # use case 2
+    #         # disable wettest month widgets
+    #         self._view.wettestMonthTableLocation.setEnabled(False)
+    #         self._view.fileBrowseWettestMonthTable.setStyleSheet("color: grey")
+    #         self._view.fileBrowseWettestMonthTable.setEnabled(False)
+    #         self._view.wettestMonthTableLabel.setStyleSheet("color: grey")
 
-            # disable tables
-            self._view.ingrFateParamsLocation.setEnabled(False)
-            self._view.fileBrowseIngrFateParams.setStyleSheet("color: grey")
-            self._view.fileBrowseIngrFateParams.setEnabled(False)
-            self._view.ingrFateParamsLabel.setStyleSheet("color: grey")
+    #         # disable tables
+    #         self._view.ingrFateParamsLocation.setEnabled(False)
+    #         self._view.fileBrowseIngrFateParams.setStyleSheet("color: grey")
+    #         self._view.fileBrowseIngrFateParams.setEnabled(False)
+    #         self._view.ingrFateParamsLabel.setStyleSheet("color: grey")
 
-            # disable waterbody widgets
-            self._view.binsParamDescription.setStyleSheet("color: grey")
-            self._view.binLabel.setStyleSheet("color:grey")
-            self._view.binSelectAll.setEnabled(False)
-            self._view.binClearAll.setEnabled(False)
-            self._view.bin4CheckBoxESA.setEnabled(False)
-            self._view.bin7CheckBoxESA.setEnabled(False)
-            self._view.bin10CheckBoxESA.setEnabled(False)
+    #         # disable waterbody widgets
+    #         self._view.binsParamDescription.setStyleSheet("color: grey")
+    #         self._view.binLabel.setStyleSheet("color:grey")
+    #         self._view.binSelectAll.setEnabled(False)
+    #         self._view.binClearAll.setEnabled(False)
+    #         self._view.bin4CheckBoxESA.setEnabled(False)
+    #         self._view.bin7CheckBoxESA.setEnabled(False)
+    #         self._view.bin10CheckBoxESA.setEnabled(False)
 
-            self._view.fifraWBLabel.setStyleSheet("color:grey")
-            self._view.fifraWBSelectAll.setEnabled(False)
-            self._view.fifraWBClearAll.setEnabled(False)
-            self._view.bin4CheckBoxFIFRA.setEnabled(False)
-            self._view.bin7CheckBoxFIFRA.setEnabled(False)
-            self._view.bin10CheckBoxFIFRA.setEnabled(False)
+    #         self._view.fifraWBLabel.setStyleSheet("color:grey")
+    #         self._view.fifraWBSelectAll.setEnabled(False)
+    #         self._view.fifraWBClearAll.setEnabled(False)
+    #         self._view.bin4CheckBoxFIFRA.setEnabled(False)
+    #         self._view.bin7CheckBoxFIFRA.setEnabled(False)
+    #         self._view.bin10CheckBoxFIFRA.setEnabled(False)
 
-            # disable app distances tab
-            self._view.applicationsTabDesc1.setStyleSheet("color: grey")
-            self._view.applicationsTabDesc3.setStyleSheet("color: grey")
-            self._view.applicationsTabs.setStyleSheet("color: grey")
+    #         # disable app distances tab
+    #         self._view.applicationsTabDesc1.setStyleSheet("color: grey")
+    #         self._view.applicationsTabDesc3.setStyleSheet("color: grey")
+    #         self._view.applicationsTabs.setStyleSheet("color: grey")
 
-            # disable app method items
-            for i in ALL_APPMETHODS:
-                enable_disable_app_methods(self._view, i, False)
+    #         # disable app method items
+    #         for i in ALL_APPMETHODS:
+    #             enable_disable_app_methods(self._view, i, False)
 
-            # date assignment parameters
-            self._view.wettestMonthPrior.setEnabled(False)
-            self._view.wettestMonthDesc.setStyleSheet("color:grey")
-            self._view.wettestMonthPriorLable.setStyleSheet("color: grey")
+    #         # date assignment parameters
+    #         self._view.wettestMonthPrior.setEnabled(False)
+    #         self._view.wettestMonthDesc.setStyleSheet("color:grey")
+    #         self._view.wettestMonthPriorLable.setStyleSheet("color: grey")
 
-            self._view.datePriorComboBox.setEnabled(False)
-            self._view.datePriorDesc.setStyleSheet("color:grey")
-            self._view.datePriorLabel.setStyleSheet("color: grey")
+    #         self._view.datePriorComboBox.setEnabled(False)
+    #         self._view.datePriorDesc.setStyleSheet("color:grey")
+    #         self._view.datePriorLabel.setStyleSheet("color: grey")
 
-            self._view.randomStartDatesBool.setEnabled(False)
-            self._view.randomSeed.setEnabled(False)
-            self._view.randomDateDesc.setStyleSheet("color:grey")
-            self._view.randomDateLabel.setStyleSheet("color:grey")
-            self._view.randomSeedLabel.setStyleSheet("color: grey")
+    #         self._view.randomStartDatesBool.setEnabled(False)
+    #         self._view.randomSeed.setEnabled(False)
+    #         self._view.randomDateDesc.setStyleSheet("color:grey")
+    #         self._view.randomDateLabel.setStyleSheet("color:grey")
+    #         self._view.randomSeedLabel.setStyleSheet("color: grey")
 
-            # disable assessment tab widgets
-            self._view.fifraRadButton.setEnabled(False)
-            self._view.fifraRadButton.setStyleSheet("color:grey")
-            self._view.esaRadButton.setEnabled(False)
-            self._view.esaRadButton.setStyleSheet("color:grey")
+    #         # disable assessment tab widgets
+    #         self._view.fifraRadButton.setEnabled(False)
+    #         self._view.fifraRadButton.setStyleSheet("color:grey")
+    #         self._view.esaRadButton.setEnabled(False)
+    #         self._view.esaRadButton.setStyleSheet("color:grey")
 
-            self._view.newScnHucRadButton.setEnabled(False)
-            self._view.newScnHucRadButton.setStyleSheet("color:grey")
-            self._view.legacyScnHucRadButton.setEnabled(False)
-            self._view.legacyScnHucRadButton.setStyleSheet("color:grey")
+    #         self._view.newScnHucRadButton.setEnabled(False)
+    #         self._view.newScnHucRadButton.setStyleSheet("color:grey")
+    #         self._view.legacyScnHucRadButton.setEnabled(False)
+    #         self._view.legacyScnHucRadButton.setStyleSheet("color:grey")
 
-            self._view.assessmentTypeLabel.setStyleSheet("color:grey")
-            self._view.scnHucLabel.setStyleSheet("color:grey")
-            self._view.assessmentDesc.setStyleSheet("color:grey")
-            self._view.assessmentDesc2.setStyleSheet("color:grey")
+    #         self._view.assessmentTypeLabel.setStyleSheet("color:grey")
+    #         self._view.scnHucLabel.setStyleSheet("color:grey")
+    #         self._view.assessmentDesc.setStyleSheet("color:grey")
+    #         self._view.assessmentDesc2.setStyleSheet("color:grey")
 
-            # residential ADJ factor
-            self._view.resADJFactorLabel.setStyleSheet("color: grey")
-            self._view.redADJFactDesc.setStyleSheet("color: grey")
-            self._view.resADJFactor.setEnabled(False)
+    #         # residential ADJ factor
+    #         self._view.resADJFactorLabel.setStyleSheet("color: grey")
+    #         self._view.redADJFactDesc.setStyleSheet("color: grey")
+    #         self._view.resADJFactor.setEnabled(False)
 
-    def clear_widget_deactivation(self):
-        """Enables all widgets and resets styles"""
+    # def activate_all_widgets(self):
+    #     """Enables all widgets and resets styles"""
 
-        # enable app methods items
-        for i in ALL_APPMETHODS:
-            enable_disable_app_methods(self._view, i, True)
+    #     # enable app methods items
+    #     for i in ALL_APPMETHODS:
+    #         enable_disable_app_methods(self._view, i, True)
 
-        # enable source batch file parameter
-        self._view.pwcBatchFileLocation.setEnabled(True)
-        self._view.pwcBatchFileLabel.setStyleSheet("color: black")
-        self._view.fileBrowseSourcePWCBatch.setEnabled(True)
+    #     # enable source batch file parameter
+    #     self._view.pwcBatchFileLocation.setEnabled(True)
+    #     self._view.pwcBatchFileLabel.setStyleSheet("color: black")
+    #     self._view.fileBrowseSourcePWCBatch.setEnabled(True)
 
-        # enable assessment tab widgets
-        self._view.fifraRadButton.setEnabled(True)
-        self._view.fifraRadButton.setStyleSheet("color:black")
-        self._view.esaRadButton.setEnabled(True)
-        self._view.esaRadButton.setStyleSheet("color:black")
+    #     # enable assessment tab widgets
+    #     self._view.fifraRadButton.setEnabled(True)
+    #     self._view.fifraRadButton.setStyleSheet("color:black")
+    #     self._view.esaRadButton.setEnabled(True)
+    #     self._view.esaRadButton.setStyleSheet("color:black")
 
-        self._view.newScnHucRadButton.setEnabled(True)
-        self._view.newScnHucRadButton.setStyleSheet("color:black")
-        self._view.legacyScnHucRadButton.setEnabled(True)
-        self._view.legacyScnHucRadButton.setStyleSheet("color:black")
+    #     self._view.assessmentTypeLabel.setStyleSheet("color:black")
+    #     self._view.assessmentDesc.setStyleSheet("color:black")
+    #     self._view.assessmentDesc2.setStyleSheet("color:black")
 
-        self._view.assessmentTypeLabel.setStyleSheet("color:black")
-        self._view.scnHucLabel.setStyleSheet("color:black")
-        self._view.assessmentDesc.setStyleSheet("color:black")
-        self._view.assessmentDesc2.setStyleSheet("color:black")
+    #     # other tables
+    #     self._view.wettestMonthTableLocation.setEnabled(True)
+    #     self._view.fileBrowseWettestMonthTable.setStyleSheet("color: black")
+    #     self._view.fileBrowseWettestMonthTable.setEnabled(True)
+    #     self._view.wettestMonthTableLabel.setStyleSheet("color: black")
+    #     self._view.ingrFateParamsLocation.setEnabled(True)
+    #     self._view.fileBrowseIngrFateParams.setStyleSheet("color: black")
+    #     self._view.fileBrowseIngrFateParams.setEnabled(True)
+    #     self._view.ingrFateParamsLabel.setStyleSheet("color: black")
 
-        # other tables
-        self._view.wettestMonthTableLocation.setEnabled(True)
-        self._view.fileBrowseWettestMonthTable.setStyleSheet("color: black")
-        self._view.fileBrowseWettestMonthTable.setEnabled(True)
-        self._view.wettestMonthTableLabel.setStyleSheet("color: black")
-        self._view.ingrFateParamsLocation.setEnabled(True)
-        self._view.fileBrowseIngrFateParams.setStyleSheet("color: black")
-        self._view.fileBrowseIngrFateParams.setEnabled(True)
-        self._view.ingrFateParamsLabel.setStyleSheet("color: black")
+    #     # enable waterbody widgets
+    #     self._view.binsParamDescription.setStyleSheet("color: black")
+    #     self._view.binLabel.setStyleSheet("color:black")
+    #     self._view.binSelectAll.setEnabled(True)
+    #     self._view.binClearAll.setEnabled(True)
+    #     self._view.bin4CheckBoxESA.setEnabled(True)
+    #     self._view.bin7CheckBoxESA.setEnabled(True)
+    #     self._view.bin10CheckBoxESA.setEnabled(True)
 
-        # enable waterbody widgets
-        self._view.binsParamDescription.setStyleSheet("color: black")
-        self._view.binLabel.setStyleSheet("color:black")
-        self._view.binSelectAll.setEnabled(True)
-        self._view.binClearAll.setEnabled(True)
-        self._view.bin4CheckBoxESA.setEnabled(True)
-        self._view.bin7CheckBoxESA.setEnabled(True)
-        self._view.bin10CheckBoxESA.setEnabled(True)
+    #     self._view.fifraWBLabel.setStyleSheet("color:black")
+    #     self._view.fifraWBSelectAll.setEnabled(True)
+    #     self._view.fifraWBClearAll.setEnabled(True)
+    #     self._view.bin4CheckBoxFIFRA.setEnabled(True)
+    #     self._view.bin7CheckBoxFIFRA.setEnabled(True)
+    #     self._view.bin10CheckBoxFIFRA.setEnabled(True)
 
-        self._view.fifraWBLabel.setStyleSheet("color:black")
-        self._view.fifraWBSelectAll.setEnabled(True)
-        self._view.fifraWBClearAll.setEnabled(True)
-        self._view.bin4CheckBoxFIFRA.setEnabled(True)
-        self._view.bin7CheckBoxFIFRA.setEnabled(True)
-        self._view.bin10CheckBoxFIFRA.setEnabled(True)
+    #     # enable app distances tab
+    #     self._view.applicationsTabDesc1.setStyleSheet("color: black")
+    #     self._view.applicationsTabDesc3.setStyleSheet("color: black")
+    #     self._view.applicationsTabs.setStyleSheet("color: black")
 
-        # enable app distances tab
-        self._view.applicationsTabDesc1.setStyleSheet("color: black")
-        self._view.applicationsTabDesc3.setStyleSheet("color: black")
-        self._view.applicationsTabs.setStyleSheet("color: black")
+    #     # date assignment parameters
+    #     self._view.wettestMonthPrior.setEnabled(True)
+    #     self._view.wettestMonthDesc.setStyleSheet("color: black")
+    #     self._view.wettestMonthPriorLable.setStyleSheet("color: black")
 
-        # date assignment parameters
-        self._view.wettestMonthPrior.setEnabled(True)
-        self._view.wettestMonthDesc.setStyleSheet("color: black")
-        self._view.wettestMonthPriorLable.setStyleSheet("color: black")
+    #     self._view.datePriorComboBox.setEnabled(True)
+    #     self._view.datePriorDesc.setStyleSheet("color: black")
+    #     self._view.datePriorLabel.setStyleSheet("color: black")
 
-        self._view.datePriorComboBox.setEnabled(True)
-        self._view.datePriorDesc.setStyleSheet("color: black")
-        self._view.datePriorLabel.setStyleSheet("color: black")
+    #     self._view.randomStartDatesBool.setEnabled(True)
+    #     self._view.randomSeed.setEnabled(True)
+    #     self._view.randomDateDesc.setStyleSheet("color: black")
+    #     self._view.randomDateLabel.setStyleSheet("color: black")
+    #     self._view.randomSeedLabel.setStyleSheet("color: black")
 
-        self._view.randomStartDatesBool.setEnabled(True)
-        self._view.randomSeed.setEnabled(True)
-        self._view.randomDateDesc.setStyleSheet("color: black")
-        self._view.randomDateLabel.setStyleSheet("color: black")
-        self._view.randomSeedLabel.setStyleSheet("color: black")
-
-        # residential ADJ factor
-        self._view.resADJFactorLabel.setStyleSheet("color: black")
-        self._view.redADJFactDesc.setStyleSheet("color: black")
-        self._view.resADJFactor.setEnabled(True)
+    #     # residential ADJ factor
+    #     self._view.resADJFactorLabel.setStyleSheet("color: black")
+    #     self._view.redADJFactDesc.setStyleSheet("color: black")
+    #     self._view.resADJFactor.setEnabled(True)
 
     # ======================== FILE LOCATIONS =============================================
 
@@ -559,12 +487,16 @@ class Controller:
         self.error_dialog.okayError.clicked.connect(self.error_dialog.reject)
 
         # use case
-        self._view.useCaseComboBox.currentTextChanged.connect(self.update_use_case_description)
-        self._view.useCaseComboBox.currentTextChanged.connect(self.deactivate_irrelevant_widgets)
+        self._view.useCaseComboBox.currentTextChanged.connect(partial(update_gui_usecase_change, self._view))
+        self._view.useCaseComboBox.currentTextChanged.connect(
+            partial(self.new_config, self._view.useCaseComboBox.currentText())
+        )
 
         # assessment tab
-        self._view.fifraRadButton.toggled.connect(partial(enable_disable_assessment_type, self._view))
-        self._view.esaRadButton.toggled.connect(partial(enable_disable_assessment_type, self._view))
+        self._view.fifraRadButton.toggled.connect(partial(enable_disable_waterbodies, self._view))
+        self._view.fifraRadButton.toggled.connect(partial(enable_disable_wettest_month_prior, self._view))
+        self._view.esaRadButton.toggled.connect(partial(enable_disable_waterbodies, self._view))
+        self._view.esaRadButton.toggled.connect(partial(enable_disable_wettest_month_prior, self._view))
 
         # date assignment tab
         self._view.wettestMonthPrior.stateChanged.connect(partial(enable_disable_wettest_month_table, self._view))

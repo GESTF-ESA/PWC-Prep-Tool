@@ -57,7 +57,7 @@ def _add_bin_settings(config: dict[str, Any], view) -> None:
 
     config["BINS"] = {}
     for bin_number in ALL_BINS:
-        if config["SCN_HUCS"] == "new":
+        if config["ASSESSMENT_TYPE"] == "fifra":
             config["BINS"][bin_number] = getattr(view, f"bin{bin_number}CheckBoxFIFRA").isChecked()
         else:
             config["BINS"][bin_number] = getattr(view, f"bin{bin_number}CheckBoxESA").isChecked()
@@ -118,8 +118,3 @@ def _add_assessment_settings(config: dict[str, Any], view):
         config["ASSESSMENT_TYPE"] = "fifra"
     else:
         config["ASSESSMENT_TYPE"] = "esa"
-
-    if view.newScnHucRadButton.isChecked():
-        config["SCN_HUCS"] = "new"
-    else:
-        config["SCN_HUCS"] = "legacy"

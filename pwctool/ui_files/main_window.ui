@@ -4174,7 +4174,7 @@
                       </font>
                      </property>
                      <property name="text">
-                      <string>Check this box (default) to turn on wettest month prioritization. Uncheck it to turn off. Wettest month prioritization will make applications in wetter months based on the region (HUC) according to the wettest month table. This is primarily used in ESA modeling.</string>
+                      <string>Check this box (default) to turn on wettest month prioritization. Uncheck it to turn off. Wettest month prioritization will make applications in wetter months based on the region (HUC) according to the wettest month table. This opetion is only available for ESA modeling.</string>
                      </property>
                      <property name="wordWrap">
                       <bool>true</bool>
