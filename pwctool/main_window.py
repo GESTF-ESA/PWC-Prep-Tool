@@ -2578,7 +2578,7 @@ class Ui_AppDateTool(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.applicationsTab), _translate("AppDateTool", "Applications"))
         self.datePrior.setStatusTip(_translate("AppDateTool", "Date assignment parameters"))
         self.wettestMonthPriorLable.setText(_translate("AppDateTool", "Wettest Month Prioritization"))
-        self.wettestMonthDesc.setText(_translate("AppDateTool", "Check this box (default) to turn on wettest month prioritization. Uncheck it to turn off. Wettest month prioritization will make applications in wetter months based on the region (HUC) according to the wettest month table. This opetion is only available for ESA modeling."))
+        self.wettestMonthDesc.setText(_translate("AppDateTool", "Check this box (default) to turn on wettest month prioritization. Uncheck it to turn off. Wettest month prioritization will make applications in wetter months based on the region (HUC) according to the wettest month table. This option is only available for ESA modeling."))
         self.datePriorLabel.setText(_translate("AppDateTool", "Application Date Prioritization"))
         self.datePriorComboBox.setItemText(0, _translate("AppDateTool", "Max App. Rate"))
         self.datePriorComboBox.setItemText(1, _translate("AppDateTool", "Wettest Month"))
