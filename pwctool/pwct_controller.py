@@ -4,21 +4,21 @@ Controller module
 Manages GUI-user interactions
 """
 
-from functools import partial
+
 import logging
 import os
 from typing import Any
+from functools import partial
 
 from PyQt5.QtGui import QDesktopServices
 from PyQt5.QtCore import QUrl
 from PyQt5.QtWidgets import QFileDialog
 import yaml
 
-from pwctool.config_loader import init_gui_settings_from_config
+from pwctool.config_loader import init_gui_settings_from_config, get_xl_sheet_names
 from pwctool.config_generator import generate_configuration_from_gui
 from pwctool.pwct_algo_thread import PwcToolAlgoThread
 from pwctool.gui_utils import (
-    get_xl_sheet_names,
     restrict_application_methods,
     enable_disable_waterbodies,
     enable_disable_wettest_month_table,
@@ -28,15 +28,7 @@ from pwctool.gui_utils import (
 )
 from pwctool.validate_inputs import validate_input_files
 
-from pwctool.constants import (
-    VERSION,
-    ALL_APPMETHODS,
-    BURIED_APPMETHODS,
-    ALL_DISTANCES,
-    ALL_DEPTHS,
-    FOLIAR_APPMETHOD,
-    TBAND_APPMETHOD,
-)
+from pwctool.constants import VERSION
 
 logger = logging.getLogger("adt_logger")  # retrieve logger configured in app_dates.py
 
@@ -109,7 +101,7 @@ class Controller:
 
         blank_config = create_blank_config(use_case)
         init_gui_settings_from_config(self._view, blank_config, self.error_dialog)
-        update_gui_usecase_change(self._view)
+        update_gui_usecase_change(self._view, self.error_dialog)
         if use_case == "Use Case #1":
             enable_disable_waterbodies(self._view)
             enable_disable_wettest_month_table(self._view)
@@ -317,9 +309,8 @@ class Controller:
         self.error_dialog.okayError.clicked.connect(self.error_dialog.reject)
 
         # use case
-        self._view.useCaseComboBox.currentTextChanged.connect(partial(update_gui_usecase_change, self._view))
         self._view.useCaseComboBox.currentTextChanged.connect(
-            partial(self.new_config, self._view.useCaseComboBox.currentText())
+            partial(update_gui_usecase_change, self._view, self.error_dialog)
         )
 
         # assessment tab

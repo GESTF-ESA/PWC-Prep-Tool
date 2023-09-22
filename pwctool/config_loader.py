@@ -3,8 +3,8 @@ Initializes the GUI with information from a config file
 """
 
 from typing import Any
-
-from PyQt5.QtWidgets import QCheckBox, QComboBox, QWidget, QDialog
+import pandas as pd
+from PyQt5.QtWidgets import QCheckBox, QComboBox, QWidget, QDialog, QLineEdit
 
 from pwctool.constants import (
     ALL_BINS,
@@ -15,7 +15,6 @@ from pwctool.constants import (
     FOLIAR_APPMETHOD,
     TBAND_APPMETHOD,
 )
-from pwctool.gui_utils import get_xl_sheet_names
 
 
 def init_gui_settings_from_config(view: QWidget, config: dict[str, Any], error_dialog: QDialog) -> None:
@@ -135,3 +134,33 @@ def _init_application_methods(view: QWidget, config: dict[str, Any]) -> None:
                     getattr(view, f"appmeth{app_method}_{distance}_driftonly").setChecked(
                         appmeth_driftonly_distance_bool
                     )
+
+
+def get_xl_sheet_names(drop_down: QComboBox, text_widget: QLineEdit, error_dialog: QDialog, table: str) -> None:
+    """Gets the Excel sheet names for the APT or DRT and updates drop down"""
+
+    fnf_error_messages = {
+        "APT": "Invalid Agronomic Practices Table path, please correct and try again.",
+        "DRT": "Invalid Drift Reduction Table path, please correct and try again.",
+    }
+
+    pm_error_messages = {
+        "APT": "Please close the Agronomic Practices Table before loading a configuration to avoid permission error and try again.",
+        "DRT": "Please close the Drift Reduction Table before loading a configuration to avoid permission error and try again.",
+    }
+
+    file_path = text_widget.text()
+    drop_down.clear()
+    if file_path == "":
+        drop_down.addItem("Specify file path before selecting")
+    else:
+        try:
+            sheets: list = pd.ExcelFile(file_path).sheet_names
+        except FileNotFoundError:
+            error_dialog.errMsgLabel.setText(fnf_error_messages.get(table, "Unknown Table"))
+            error_dialog.exec_()
+        except PermissionError:  # this happens when apt/drt is open when user loads a config
+            error_dialog.errMsgLabel.setText(pm_error_messages.get(table, "Unknown Table"))
+            error_dialog.exec_()
+        else:
+            drop_down.addItems(sheets)

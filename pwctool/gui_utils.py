@@ -2,7 +2,7 @@
 
 import pandas as pd
 from typing import Any
-from PyQt5.QtWidgets import QComboBox, QDialog, QLineEdit, QWidget
+from PyQt5.QtWidgets import QDialog, QWidget
 
 from pwctool.constants import (
     ALL_APPMETHODS,
@@ -13,6 +13,7 @@ from pwctool.constants import (
     TBAND_APPMETHOD,
     USE_CASE_DESCRIPTION,
 )
+from pwctool.config_loader import init_gui_settings_from_config
 
 
 def create_blank_config(use_case: str):
@@ -85,11 +86,13 @@ def create_blank_config(use_case: str):
     return config
 
 
-def update_gui_usecase_change(view: QWidget):
+def update_gui_usecase_change(view: QWidget, error_dialog: QDialog):
     """Updates the use case description when a new use case is selected"""
     new_use_case = view.useCaseComboBox.currentText()
     view.useCaseLabel.setText(USE_CASE_DESCRIPTION[new_use_case])
 
+    blank_config = create_blank_config(new_use_case)
+    init_gui_settings_from_config(view, blank_config, error_dialog)
     _activate_all_widgets(view)
     _enable_disable_widgets_usechange(view, new_use_case)
 
@@ -118,6 +121,7 @@ def _enable_disable_widgets_usechange(view: QWidget, new_use_case: str):
 
         # disable waterbody widgets
         view.binsParamDescription.setStyleSheet("color: grey")
+        view.binsParamDescription2.setStyleSheet("color: grey")
         view.binLabel.setStyleSheet("color:grey")
         view.binSelectAll.setEnabled(False)
         view.binClearAll.setEnabled(False)
@@ -162,13 +166,7 @@ def _enable_disable_widgets_usechange(view: QWidget, new_use_case: str):
         view.esaRadButton.setEnabled(False)
         view.esaRadButton.setStyleSheet("color:grey")
 
-        view.newScnHucRadButton.setEnabled(False)
-        view.newScnHucRadButton.setStyleSheet("color:grey")
-        view.legacyScnHucRadButton.setEnabled(False)
-        view.legacyScnHucRadButton.setStyleSheet("color:grey")
-
         view.assessmentTypeLabel.setStyleSheet("color:grey")
-        view.scnHucLabel.setStyleSheet("color:grey")
         view.assessmentDesc.setStyleSheet("color:grey")
         view.assessmentDesc2.setStyleSheet("color:grey")
 
@@ -206,6 +204,7 @@ def _activate_all_widgets(view: QWidget):
     view.ingrFateParamsLabel.setStyleSheet("color: black")
     # enable waterbody widgets
     view.binsParamDescription.setStyleSheet("color: black")
+    view.binsParamDescription2.setStyleSheet("color: black")
     view.binLabel.setStyleSheet("color:black")
     view.binSelectAll.setEnabled(True)
     view.binClearAll.setEnabled(True)
@@ -327,36 +326,6 @@ def enable_disable_wettest_month_table(view: QWidget):
     view.datePriorComboBox.setStyleSheet(f"color:{style}")
     view.datePriorComboBox.setEnabled(bool_val)
     view.datePriorDesc.setStyleSheet(f"color:{style}")
-
-
-def get_xl_sheet_names(drop_down: QComboBox, text_widget: QLineEdit, error_dialog: QDialog, table: str) -> None:
-    """Gets the Excel sheet names for the APT or DRT and updates drop down"""
-
-    fnf_error_messages = {
-        "APT": "Invalid Agronomic Practices Table path, please correct and try again.",
-        "DRT": "Invalid Drift Reduction Table path, please correct and try again.",
-    }
-
-    pm_error_messages = {
-        "APT": "Please close the Agronomic Practices Table before loading a configuration to avoid permission error and try again.",
-        "DRT": "Please close the Drift Reduction Table before loading a configuration to avoid permission error and try again.",
-    }
-
-    file_path = text_widget.text()
-    drop_down.clear()
-    if file_path == "":
-        drop_down.addItem("Specify file path before selecting")
-    else:
-        try:
-            sheets: list = pd.ExcelFile(file_path).sheet_names
-        except FileNotFoundError:
-            error_dialog.errMsgLabel.setText(fnf_error_messages.get(table, "Unknown Table"))
-            error_dialog.exec_()
-        except PermissionError:  # this happens when apt/drt is open when user loads a config
-            error_dialog.errMsgLabel.setText(pm_error_messages.get(table, "Unknown Table"))
-            error_dialog.exec_()
-        else:
-            drop_down.addItems(sheets)
 
 
 def enable_disable_app_methods(view, app_method: int, enable_disable_flag: bool) -> None:
