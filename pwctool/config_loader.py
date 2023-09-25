@@ -156,6 +156,11 @@ def get_xl_sheet_names(drop_down: QComboBox, text_widget: QLineEdit, error_dialo
     else:
         try:
             sheets: list = pd.ExcelFile(file_path).sheet_names
+            sheets = [
+                sheet
+                for sheet in sheets
+                if sheet not in ["Uses", "App. Methods", "Drift Profiles", "ESA Scenarios", "FIFRA Scenarios"]
+            ]
         except FileNotFoundError:
             error_dialog.errMsgLabel.setText(fnf_error_messages.get(table, "Unknown Table"))
             error_dialog.exec_()
