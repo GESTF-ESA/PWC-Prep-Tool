@@ -399,7 +399,7 @@ def restrict_application_methods(view) -> None:
         ag_practices_table: pd.DataFrame = pd.read_excel(
             view.agronomicPracticesTableLocation.text(), sheet_name=view.APTscenario.currentText()
         )
-    except (AssertionError, FileNotFoundError, OSError):
+    except (AssertionError, FileNotFoundError, OSError, ValueError):
         # if issue getting file, enable all app method widgets
         for i in ALL_APPMETHODS:
             enable_disable_app_methods(view, i, True)

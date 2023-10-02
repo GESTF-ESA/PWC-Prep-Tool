@@ -365,6 +365,7 @@ class Controller:
                 "DRT",
             )
         )
+        self._view.APTscenario.currentTextChanged.connect(partial(restrict_application_methods, self._view))
 
         # bins
         self._view.binSelectAll.clicked.connect(partial(self.alter_all_bins_esa, True))
