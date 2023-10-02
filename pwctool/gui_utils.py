@@ -139,6 +139,7 @@ def _enable_disable_widgets_usechange(view: QWidget, new_use_case: str):
         # disable app distances tab
         view.applicationsTabDesc1.setStyleSheet("color: grey")
         view.applicationsTabDesc3.setStyleSheet("color: grey")
+        view.applicationsTabDesc4.setStyleSheet("color: grey")
         view.applicationsTabs.setStyleSheet("color: grey")
 
         # disable app method items
@@ -220,6 +221,7 @@ def _activate_all_widgets(view: QWidget):
     # enable app distances tab
     view.applicationsTabDesc1.setStyleSheet("color: black")
     view.applicationsTabDesc3.setStyleSheet("color: black")
+    view.applicationsTabDesc4.setStyleSheet("color: black")
     view.applicationsTabs.setStyleSheet("color: black")
     # date assignment parameters
     view.wettestMonthPrior.setEnabled(True)
@@ -390,11 +392,17 @@ def enable_disable_app_methods(view, app_method: int, enable_disable_flag: bool)
 def restrict_application_methods(view) -> None:
     """Restricts the application method tabs based on presence in APT"""
 
+    if view.useCaseComboBox.currentText() == "Use Case #2":
+        return None
+
     try:
         ag_practices_table: pd.DataFrame = pd.read_excel(
             view.agronomicPracticesTableLocation.text(), sheet_name=view.APTscenario.currentText()
         )
     except (AssertionError, FileNotFoundError, OSError):
+        # if issue getting file, enable all app method widgets
+        for i in ALL_APPMETHODS:
+            enable_disable_app_methods(view, i, True)
         return None
 
     app_methods_to_enable: list[int] = ag_practices_table["ApplicationMethod"].unique().tolist()
