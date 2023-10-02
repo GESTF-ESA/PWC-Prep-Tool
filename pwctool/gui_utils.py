@@ -392,6 +392,9 @@ def enable_disable_app_methods(view, app_method: int, enable_disable_flag: bool)
 def restrict_application_methods(view) -> None:
     """Restricts the application method tabs based on presence in APT"""
 
+    if view.useCaseComboBox.currentText() == "Use Case #2":
+        return None
+
     try:
         ag_practices_table: pd.DataFrame = pd.read_excel(
             view.agronomicPracticesTableLocation.text(), sheet_name=view.APTscenario.currentText()
