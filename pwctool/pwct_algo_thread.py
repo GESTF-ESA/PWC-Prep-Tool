@@ -360,7 +360,19 @@ class PwcToolAlgoThread(qtc.QThread):
 
                                 if first_run_in_huc:
                                     logger.debug("\nRun Ag. Practices:")
-                                    logger.debug(run_ag_pract)
+                                    # rename lbs acre to kgha after conversion to avoid confusion in log file
+                                    run_ag_pract_rename = run_ag_pract.copy(deep=True).rename(
+                                        index={
+                                            "MaxAnnAmt_lbsacre": "MaxAnnAmt_kgha",
+                                            "PostEmergence_MaxAmt_lbsacre": "PostEmergence_MaxAmt_kgha",
+                                            "PreEmergence_MaxAmt_lbsacre": "PreEmergence_MaxAmt_kgha",
+                                            "Rate1_MaxAppRate_lbsacre": "Rate1_MaxAppRate_kgha",
+                                            "Rate2_MaxAppRate_lbsacre": "Rate2_MaxAppRate_kgha",
+                                            "Rate3_MaxAppRate_lbsacre": "Rate3_MaxAppRate_kgha",
+                                            "Rate4_MaxAppRate_lbsacre": "Rate4_MaxAppRate_kgha",
+                                        }
+                                    )
+                                    logger.debug(run_ag_pract_rename)
                                     if self.settings["WETMONTH_PRIORITIZATION"]:
                                         logger.debug("\nWettest Months:")
                                         logger.debug(wettest_month_table.loc[huc2, :].T)
