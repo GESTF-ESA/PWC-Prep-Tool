@@ -1765,17 +1765,17 @@
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>200</width>
+                     <width>275</width>
                      <height>240</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>200</width>
+                     <width>275</width>
                      <height>240</height>
                     </size>
                    </property>
-                   <layout class="QVBoxLayout" name="appDistancesDescrptionLayout" stretch="0,0,0">
+                   <layout class="QVBoxLayout" name="appDistancesDescrptionLayout" stretch="0,0,0,0">
                     <property name="sizeConstraint">
                      <enum>QLayout::SetMaximumSize</enum>
                     </property>
@@ -1821,6 +1821,22 @@
                      </widget>
                     </item>
                     <item>
+                     <widget class="QLabel" name="applicationsTabDesc4">
+                      <property name="font">
+                       <font>
+                        <family>Segoe UI</family>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>The application methods available for selection depend on the current Ag Practices Table entered below.</string>
+                      </property>
+                      <property name="wordWrap">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
                      <spacer name="appMethodsTabSpacer">
                       <property name="orientation">
                        <enum>Qt::Vertical</enum>
@@ -1846,20 +1862,20 @@
                  <item row="0" column="1">
                   <widget class="QTabWidget" name="applicationsTabs">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>600</width>
+                     <width>575</width>
                      <height>260</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>16777215</width>
+                     <width>575</width>
                      <height>16777215</height>
                     </size>
                    </property>

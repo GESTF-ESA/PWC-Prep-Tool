@@ -333,6 +333,7 @@ class Controller:
         self._view.fileBrowseAPT.clicked.connect(
             partial(self.select_apt, self._view.agronomicPracticesTableLocation, "(*.xlsx)")
         )
+        self._view.fileBrowseAPT.clicked.connect(partial(restrict_application_methods, self._view))
         self._view.fileBrowseDRT.clicked.connect(
             partial(self.select_drt, self._view.agDriftReductionTableLocation, "(*.xlsx)")
         )
