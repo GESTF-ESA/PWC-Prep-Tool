@@ -287,6 +287,17 @@ class PwcToolAlgoThread(qtc.QThread):
             application_method = run_ag_pract["ApplicationMethod"]
             drift_profile = get_drift_profile(run_ag_pract)
             run_distances = run_distances_all_methods[application_method]
+
+            if (application_method not in BURIED_APPMETHODS) and (len(run_distances) == 0):
+                self.update_diagnostics.emit(
+                    f" Warning: No setback distances specified for uses with app. method {application_method} so no PWC runs can be prepared for uses with this app. method",
+                )
+                logger.warning(
+                    " Warning: No setback distances specified for uses with app. method %s so no PWC runs can be prepared for uses with this app. method",
+                    application_method,
+                )
+                continue
+
             depths, tband = self.get_app_method_depths_and_tband(application_method)
 
             if len(depths) == 0:
