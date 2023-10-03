@@ -7,7 +7,6 @@ Extra function storage
 
 import logging
 import operator
-import calendar
 from datetime import date, timedelta
 from typing import Any
 

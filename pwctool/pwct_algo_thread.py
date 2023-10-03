@@ -19,7 +19,7 @@ from PyQt5 import QtCore as qtc
 import pandas as pd
 import numpy as np
 
-# import debugpy
+import debugpy
 
 from pwctool.pwct_batchfile_qc import qc_batch_file  # pylint: disable=import-error
 from pwctool.pwct_batchfile_qc import standardize_field_names  # pylint: disable=import-error
@@ -82,7 +82,7 @@ class PwcToolAlgoThread(qtc.QThread):
         """
         self.update_diagnostics.emit("\nInitializing...")
 
-        # debugpy.debug_this_thread()
+        debugpy.debug_this_thread()
 
         # create new batch file
         if self.settings["USE_CASE"] == "Use Case #1":
@@ -281,12 +281,23 @@ class PwcToolAlgoThread(qtc.QThread):
                     "Warning: %s is not grown in states specified within Ag Practices Table. No PWC runs prepared for this RunDescriptor.",
                     run_ag_pract["LabeledUse"],
                 )
+                continue
 
             huc2s = lookup_huc_from_state(self.state_to_huc_lookup_table, states)
             application_method = run_ag_pract["ApplicationMethod"]
             drift_profile = get_drift_profile(run_ag_pract)
             run_distances = run_distances_all_methods[application_method]
             depths, tband = self.get_app_method_depths_and_tband(application_method)
+
+            if len(depths) == 0:
+                self.update_diagnostics.emit(
+                    f" Warning: No depths specified for uses with app. method {application_method} so no PWC runs can be prepared for uses with this app. method",
+                )
+                logger.warning(
+                    " Warning: No depths specified for uses with app. method %s so no PWC runs can be prepared for uses with this app. method",
+                    application_method,
+                )
+                continue
 
             for huc2 in huc2s:
                 run_names: list[str] = []
@@ -358,6 +369,8 @@ class PwcToolAlgoThread(qtc.QThread):
                             for depth in depths_used:
                                 run_name = f"{run_ag_pract['RunDescriptor']}_huc{huc2}_{scenario_base}_bin{bin_}_appmeth{application_method_used}_{drift_profile}_{distance}_{transport_mech}_{depth}-depth_{tband}-tband"
                                 run_names.append(run_name)
+
+                                self.update_diagnostics.emit(f"  {run_name}")
 
                                 if first_run_in_huc:
                                     logger.debug("\nRun Ag. Practices:")
