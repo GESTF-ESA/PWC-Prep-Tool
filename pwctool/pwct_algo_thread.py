@@ -19,7 +19,7 @@ from PyQt5 import QtCore as qtc
 import pandas as pd
 import numpy as np
 
-import debugpy
+# import debugpy
 
 from pwctool.pwct_batchfile_qc import qc_batch_file  # pylint: disable=import-error
 from pwctool.pwct_batchfile_qc import standardize_field_names  # pylint: disable=import-error
@@ -82,7 +82,7 @@ class PwcToolAlgoThread(qtc.QThread):
         """
         self.update_diagnostics.emit("\nInitializing...")
 
-        debugpy.debug_this_thread()
+        # debugpy.debug_this_thread()
 
         # create new batch file
         if self.settings["USE_CASE"] == "Use Case #1":
