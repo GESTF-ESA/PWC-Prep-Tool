@@ -429,7 +429,7 @@ class PwcToolAlgoThread(qtc.QThread):
                                 first_run_in_huc = False
                                 num_runs += 1
 
-                logger.debug("\nRuns for %s in HUC {huc2}:\n", run_ag_pract["RunDescriptor"])
+                logger.debug("\nRuns for %s in HUC %s:\n", run_ag_pract["RunDescriptor"], huc2)
                 for run_name in run_names:
                     logger.debug(run_name)
 
