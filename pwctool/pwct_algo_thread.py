@@ -253,17 +253,6 @@ class PwcToolAlgoThread(qtc.QThread):
         for i in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
             blank_fields[f"blank {i}"] = pd.NA
 
-        # prepare for file naming
-        if self.settings["RANDOM_START_DATES"]:
-            start_dates = "rand-startdates"
-        else:
-            start_dates = "norand-startdates"
-
-        if self.settings["DATE_PRIORITIZATION"] == "Wettest Month":
-            date_prior = "pr-wetmonth"
-        else:
-            date_prior = "pr-maxrate"
-
         # prepare for progress updates
         total_rows_in_apt = len(ag_practices_table.index)
         ag_practices_table.reset_index(inplace=True)
@@ -355,7 +344,7 @@ class PwcToolAlgoThread(qtc.QThread):
                                 depths_used = depths
 
                             for depth in depths_used:
-                                run_name = f"{run_ag_pract['RunDescriptor']}_huc{huc2}_{scenario_base}_bin{bin_}_appmeth{application_method_used}_{drift_profile}_{distance}_{transport_mech}_{depth}-depth_{tband}-tband_{start_dates}_{date_prior}"
+                                run_name = f"{run_ag_pract['RunDescriptor']}_huc{huc2}_{scenario_base}_bin{bin_}_appmeth{application_method_used}_{drift_profile}_{distance}_{transport_mech}_{depth}-depth_{tband}-tband"
                                 run_names.append(run_name)
 
                                 if first_run_in_huc:
