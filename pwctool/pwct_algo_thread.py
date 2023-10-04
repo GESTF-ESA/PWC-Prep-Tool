@@ -86,8 +86,8 @@ class PwcToolAlgoThread(qtc.QThread):
 
         # create new batch file
         if self.settings["USE_CASE"] == "Use Case #1":
-            logger.debug("Preparing to generate PWC batch file from scratch.")
-            self.update_diagnostics.emit("Preparing to generate PWC batch file from scratch.")
+            logger.debug("Preparing to generate PWC batch file from scratch.\n")
+            self.update_diagnostics.emit("Preparing to generate PWC batch file from scratch.\n")
 
             # read relavent tables
             ag_practices_table = self.read_ag_practices_table()
@@ -267,21 +267,55 @@ class PwcToolAlgoThread(qtc.QThread):
             if num_runs > 0:
                 self.update_progress.emit((apt_indx / total_rows_in_apt) * 100)
 
+            self.update_diagnostics.emit(f"Processing RunDescriptor: {run_ag_pract['RunDescriptor']}")
+            logger.debug("\nRunDescriptor: %s", run_ag_pract["RunDescriptor"])
+
             states: list[str] = lookup_states_from_crop(
                 self.crop_to_state_lookup_table, run_ag_pract, LABEL_CONV_STATES
             )
+            if len(states) == 0:
+                self.update_diagnostics.emit(
+                    f" Warning: {run_ag_pract['LabeledUse']} is not grown in states specified within Ag Practices Table. No PWC runs prepared for this RunDescriptor.",
+                )
+                logger.warning(
+                    "Warning: %s is not grown in states specified within Ag Practices Table. No PWC runs prepared for this RunDescriptor.",
+                    run_ag_pract["LabeledUse"],
+                )
+                continue
+
             huc2s = lookup_huc_from_state(self.state_to_huc_lookup_table, states)
             application_method = run_ag_pract["ApplicationMethod"]
             drift_profile = get_drift_profile(run_ag_pract)
             run_distances = run_distances_all_methods[application_method]
+
+            if (application_method not in BURIED_APPMETHODS) and (len(run_distances) == 0):
+                self.update_diagnostics.emit(
+                    f" Warning: No setback distances specified for uses with app. method {application_method} so no PWC runs can be prepared for uses with this app. method",
+                )
+                logger.warning(
+                    " Warning: No setback distances specified for uses with app. method %s so no PWC runs can be prepared for uses with this app. method",
+                    application_method,
+                )
+                continue
+
             depths, tband = self.get_app_method_depths_and_tband(application_method)
+
+            if len(depths) == 0:
+                self.update_diagnostics.emit(
+                    f" Warning: No depths specified for uses with app. method {application_method} so no PWC runs can be prepared for uses with this app. method",
+                )
+                logger.warning(
+                    " Warning: No depths specified for uses with app. method %s so no PWC runs can be prepared for uses with this app. method",
+                    application_method,
+                )
+                continue
 
             for huc2 in huc2s:
                 run_names: list[str] = []
                 scenario_base, scenario_full = self.create_scenario_name(run_ag_pract, huc2)
                 if not os.path.exists(os.path.join(self.settings["FILE_PATHS"]["SCENARIO_FILES_PATH"], scenario_full)):
                     self._error_scn_file_notexist.append(scenario_base)
-                    logger.warning(f"\n {scenario_base} may not exist. Skipping huc {huc2}")
+                    logger.warning("\n %s may not exist. Skipping huc %s", scenario_base, huc2)
                     continue
 
                 run_ag_pract["Emergence"], run_ag_pract["Harvest"] = self.get_scenario_dates(scenario_full)
@@ -347,6 +381,8 @@ class PwcToolAlgoThread(qtc.QThread):
                                 run_name = f"{run_ag_pract['RunDescriptor']}_huc{huc2}_{scenario_base}_bin{bin_}_appmeth{application_method_used}_{drift_profile}_{distance}_{transport_mech}_{depth}-depth_{tband}-tband"
                                 run_names.append(run_name)
 
+                                self.update_diagnostics.emit(f"  {run_name}")
+
                                 if first_run_in_huc:
                                     logger.debug("\nRun Ag. Practices:")
                                     # rename lbs acre to kgha after conversion to avoid confusion in log file
@@ -369,10 +405,7 @@ class PwcToolAlgoThread(qtc.QThread):
                                 run_storage: dict[str, Any] = {}  # new run (row) in batch file
 
                                 run_storage["Run Descriptor"] = run_ag_pract["RunDescriptor"]
-
-                                self.update_diagnostics.emit(f"Processing run: {run_name}")
                                 run_storage["Run Name"] = run_name
-
                                 run_storage.update(ingred_fate_params)
 
                                 run_storage["HUC2"] = huc2
