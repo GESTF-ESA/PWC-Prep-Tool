@@ -12,6 +12,8 @@ from pwctool.constants import (
     FOLIAR_APPMETHOD,
     TBAND_APPMETHOD,
     USE_CASE_DESCRIPTION,
+    ESA_SCN_FILES_DIR,
+    FIFRA_SCN_FILES_DIR,
 )
 from pwctool.config_loader import init_gui_settings_from_config
 
@@ -412,3 +414,13 @@ def restrict_application_methods(view) -> None:
             enable_disable_app_methods(view, i, True)
         else:
             enable_disable_app_methods(view, i, False)
+
+
+def set_scn_file_dir(view) -> None:
+    """Sets the scenario file directory path based on the assessment type selected."""
+
+    if view.esaRadButton.isChecked():
+        view.scenarioFilesDirectoryLocation.setText(ESA_SCN_FILES_DIR)
+
+    if view.fifraRadButton.isChecked():
+        view.scenarioFilesDirectoryLocation.setText(FIFRA_SCN_FILES_DIR)
