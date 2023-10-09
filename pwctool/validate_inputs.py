@@ -281,7 +281,7 @@ def _validate_scn_dir(config: dict[str, Any], error_dialog: QDialog):
     scn_file_dir_path: str = config["FILE_PATHS"]["SCENARIO_FILES_PATH"]
 
     if config["ASSESSMENT_TYPE"] == "fifra":
-        if "FIFRA scn files" not in scn_file_dir_path:
+        if "FIFRA" not in scn_file_dir_path:
             error_dialog.errMsgLabel.setText(
                 "The incorrect scenario file directory may be selected for FIFRA runs. Please ensure one of the three Koc variations of scn files are selected and that the next level up directory is named 'FIFRA scn files'."
             )
@@ -297,7 +297,7 @@ def _validate_scn_dir(config: dict[str, Any], error_dialog: QDialog):
             return False
 
     else:
-        if "ESA scn files" not in scn_file_dir_path:
+        if "ESA" not in scn_file_dir_path:
             error_dialog.errMsgLabel.setText(
                 "The incorrect scenario file directory may be selected for ESA runs. Please ensure the scn file directory is named 'ESA scn files'."
             )
