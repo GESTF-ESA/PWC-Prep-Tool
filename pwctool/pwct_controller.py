@@ -25,7 +25,6 @@ from pwctool.gui_utils import (
     update_gui_usecase_change,
     create_blank_config,
     enable_disable_wettest_month_prior,
-    set_scn_file_dir,
 )
 from pwctool.validate_inputs import validate_input_files
 
@@ -107,7 +106,6 @@ class Controller:
             enable_disable_waterbodies(self._view)
             enable_disable_wettest_month_table(self._view)
             enable_disable_wettest_month_prior(self._view)
-            set_scn_file_dir(self._view)
 
         # reset config path, diagnostic window, and progress bar
         self.saved_config_path = ""
@@ -318,10 +316,8 @@ class Controller:
         # assessment tab
         self._view.fifraRadButton.toggled.connect(partial(enable_disable_waterbodies, self._view))
         self._view.fifraRadButton.toggled.connect(partial(enable_disable_wettest_month_prior, self._view))
-        self._view.fifraRadButton.toggled.connect(partial(set_scn_file_dir, self._view))
         self._view.esaRadButton.toggled.connect(partial(enable_disable_waterbodies, self._view))
         self._view.esaRadButton.toggled.connect(partial(enable_disable_wettest_month_prior, self._view))
-        self._view.esaRadButton.toggled.connect(partial(set_scn_file_dir, self._view))
 
         # date assignment tab
         self._view.wettestMonthPrior.stateChanged.connect(partial(enable_disable_wettest_month_table, self._view))
@@ -341,7 +337,6 @@ class Controller:
         self._view.fileBrowseDRT.clicked.connect(
             partial(self.select_drt, self._view.agDriftReductionTableLocation, "(*.xlsx)")
         )
-        self._view.fileBrowseScnDir.clicked.connect(partial(self.select_dir, self._view.scenarioFilesDirectoryLocation))
         self._view.fileBrowseIngrFateParams.clicked.connect(
             partial(self.select_file, self._view.ingrFateParamsLocation, "(*.csv)")
         )

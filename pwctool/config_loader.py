@@ -47,7 +47,6 @@ def _init_file_paths(view: QWidget, config: dict[str, Any]) -> None:
         "OUTPUT_DIR": view.outputFileDirLocation,
         "WETTEST_MONTH_CSV": view.wettestMonthTableLocation,
         "AGRONOMIC_PRACTICES_EXCEL": view.agronomicPracticesTableLocation,
-        "SCENARIO_FILES_PATH": view.scenarioFilesDirectoryLocation,
         "AGDRIFT_REDUCTION_TABLE": view.agDriftReductionTableLocation,
         "INGR_FATE_PARAMS": view.ingrFateParamsLocation,
     }

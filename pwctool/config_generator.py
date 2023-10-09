@@ -23,7 +23,6 @@ def generate_configuration_from_gui(view) -> dict[str, Any]:
             "OUTPUT_DIR": view.outputFileDirLocation.text(),
             "WETTEST_MONTH_CSV": view.wettestMonthTableLocation.text(),
             "AGRONOMIC_PRACTICES_EXCEL": view.agronomicPracticesTableLocation.text(),
-            "SCENARIO_FILES_PATH": view.scenarioFilesDirectoryLocation.text(),
             "AGDRIFT_REDUCTION_TABLE": view.agDriftReductionTableLocation.text(),
             "INGR_FATE_PARAMS": view.ingrFateParamsLocation.text(),
         },
