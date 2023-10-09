@@ -2421,7 +2421,7 @@ class Ui_AppDateTool(object):
         self.fifraRadButton.setText(_translate("AppDateTool", "FIFRA"))
         self.esaRadButton.setText(_translate("AppDateTool", "ESA"))
         self.assessmentDesc.setText(_translate("AppDateTool", "The PWC Prep Tool can prepare PWC runs for both FIFRA and ESA modeling. FIFRA runs reference the newer drinking water and ecological scenarios files (created in 2020). ESA runs reference the \"legacy\" ecological scenarios."))
-        self.assessmentDesc2.setText(_translate("AppDateTool", "The PWC Prep Tool uses the emergence and harvest dates from the scenario files. These cropping dates have been combined into a lookup table. For FIFRA scenarios, the appropriate Koc variation is automatically selected based on the sorptions coefficient value."))
+        self.assessmentDesc2.setText(_translate("AppDateTool", "The PWC Prep Tool uses the emergence and harvest dates from the scenario files. These cropping dates have been combined into a lookup table. For FIFRA scenarios, the appropriate Koc variation is automatically selected based on the sorption coefficient value as specified in the chemical properties table."))
         self.assessmentDesc2_2.setText(_translate("AppDateTool", "Selecting FIFRA or ESA will change which waterbody scenarios (next tab) can be selected."))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.assessmentTab), _translate("AppDateTool", "Assessment"))
         self.binsTab.setStatusTip(_translate("AppDateTool", "Select Bins"))

@@ -1131,7 +1131,7 @@
                       </font>
                      </property>
                      <property name="text">
-                      <string>The PWC Prep Tool uses the emergence and harvest dates from the scenario files. These cropping dates have been combined into a lookup table. For FIFRA scenarios, the appropriate Koc variation is automatically selected based on the sorptions coefficient value.</string>
+                      <string>The PWC Prep Tool uses the emergence and harvest dates from the scenario files. These cropping dates have been combined into a lookup table. For FIFRA scenarios, the appropriate Koc variation is automatically selected based on the sorption coefficient value as specified in the chemical properties table.</string>
                      </property>
                      <property name="wordWrap">
                       <bool>true</bool>
