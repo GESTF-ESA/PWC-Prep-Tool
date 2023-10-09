@@ -24,7 +24,6 @@ def create_blank_config(use_case: str):
     config["USE_CASE"] = use_case
 
     config["ASSESSMENT_TYPE"] = "fifra"
-    config["KOC_VAR"] = "A"
 
     config["FILE_PATHS"] = {}
     config["FILE_PATHS"]["PWC_BATCH_CSV"] = ""
@@ -413,22 +412,3 @@ def restrict_application_methods(view: QWidget) -> None:
             enable_disable_app_methods(view, i, True)
         else:
             enable_disable_app_methods(view, i, False)
-
-
-def enable_disable_koc_vars(view: QWidget):
-    """Enables or disabled koc variation widgets based on assessment"""
-
-    bool_val = False
-    style = "grey"
-
-    if view.fifraRadButton.isChecked():
-        bool_val = True
-        style = "black"
-
-    view.kocLabel.setStyleSheet(f"color:{style}")
-    view.kocVarUnder100.setStyleSheet(f"color:{style}")
-    view.kocVarUnder100.setEnabled(bool_val)
-    view.kocVar100to3000.setStyleSheet(f"color:{style}")
-    view.kocVar100to3000.setEnabled(bool_val)
-    view.kocVarOver3000.setStyleSheet(f"color:{style}")
-    view.kocVarOver3000.setEnabled(bool_val)
