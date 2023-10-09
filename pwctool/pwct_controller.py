@@ -9,11 +9,12 @@ import logging
 import os
 from typing import Any
 from functools import partial
+import yaml
 
 from PyQt5.QtGui import QDesktopServices
 from PyQt5.QtCore import QUrl
 from PyQt5.QtWidgets import QFileDialog
-import yaml
+
 
 from pwctool.config_loader import init_gui_settings_from_config, get_xl_sheet_names
 from pwctool.config_generator import generate_configuration_from_gui
@@ -25,6 +26,7 @@ from pwctool.gui_utils import (
     update_gui_usecase_change,
     create_blank_config,
     enable_disable_wettest_month_prior,
+    enable_disable_koc_vars,
 )
 from pwctool.validate_inputs import validate_input_files
 
@@ -316,8 +318,10 @@ class Controller:
         # assessment tab
         self._view.fifraRadButton.toggled.connect(partial(enable_disable_waterbodies, self._view))
         self._view.fifraRadButton.toggled.connect(partial(enable_disable_wettest_month_prior, self._view))
+        self._view.fifraRadButton.toggled.connect(partial(enable_disable_koc_vars, self._view))
         self._view.esaRadButton.toggled.connect(partial(enable_disable_waterbodies, self._view))
         self._view.esaRadButton.toggled.connect(partial(enable_disable_wettest_month_prior, self._view))
+        self._view.esaRadButton.toggled.connect(partial(enable_disable_koc_vars, self._view))
 
         # date assignment tab
         self._view.wettestMonthPrior.stateChanged.connect(partial(enable_disable_wettest_month_table, self._view))

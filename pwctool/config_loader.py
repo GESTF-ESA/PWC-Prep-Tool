@@ -35,6 +35,14 @@ def _init_assessment_widgets(view, config: dict[str, Any]) -> None:
 
     if config["ASSESSMENT_TYPE"] == "fifra":
         view.fifraRadButton.setChecked(True)
+
+        if config["KOC_VAR"] == "A":
+            view.kocVarUnder100.setChecked(True)
+        elif config["KOC_VAR"] == "B":
+            view.kocVar100to3000.setChecked(True)
+        else:
+            view.kocVarOver3000.setChecked(True)
+
     else:
         view.esaRadButton.setChecked(True)
 
