@@ -535,16 +535,6 @@
               </property>
              </widget>
             </item>
-            <item>
-             <widget class="QLineEdit" name="scenarioFilesDirectoryLocation">
-              <property name="font">
-               <font>
-                <family>Segoe UI</family>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-             </widget>
-            </item>
            </layout>
           </item>
           <item row="0" column="0">
@@ -699,31 +689,6 @@
               </property>
              </widget>
             </item>
-            <item>
-             <widget class="QLabel" name="scenarioFilesDirectoryLabel">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>150</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>Segoe UI</family>
-                <pointsize>10</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Scenario Files Directory</string>
-              </property>
-             </widget>
-            </item>
            </layout>
           </item>
           <item row="0" column="2">
@@ -861,31 +826,6 @@
             </item>
             <item>
              <widget class="QPushButton" name="fileBrowseWettestMonthTable">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>Segoe UI</family>
-                <pointsize>9</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Browse</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="fileBrowseScnDir">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                 <horstretch>0</horstretch>
