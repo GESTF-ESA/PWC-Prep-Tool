@@ -28,8 +28,7 @@ FOLIAR_APPMETHOD: int = 2
 TBAND_APPMETHOD: int = 5
 
 # installation locations of scn files
-ESA_SCN_FILES_DIR: str = f"{os.environ['USERPROFILE']}\\PWC-PT\\data\\SCN Files\\ESA"
-FIFRA_SCN_FILES_DIR: str = f"{os.environ['USERPROFILE']}\\PWC-PT\\data\\SCN Files\\FIFRA\\Koc 100 to 3000"
+SCN_EMERG_HARV_DATES_LUT: str = f"{os.environ['USERPROFILE']}\\PWC-PT\\data\\Scenario_EmergHarv_Dates.csv"
 
 WATERBODY_PARAMS = pd.DataFrame(
     data={

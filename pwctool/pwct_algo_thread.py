@@ -19,7 +19,7 @@ from PyQt5 import QtCore as qtc
 import pandas as pd
 import numpy as np
 
-# import debugpy
+import debugpy
 
 from pwctool.pwct_batchfile_qc import qc_batch_file  # pylint: disable=import-error
 from pwctool.pwct_batchfile_qc import standardize_field_names  # pylint: disable=import-error
@@ -33,6 +33,7 @@ from pwctool.pwct_algo_functions import prepare_next_app  # pylint: disable=impo
 from pwctool.pwct_algo_functions import adjust_app_rate  # pylint: disable=import-error
 from pwctool.pwct_algo_functions import no_more_apps_can_be_made  # pylint: disable=import-error
 from pwctool.pwct_algo_functions import derive_instruction_date_restrictions  # pylint: disable=import-error
+from pwctool.pwct_algo_functions import get_scenario_dates
 
 from pwctool.constants import (
     ALL_APPMETHODS,
@@ -44,6 +45,7 @@ from pwctool.constants import (
     LABEL_CONV_STATES,
     STATE_TO_HUC_LUT_LEGACY_ESA,
     STATE_TO_HUC_LUT_NEW,
+    SCN_EMERG_HARV_DATES_LUT,
 )
 
 logger = logging.getLogger("adt_logger")  # retrieve logger configured in app_dates.py
@@ -59,12 +61,12 @@ class PwcToolAlgoThread(qtc.QThread):
         super().__init__()
 
         self.settings = settings
-        self._scenarios: dict[str, tuple[date, date]] = {}
         self._error_max_amt: list[str] = []
         self._error_scn_file_notexist: list[str] = []
         self.crop_to_state_lookup_table = pd.DataFrame.from_dict(
             data=CROP_TO_STATE_LUT, orient="index", columns=["States"]
         )
+        self.scn_emerg_harv_dates_lut = pd.read_csv(SCN_EMERG_HARV_DATES_LUT, index_col="Name")
 
         if self.settings["ASSESSMENT_TYPE"] == "fifra":
             self.state_to_huc_lookup_table = pd.DataFrame.from_dict(
@@ -82,7 +84,7 @@ class PwcToolAlgoThread(qtc.QThread):
         """
         self.update_diagnostics.emit("\nInitializing...")
 
-        # debugpy.debug_this_thread()
+        debugpy.debug_this_thread()
 
         # create new batch file
         if self.settings["USE_CASE"] == "Use Case #1":
@@ -318,7 +320,9 @@ class PwcToolAlgoThread(qtc.QThread):
                     logger.warning("\n %s may not exist. Skipping huc %s", scenario_base, huc2)
                     continue
 
-                run_ag_pract["Emergence"], run_ag_pract["Harvest"] = self.get_scenario_dates(scenario_full)
+                run_ag_pract["Emergence"], run_ag_pract["Harvest"] = get_scenario_dates(
+                    scenario_full, self.scn_emerg_harv_dates_lut
+                )
                 first_run_in_huc = True
 
                 # report to log file
@@ -568,49 +572,6 @@ class PwcToolAlgoThread(qtc.QThread):
                         run_distances[app_method].append(distance)
 
         return run_distances
-
-    def get_scenario_dates(
-        self,
-        scenario: str,
-    ) -> tuple[date, date]:
-        """Extracts emergence and harvest dates from a scenario file.
-        Args:
-            scenario (str): Name of the scenario assigned to the run being processed
-        Returns:
-            tuple[date, date]: emergence and harvest dates for the run
-                from the EPA scenario
-        """
-        # if scenario has already been processed, get stored dates
-        if scenario in self._scenarios:
-            emergence_date, harvest_date = self._scenarios[scenario]
-        else:
-            scenario_file = os.path.join(self.settings["FILE_PATHS"]["SCENARIO_FILES_PATH"], scenario)
-
-            # change how dates are extracted based on new or legacy (esa) scn files
-            # extract date information from specific lines in .scn files
-            if self.settings["ASSESSMENT_TYPE"] == "fifra":
-
-                scn_file_line: list = linecache.getline(scenario_file, 32).split(",")
-
-                emergence_day = int(scn_file_line[0])
-                emergence_month = int(scn_file_line[1])
-                harvest_day = int(scn_file_line[4])
-                harvest_month = int(scn_file_line[5])
-
-            else:
-                emergence_day = int(linecache.getline(scenario_file, 28))
-                emergence_month = int(linecache.getline(scenario_file, 29))
-                harvest_day = int(linecache.getline(scenario_file, 32))
-                harvest_month = int(linecache.getline(scenario_file, 33))
-
-            # use arbitrary (non-leap) year to complete the date
-            emergence_date = date(year=2021, month=emergence_month, day=emergence_day)
-            harvest_date = date(year=2021, month=harvest_month, day=harvest_day)
-
-            # store for accessing later if needed
-            self._scenarios[scenario] = (emergence_date, harvest_date)
-
-        return emergence_date, harvest_date
 
     def get_water_params(self, bin_: str):
         """Gets the water body params based on the bin and assessment"""

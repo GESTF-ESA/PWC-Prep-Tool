@@ -12,8 +12,6 @@ from pwctool.constants import (
     FOLIAR_APPMETHOD,
     TBAND_APPMETHOD,
     USE_CASE_DESCRIPTION,
-    ESA_SCN_FILES_DIR,
-    FIFRA_SCN_FILES_DIR,
 )
 from pwctool.config_loader import init_gui_settings_from_config
 

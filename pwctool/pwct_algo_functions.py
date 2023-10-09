@@ -640,3 +640,24 @@ def date_prioritization(date_prior: str) -> str:
         date_prior_str = "pwm"
 
     return date_prior_str
+
+
+def get_scenario_dates(scenario: str, lookup_table: pd.DataFrame) -> tuple[date, date]:
+    """Extracts emergence and harvest dates from the lookup table.
+
+    Args:
+        scenario (str): Name of the scenario assigned to the run being processed
+    Returns:
+        tuple[date, date]: emergence and harvest dates for the run
+            from the EPA scenario
+    """
+
+    emergence_day = lookup_table.at[scenario, "E_day"]
+    emergence_month = lookup_table.at[scenario, "E_month"]
+    harvest_day = lookup_table.at[scenario, "H_day"]
+    harvest_month = lookup_table.at[scenario, "H_month"]
+
+    emergence_date = date(year=2021, month=emergence_month, day=emergence_day)
+    harvest_date = date(year=2021, month=harvest_month, day=harvest_day)
+
+    return emergence_date, harvest_date
