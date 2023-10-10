@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'D:\Repos\GESTF\PWC-Tools\pwctool\ui_files\about_info_dialog.ui'
+# Form implementation generated from reading ui file '.\ui_files\about_info_dialog.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.9
 #
@@ -50,6 +50,8 @@ class Ui_appDateToolAbout(object):
         font = QtGui.QFont()
         font.setFamily("Segoe UI")
         font.setPointSize(10)
+        font.setBold(False)
+        font.setWeight(50)
         self.frame.setFont(font)
         self.frame.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -93,7 +95,7 @@ class Ui_appDateToolAbout(object):
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'Segoe UI\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt; font-weight:600;\">PWC Prep Tool  v1.0</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt; font-weight:600;\">PWC Prep Tool  v2.0</span></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Copyright (c) 2021-2023 Generic Endangered Species Task Force (GESTF)</p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Copyright (c) 2021-2023 Steve Kay (Pyxis Regulatory Consulting, Inc.)</p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Copyright (c) 2022-2023 Logan Insinga (Applied Analysis Solutions LLC)</p>\n"

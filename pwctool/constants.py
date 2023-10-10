@@ -3,7 +3,7 @@
 import os
 import pandas as pd
 
-VERSION = "1.0.101"
+VERSION = "2.0.0"
 
 # default directory for file explorer browsing
 DEFAULT_DIR = "C:"
