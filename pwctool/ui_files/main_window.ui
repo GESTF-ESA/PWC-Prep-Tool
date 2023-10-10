@@ -550,6 +550,12 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>21</height>
+               </size>
+              </property>
               <property name="font">
                <font>
                 <family>Segoe UI</family>
@@ -568,6 +574,12 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>21</height>
+               </size>
               </property>
               <property name="maximumSize">
                <size>
@@ -597,6 +609,12 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>21</height>
+               </size>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>150</width>
@@ -621,6 +639,12 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>21</height>
+               </size>
               </property>
               <property name="maximumSize">
                <size>
@@ -647,6 +671,12 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>21</height>
+               </size>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>150</width>
@@ -671,6 +701,12 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>21</height>
+               </size>
               </property>
               <property name="maximumSize">
                <size>
@@ -704,6 +740,12 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>21</height>
+               </size>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>50</width>
@@ -732,6 +774,12 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>21</height>
+               </size>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>50</width>
@@ -756,6 +804,12 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>21</height>
+               </size>
               </property>
               <property name="maximumSize">
                <size>
@@ -782,6 +836,12 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>21</height>
+               </size>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>50</width>
@@ -807,6 +867,12 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>21</height>
+               </size>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>50</width>
@@ -831,6 +897,12 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>21</height>
+               </size>
               </property>
               <property name="maximumSize">
                <size>
@@ -1003,6 +1075,12 @@
                     <layout class="QVBoxLayout" name="verticalLayout_4">
                      <item>
                       <widget class="QLabel" name="assessmentTypeLabel">
+                       <property name="minimumSize">
+                        <size>
+                         <width>130</width>
+                         <height>0</height>
+                        </size>
+                       </property>
                        <property name="font">
                         <font>
                          <family>Segoe UI</family>
@@ -1078,13 +1156,13 @@
                      <property name="minimumSize">
                       <size>
                        <width>500</width>
-                       <height>50</height>
+                       <height>55</height>
                       </size>
                      </property>
                      <property name="maximumSize">
                       <size>
                        <width>500</width>
-                       <height>50</height>
+                       <height>55</height>
                       </size>
                      </property>
                      <property name="font">
@@ -1094,7 +1172,7 @@
                       </font>
                      </property>
                      <property name="text">
-                      <string>The PWC Prep Tool can prepare PWC runs for both FIFRA and ESA modeling. FIFRA runs reference the newer drinking water and ecological scenarios files (created in 2020). ESA runs reference the &quot;legacy&quot; ecological scenarios.</string>
+                      <string>The PWC Prep Tool can generate a batch file of PWC runs for both FIFRA and ESA modeling.  FIFRA runs reference the newer drinking water and ecological scenarios files released in 2020.  ESA runs reference the &quot;legacy&quot; ecological scenarios.</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -1165,7 +1243,7 @@
                       </font>
                      </property>
                      <property name="text">
-                      <string>Selecting FIFRA or ESA will change which waterbody scenarios (next tab) can be selected.</string>
+                      <string>Selecting FIFRA or ESA determines which waterbody scenarios (next tab) are available to be selected.</string>
                      </property>
                      <property name="wordWrap">
                       <bool>true</bool>
@@ -1584,7 +1662,7 @@
                     </font>
                    </property>
                    <property name="text">
-                    <string>The waterbody parameters to model for each use (row) in the Agronomic Practices Table (APT). An individual PWC run is generated for each waterbody type.</string>
+                    <string>The waterbody parameters to model for each use (row) in the Agronomic Practices Table (APT).  An individual PWC run is generated for each waterbody type.</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -1627,7 +1705,7 @@
                     </font>
                    </property>
                    <property name="text">
-                    <string>ESA bin 4 has the same parameters as index reservior, except for the 'FlowAvgTime' value. ESA bin 7 is the same as Farm Pond. ESA bin 10 is the same as Wetland. Please see the documentation for what values are used.</string>
+                    <string>ESA bin 4 has the same parameters as index reservior, except for the 'FlowAvgTime' value.  ESA bin 7 is the same as Farm Pond.  ESA bin 10 is the same as Wetland.  Please see the documentation for what values are used.</string>
                    </property>
                    <property name="wordWrap">
                     <bool>true</bool>
@@ -4631,7 +4709,7 @@
      <x>0</x>
      <y>0</y>
      <width>920</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
