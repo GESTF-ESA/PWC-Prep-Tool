@@ -477,6 +477,12 @@
             </property>
             <item>
              <widget class="QLineEdit" name="pwcBatchFileLocation">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>23</height>
+               </size>
+              </property>
               <property name="font">
                <font>
                 <family>Segoe UI</family>
@@ -487,6 +493,12 @@
             </item>
             <item>
              <widget class="QLineEdit" name="outputFileDirLocation">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>23</height>
+               </size>
+              </property>
               <property name="font">
                <font>
                 <family>Segoe UI</family>
@@ -497,6 +509,12 @@
             </item>
             <item>
              <widget class="QLineEdit" name="agronomicPracticesTableLocation">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>23</height>
+               </size>
+              </property>
               <property name="font">
                <font>
                 <family>Segoe UI</family>
@@ -507,6 +525,12 @@
             </item>
             <item>
              <widget class="QLineEdit" name="agDriftReductionTableLocation">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>23</height>
+               </size>
+              </property>
               <property name="font">
                <font>
                 <family>Segoe UI</family>
@@ -517,6 +541,12 @@
             </item>
             <item>
              <widget class="QLineEdit" name="ingrFateParamsLocation">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>23</height>
+               </size>
+              </property>
               <property name="font">
                <font>
                 <family>Segoe UI</family>
@@ -527,6 +557,12 @@
             </item>
             <item>
              <widget class="QLineEdit" name="wettestMonthTableLocation">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>23</height>
+               </size>
+              </property>
               <property name="font">
                <font>
                 <family>Segoe UI</family>
@@ -553,7 +589,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>21</height>
+                <height>23</height>
                </size>
               </property>
               <property name="font">
@@ -578,7 +614,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>21</height>
+                <height>23</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -612,7 +648,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>21</height>
+                <height>23</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -643,7 +679,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>21</height>
+                <height>23</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -674,7 +710,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>21</height>
+                <height>23</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -705,7 +741,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>21</height>
+                <height>23</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -743,7 +779,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>21</height>
+                <height>24</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -777,7 +813,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>21</height>
+                <height>24</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -808,7 +844,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>21</height>
+                <height>24</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -839,7 +875,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>21</height>
+                <height>24</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -870,7 +906,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>21</height>
+                <height>24</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -901,7 +937,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>21</height>
+                <height>24</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -4887,6 +4923,5 @@
  </slots>
  <buttongroups>
   <buttongroup name="buttonGroup"/>
-  <buttongroup name="kocButtonGroup"/>
  </buttongroups>
 </ui>

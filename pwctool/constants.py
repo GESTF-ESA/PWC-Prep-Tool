@@ -1,5 +1,6 @@
 """Constants for the pwctool package."""
 
+import os
 import pandas as pd
 
 VERSION = "2.0.0"
