@@ -651,11 +651,13 @@ def get_scenario_dates(scenario: str, lookup_table: pd.DataFrame) -> tuple[date,
         tuple[date, date]: emergence and harvest dates for the run
             from the EPA scenario
     """
-
-    emergence_day = lookup_table.at[scenario, "E_day"]
-    emergence_month = lookup_table.at[scenario, "E_month"]
-    harvest_day = lookup_table.at[scenario, "H_day"]
-    harvest_month = lookup_table.at[scenario, "H_month"]
+    try:
+        emergence_day = lookup_table.at[scenario, "E_day"]
+        emergence_month = lookup_table.at[scenario, "E_month"]
+        harvest_day = lookup_table.at[scenario, "H_day"]
+        harvest_month = lookup_table.at[scenario, "H_month"]
+    except KeyError:
+        return None, None
 
     emergence_date = date(year=2021, month=emergence_month, day=emergence_day)
     harvest_date = date(year=2021, month=harvest_month, day=harvest_day)

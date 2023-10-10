@@ -19,7 +19,7 @@ from PyQt5 import QtCore as qtc
 import pandas as pd
 import numpy as np
 
-import debugpy
+# import debugpy
 
 from pwctool.pwct_batchfile_qc import qc_batch_file  # pylint: disable=import-error
 from pwctool.pwct_batchfile_qc import standardize_field_names  # pylint: disable=import-error
@@ -84,7 +84,7 @@ class PwcToolAlgoThread(qtc.QThread):
         """
         self.update_diagnostics.emit("\nInitializing...")
 
-        debugpy.debug_this_thread()
+        # debugpy.debug_this_thread()
 
         # create new batch file
         if self.settings["USE_CASE"] == "Use Case #1":
@@ -234,7 +234,9 @@ class PwcToolAlgoThread(qtc.QThread):
 
         start_time = time.time()  # start timer
         store_all_runs: list[dict[str, Any]] = []
-        ingred_fate_params = dict(zip(ingredient_fate_params_table["Parameter"], ingredient_fate_params_table["Value"]))
+        chemical_properties = dict(
+            zip(ingredient_fate_params_table["Parameter"], ingredient_fate_params_table["Value"])
+        )
 
         # convert lbs/acre to kg/ha for all rate fields
         ag_practices_table["MaxAnnAmt_lbsacre"] = ag_practices_table["MaxAnnAmt_lbsacre"] * 1.120851
@@ -314,15 +316,16 @@ class PwcToolAlgoThread(qtc.QThread):
 
             for huc2 in huc2s:
                 run_names: list[str] = []
-                scenario_base, scenario_full = self.create_scenario_name(run_ag_pract, huc2)
-                if not os.path.exists(os.path.join(self.settings["FILE_PATHS"]["SCENARIO_FILES_PATH"], scenario_full)):
-                    self._error_scn_file_notexist.append(scenario_base)
-                    logger.warning("\n %s may not exist. Skipping huc %s", scenario_base, huc2)
-                    continue
+                scenario_base, scenario_full = self.create_scenario_name(run_ag_pract, huc2, chemical_properties)
 
                 run_ag_pract["Emergence"], run_ag_pract["Harvest"] = get_scenario_dates(
-                    scenario_full, self.scn_emerg_harv_dates_lut
+                    scenario_base, self.scn_emerg_harv_dates_lut
                 )
+                if (run_ag_pract["Emergence"] is None) or (run_ag_pract["Harvest"] is None):
+                    self._error_scn_file_notexist.append(scenario_base)
+                    logger.warning("\n %s may not exist. Skipping huc %s for this use", scenario_base, huc2)
+                    continue
+
                 first_run_in_huc = True
 
                 # report to log file
@@ -331,6 +334,7 @@ class PwcToolAlgoThread(qtc.QThread):
                 logger.debug("Application Method: %s", application_method)
                 logger.debug("Valid states: %s", run_ag_pract["States"])
                 logger.debug("HUC2: %s", huc2)
+                logger.debug("Scenario: %s", scenario_base)
                 logger.debug("Bins to process: %s", bins_)
                 logger.debug("Distances to process: %s", run_distances)
                 logger.debug("Date prioritization: %s", self.settings["DATE_PRIORITIZATION"])
@@ -410,7 +414,7 @@ class PwcToolAlgoThread(qtc.QThread):
 
                                 run_storage["Run Descriptor"] = run_ag_pract["RunDescriptor"]
                                 run_storage["Run Name"] = run_name
-                                run_storage.update(ingred_fate_params)
+                                run_storage.update(chemical_properties)
 
                                 run_storage["HUC2"] = huc2
                                 run_storage["Scenario"] = scenario_full
@@ -531,10 +535,25 @@ class PwcToolAlgoThread(qtc.QThread):
 
         return depths, tband
 
-    def create_scenario_name(self, run_ag_pract: pd.Series, huc2: str):
+    def create_scenario_name(self, run_ag_pract: pd.Series, huc2: str, chemical_properties: dict):
         """Creates the scenario file name based on the use and huc2 provided in the APT"""
 
         if self.settings["ASSESSMENT_TYPE"] == "fifra":
+
+            # get the koc range based on the chemical properties input table
+            sorption_coeff = float(chemical_properties["SorptionCoefficient(mL/g)"])
+
+            if chemical_properties["kocflag"]:
+                koc = sorption_coeff
+            else:
+                koc = (sorption_coeff * 100) / 5  # assume 5% organic carbon during conversion
+
+            if koc < 100:
+                koc_var = "Koc under 100"
+            elif 100 <= koc <= 3000:
+                koc_var = "Koc 100 to 3000"
+            else:
+                koc_var = "Koc over 3000"
 
             letter_lut: dict[str, str] = {
                 "Koc 100 to 3000": "B",
@@ -542,8 +561,7 @@ class PwcToolAlgoThread(qtc.QThread):
                 "Koc under 100": "A",
             }
 
-            koc_folder_name = os.path.basename(self.settings["FILE_PATHS"]["SCENARIO_FILES_PATH"])
-            letter = letter_lut[koc_folder_name]
+            letter = letter_lut[koc_var]
 
             scenario_base = f"{run_ag_pract['Scenario']}-r{huc2}-{letter}_V4"
             scenario_full = f"{scenario_base}.scn2"
