@@ -26,6 +26,9 @@ FOLIAR_APPMETHOD: int = 2
 
 TBAND_APPMETHOD: int = 5
 
+# installation locations of scn files
+SCN_EMERG_HARV_DATES_LUT: str = f"{os.environ['USERPROFILE']}\\PWC-PT\\data\\Scenario_EmergHarv_Dates.csv"
+
 WATERBODY_PARAMS = pd.DataFrame(
     data={
         "FlowAvgTime": [1, 0, 1],

@@ -330,7 +330,7 @@ def enable_disable_wettest_month_table(view: QWidget):
     view.datePriorDesc.setStyleSheet(f"color:{style}")
 
 
-def enable_disable_app_methods(view, app_method: int, enable_disable_flag: bool) -> None:
+def enable_disable_app_methods(view: QWidget, app_method: int, enable_disable_flag: bool) -> None:
     """Enables or disables application method widgets and descriptions"""
 
     if enable_disable_flag:
@@ -389,7 +389,7 @@ def enable_disable_app_methods(view, app_method: int, enable_disable_flag: bool)
         view.applicationsTabDesc2.setStyleSheet(f"color:{color}")
 
 
-def restrict_application_methods(view) -> None:
+def restrict_application_methods(view: QWidget) -> None:
     """Restricts the application method tabs based on presence in APT"""
 
     if view.useCaseComboBox.currentText() == "Use Case #2":

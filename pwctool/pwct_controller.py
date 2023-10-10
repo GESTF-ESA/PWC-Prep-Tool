@@ -9,11 +9,12 @@ import logging
 import os
 from typing import Any
 from functools import partial
+import yaml
 
 from PyQt5.QtGui import QDesktopServices
 from PyQt5.QtCore import QUrl
 from PyQt5.QtWidgets import QFileDialog
-import yaml
+
 
 from pwctool.config_loader import init_gui_settings_from_config, get_xl_sheet_names
 from pwctool.config_generator import generate_configuration_from_gui
@@ -337,7 +338,6 @@ class Controller:
         self._view.fileBrowseDRT.clicked.connect(
             partial(self.select_drt, self._view.agDriftReductionTableLocation, "(*.xlsx)")
         )
-        self._view.fileBrowseScnDir.clicked.connect(partial(self.select_dir, self._view.scenarioFilesDirectoryLocation))
         self._view.fileBrowseIngrFateParams.clicked.connect(
             partial(self.select_file, self._view.ingrFateParamsLocation, "(*.csv)")
         )
