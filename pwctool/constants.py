@@ -1,6 +1,5 @@
 """Constants for the pwctool package."""
 
-import os
 import pandas as pd
 
 VERSION = "2.0.0"
@@ -26,10 +25,6 @@ BURIED_APPMETHODS: list[int] = [3, 4, 5, 6, 7]
 FOLIAR_APPMETHOD: int = 2
 
 TBAND_APPMETHOD: int = 5
-
-# installation locations of scn files
-ESA_SCN_FILES_DIR: str = f"{os.environ['USERPROFILE']}\\PWC-PT\\data\\SCN Files\\ESA"
-FIFRA_SCN_FILES_DIR: str = f"{os.environ['USERPROFILE']}\\PWC-PT\\data\\SCN Files\\FIFRA\\Koc 100 to 3000"
 
 WATERBODY_PARAMS = pd.DataFrame(
     data={
