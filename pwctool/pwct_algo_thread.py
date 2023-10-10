@@ -7,7 +7,6 @@ Called when "run" button is pressed
 import time
 import logging
 import os
-import linecache
 import random
 import sys
 import calendar
@@ -543,7 +542,7 @@ class PwcToolAlgoThread(qtc.QThread):
             # get the koc range based on the chemical properties input table
             sorption_coeff = float(chemical_properties["SorptionCoefficient(mL/g)"])
 
-            if chemical_properties["kocflag"]:
+            if (chemical_properties["kocflag"] == "True") or (chemical_properties["kocflag"] == "TRUE"):
                 koc = sorption_coeff
             else:
                 koc = (sorption_coeff * 100) / 5  # assume 5% organic carbon during conversion
